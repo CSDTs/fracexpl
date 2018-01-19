@@ -406,6 +406,8 @@ function SeedEditor(fractalDraw, enabled) {
   this.workcanvas.onmousemove = this.mouseMove.bind(this);
   this.workcanvas.onclick = this.mouseClick.bind(this);
   this.workcanvas.ondblclick = this.mouseDblClick.bind(this);
+  this.workcanvas.onmouseup = this.onMouseUp.bind(this);
+  this.workcanvas.onmousedown = this.onMouseDown.bind(this);
 
   this.workcanvas.tabIndex = 1;
   this.workcanvas.focus();
@@ -710,14 +712,73 @@ SeedEditor.prototype.mouseMove = function(evt) {
   }
 };
 
+
+SeedEditor.prototype.onMouseDown = function(evt) {
+  let seed = this.fractalDraw.seed;
+  this.getMousePos(evt);
+  console.log("inside onMouseDown");
+  let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
+  if (closestPt >= 0) {
+    if (closestPt == 0) {
+      this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
+    } else {
+      this.anchor1 = [seed[closestPt - 1][0],
+      seed[closestPt - 1][1],
+      seed[closestPt][2]];
+      if (closestPt < seed.length - 1) {
+        this.anchor2 = [seed[closestPt + 1][0],
+                        seed[closestPt + 1][1],
+                        seed[closestPt + 1][2]];
+      }
+    }
+    this.movePt = closestPt;
+  }
+  console.log("closestpt", closestPt);
+  this.setMode(SeedEditor.EDITMODE.MOVEPT);
+}
+
+
+SeedEditor.prototype.onMouseMove = function(evt) {
+  let seed = this.fractalDraw.seed; // Better way to do this?
+  this.getMousePos(evt);
+    this.fractalDraw.changeSeedPt(this.movePt,
+                                  [this.mouseX,
+                                  this.mouseY,
+                                  this.anchor1[2]]);
+    this.fractalDraw.clear();
+    this.fractalDraw.drawSeed(true);
+    this.clearWork();
+    // this.setMode(SeedEditor.EDITMODE.DONE);
+    this.movePt = -1;
+    this.anchor1 = this.anchor2 = null;
+
+
+      console.log("inside onMouseMove");
+
+      document.addEventListener ("mouseup" , this.onMouseUp , false);
+
+}
+
+
+SeedEditor.prototype.onMouseUp = function(evt) {
+  console.log("inside onmouseup");
+  document.removeEventListener ("mousemove" , this.onMouseMove , false);
+  document.removeEventListener ("mouseup" , this.onMouseUp , false);
+}
+
+
+
 SeedEditor.prototype.mouseClick = function(evt) {
   let seed = this.fractalDraw.seed; // Better way to do this?
   this.getMousePos(evt);
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
+    console.log("inside defining");
     this.fractalDraw.addToSeed([this.mouseX, this.mouseY, this.currentSegType]);
     this.fractalDraw.drawSeed(false);
     this.anchor1 = [this.mouseX, this.mouseY, this.currentSegType];
   } else if (this.editMode == SeedEditor.EDITMODE.INIT) {
+    console.log("inside init");
+
     this.fractalDraw.setSeed([
       [this.mouseX, this.mouseY, 0],
     ]);
@@ -725,7 +786,9 @@ SeedEditor.prototype.mouseClick = function(evt) {
     this.setMode(SeedEditor.EDITMODE.DEFINING);
   } else if ((this.editMode == SeedEditor.EDITMODE.DONE) ||
     (this.editMode == SeedEditor.EDITMODE.LOCKED)) {
+      console.log("inside Done/Locked");
     if (this.editMode == SeedEditor.EDITMODE.LOCKED) {
+      console.log("inside locked");
       this.editCopy();
       this.picker.selectedIndex = 0;
       this.setMode(SeedEditor.EDITMODE.DONE);
@@ -758,6 +821,7 @@ SeedEditor.prototype.mouseClick = function(evt) {
       }
     }
   } else if (this.editMode == SeedEditor.EDITMODE.MOVEPT) {
+    console.log("inside movept");
     if (this.movePt >= 0) {
       this.fractalDraw.changeSeedPt(this.movePt,
                                     [this.mouseX,
@@ -1739,6 +1803,7 @@ function fractaltoolInit() {
   for (let i = 0; i < tools.length; i++) {
     fractaltoolInstances[i] = new MultiModeTool(tools[i], i + 1, 800, 600);
   }
+
 }
 
 window.addEventListener('load', function(evt) {
