@@ -713,11 +713,15 @@ SeedEditor.prototype.mouseMove = function(evt) {
 };
 
 
+var moved = false;
+var dblclick = false;
+
 SeedEditor.prototype.onMouseDown = function(evt) {
   let seed = this.fractalDraw.seed;
   this.getMousePos(evt);
   console.log("inside onMouseDown");
   let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
+  if (closestPt < 0) return;
   if (closestPt >= 0) {
     if (closestPt == 0) {
       this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
@@ -732,43 +736,63 @@ SeedEditor.prototype.onMouseDown = function(evt) {
       }
     }
     this.movePt = closestPt;
+    this.setMode(SeedEditor.EDITMODE.MOVEPT);
   }
   console.log("closestpt", closestPt);
-  this.setMode(SeedEditor.EDITMODE.MOVEPT);
+  document.addEventListener ("mousemove" , this.onMouseMove , false);
+  document.addEventListener ("mouseup" , this.onMouseUp , false);
 }
 
 
 SeedEditor.prototype.onMouseMove = function(evt) {
-  let seed = this.fractalDraw.seed; // Better way to do this?
-  this.getMousePos(evt);
-    this.fractalDraw.changeSeedPt(this.movePt,
-                                  [this.mouseX,
-                                  this.mouseY,
-                                  this.anchor1[2]]);
-    this.fractalDraw.clear();
-    this.fractalDraw.drawSeed(true);
-    this.clearWork();
-    // this.setMode(SeedEditor.EDITMODE.DONE);
-    this.movePt = -1;
-    this.anchor1 = this.anchor2 = null;
-
-
-      console.log("inside onMouseMove");
-
-      document.addEventListener ("mouseup" , this.onMouseUp , false);
-
+  console.log("MOVED!");
+  evt.preventDefault();
+  evt.stopPropagation();
+  moved = true;
+  //document.addEventListener ("mouseup" , this.onMouseUp , false);
 }
 
 
 SeedEditor.prototype.onMouseUp = function(evt) {
+  if (!moved) {
+    // if (dblclick) {
+    //   dblclick = false;
+    //   console.log("Inside double click!!!");
+    //   this.setMode(SeedEditor.EDITMODE.DONE);
+    //   this.mouseClick(new Event("click"));
+    //   return;
+    //
+    // }
+    if (dblclick) {
+      dblclick = false;
+      console.log("INSIDE DOUBLE CLICK ONMOUSEDOWN");
+      this.mouseDblClick(new Event("click"));
+      return;
+      //this.setMode(SeedEditor.EDITMODE.DEFINING);
+      //this.mouseClick(new Event("click"));
+      //return;
+      //this.setMode(SeedEditor.EDITMODE.MOVEPT);
+      //return;
+    }
+    console.log("clicked!!!");
+    //this.setMode(SeedEditor.EDITMODE.MOVEPT);
+    this.setMode(SeedEditor.EDITMODE.DONE);
+    //this.mouseDblClick(new Event("dblclick"));
+    this.mouseClick(new Event("click"));
+
+    return;
+  }
+  moved = false;
   console.log("inside onmouseup");
   document.removeEventListener ("mousemove" , this.onMouseMove , false);
   document.removeEventListener ("mouseup" , this.onMouseUp , false);
+  this.setMode(SeedEditor.EDITMODE.MOVEPT);
 }
 
 
 
 SeedEditor.prototype.mouseClick = function(evt) {
+
   let seed = this.fractalDraw.seed; // Better way to do this?
   this.getMousePos(evt);
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
@@ -856,6 +880,7 @@ SeedEditor.prototype.keyPress = function(evt) {
 
 SeedEditor.prototype.mouseDblClick = function(evt) {
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
+    console.log("INSIDE DBLCLICK DEFINING");
     this.getMousePos(evt);
     this.fractalDraw.addToSeed([this.mouseX, this.mouseY, this.currentSegType]);
     this.fractalDraw.clear();
@@ -864,6 +889,7 @@ SeedEditor.prototype.mouseDblClick = function(evt) {
     this.anchor1 = this.anchor2 = null;
     this.setMode(SeedEditor.EDITMODE.DONE);
   } else if (this.editMode == SeedEditor.EDITMODE.DONE) {
+      console.log("INSIDE DBLCLICK DONE");
     let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
     let closestLn = this.fractalDraw.closestLn([this.rawX, this.rawY]);
     let seed = this.fractalDraw.seed;
@@ -880,6 +906,7 @@ SeedEditor.prototype.mouseDblClick = function(evt) {
       this.fractalDraw.drawSeed(false, this.movePt);
       this.gridhighlight = [this.mouseX, this.mouseY];
       this.drawWork();
+      dblclick = true;
       this.setMode(SeedEditor.EDITMODE.MOVEPT);
     }
   }
