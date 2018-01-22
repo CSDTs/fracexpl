@@ -712,9 +712,9 @@ SeedEditor.prototype.mouseMove = function(evt) {
   }
 };
 
-
-var moved = false;
-var dblclick = false;
+// Global Variables for mouse handling, since click and mousedown conflict.
+let moved = false;
+let dblclick = false;
 
 SeedEditor.prototype.onMouseDown = function(evt) {
   let seed = this.fractalDraw.seed;
@@ -749,37 +749,20 @@ SeedEditor.prototype.onMouseMove = function(evt) {
   evt.preventDefault();
   evt.stopPropagation();
   moved = true;
-  //document.addEventListener ("mouseup" , this.onMouseUp , false);
 }
 
 
 SeedEditor.prototype.onMouseUp = function(evt) {
   if (!moved) {
-    // if (dblclick) {
-    //   dblclick = false;
-    //   console.log("Inside double click!!!");
-    //   this.setMode(SeedEditor.EDITMODE.DONE);
-    //   this.mouseClick(new Event("click"));
-    //   return;
-    //
-    // }
     if (dblclick) {
       dblclick = false;
       console.log("INSIDE DOUBLE CLICK ONMOUSEDOWN");
       this.mouseDblClick(new Event("click"));
       return;
-      //this.setMode(SeedEditor.EDITMODE.DEFINING);
-      //this.mouseClick(new Event("click"));
-      //return;
-      //this.setMode(SeedEditor.EDITMODE.MOVEPT);
-      //return;
     }
     console.log("clicked!!!");
-    //this.setMode(SeedEditor.EDITMODE.MOVEPT);
     this.setMode(SeedEditor.EDITMODE.DONE);
-    //this.mouseDblClick(new Event("dblclick"));
     this.mouseClick(new Event("click"));
-
     return;
   }
   moved = false;
@@ -802,7 +785,6 @@ SeedEditor.prototype.mouseClick = function(evt) {
     this.anchor1 = [this.mouseX, this.mouseY, this.currentSegType];
   } else if (this.editMode == SeedEditor.EDITMODE.INIT) {
     console.log("inside init");
-
     this.fractalDraw.setSeed([
       [this.mouseX, this.mouseY, 0],
     ]);
@@ -898,7 +880,6 @@ SeedEditor.prototype.mouseDblClick = function(evt) {
                                      this.mouseY,
                                      seed[closestLn + 1][2]],
                                      closestLn + 1);
-
       this.anchor1 = seed[closestLn].slice();
       this.anchor2 = seed[closestLn + 2].slice();
       this.anchor1[2] = this.anchor2[2];
@@ -1765,7 +1746,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
 
   this.drawDiv = new FractalDraw(toolNum, [], this.width, this.height, levels);
   this.canvasDiv.appendChild(this.drawDiv.getCanvas());
-  this.addMode('Draw Mode', this.drawDiv);
+  this.addMode('Iterate Mode', this.drawDiv);
   this.drawDiv.disableMode();
 
   this.editorDiv = new SeedEditor(this.drawDiv, true);
