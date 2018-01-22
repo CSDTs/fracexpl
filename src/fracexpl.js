@@ -717,9 +717,12 @@ let moved = false;
 let dblclick = false;
 
 SeedEditor.prototype.onMouseDown = function(evt) {
+  /* Clone of SeedEditor.prototype.mouseClick's
+  if: this.editMode == SeedEditor.EDITMODE.DONE
+  so clicking once and dragging activates getting anchor point then if it moves
+  continues on in this.onMousemove */
   let seed = this.fractalDraw.seed;
   this.getMousePos(evt);
-  console.log("inside onMouseDown");
   let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
   if (closestPt < 0) return;
   if (closestPt >= 0) {
@@ -738,14 +741,14 @@ SeedEditor.prototype.onMouseDown = function(evt) {
     this.movePt = closestPt;
     this.setMode(SeedEditor.EDITMODE.MOVEPT);
   }
-  console.log("closestpt", closestPt);
   document.addEventListener ("mousemove" , this.onMouseMove , false);
   document.addEventListener ("mouseup" , this.onMouseUp , false);
 }
 
 
 SeedEditor.prototype.onMouseMove = function(evt) {
-  console.log("MOVED!");
+  /* Triggers flag to verify that you are drag n' dropping, instead of just
+  clicking the node to activate mode switch */
   evt.preventDefault();
   evt.stopPropagation();
   moved = true;
@@ -753,38 +756,37 @@ SeedEditor.prototype.onMouseMove = function(evt) {
 
 
 SeedEditor.prototype.onMouseUp = function(evt) {
+/* Checks if drag and drop event by the 'moved' flag. If it is a single click
+after a double click (signaled by the this.mouseDblClick if (state == Done)'s
+statements triggering the 'dblclick' flag to true), it sets the final
+this.mouseDblClick(Event()) to set the node in place */
   if (!moved) {
     if (dblclick) {
       dblclick = false;
-      console.log("INSIDE DOUBLE CLICK ONMOUSEDOWN");
       this.mouseDblClick(new Event("click"));
       return;
     }
-    console.log("clicked!!!");
     this.setMode(SeedEditor.EDITMODE.DONE);
     this.mouseClick(new Event("click"));
     return;
   }
   moved = false;
-  console.log("inside onmouseup");
   document.removeEventListener ("mousemove" , this.onMouseMove , false);
   document.removeEventListener ("mouseup" , this.onMouseUp , false);
+  // Finalizes the node's placement after a drag and drop:
   this.setMode(SeedEditor.EDITMODE.MOVEPT);
 }
 
 
 
 SeedEditor.prototype.mouseClick = function(evt) {
-
   let seed = this.fractalDraw.seed; // Better way to do this?
   this.getMousePos(evt);
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
-    console.log("inside defining");
     this.fractalDraw.addToSeed([this.mouseX, this.mouseY, this.currentSegType]);
     this.fractalDraw.drawSeed(false);
     this.anchor1 = [this.mouseX, this.mouseY, this.currentSegType];
   } else if (this.editMode == SeedEditor.EDITMODE.INIT) {
-    console.log("inside init");
     this.fractalDraw.setSeed([
       [this.mouseX, this.mouseY, 0],
     ]);
@@ -792,9 +794,7 @@ SeedEditor.prototype.mouseClick = function(evt) {
     this.setMode(SeedEditor.EDITMODE.DEFINING);
   } else if ((this.editMode == SeedEditor.EDITMODE.DONE) ||
     (this.editMode == SeedEditor.EDITMODE.LOCKED)) {
-      console.log("inside Done/Locked");
     if (this.editMode == SeedEditor.EDITMODE.LOCKED) {
-      console.log("inside locked");
       this.editCopy();
       this.picker.selectedIndex = 0;
       this.setMode(SeedEditor.EDITMODE.DONE);
@@ -827,7 +827,6 @@ SeedEditor.prototype.mouseClick = function(evt) {
       }
     }
   } else if (this.editMode == SeedEditor.EDITMODE.MOVEPT) {
-    console.log("inside movept");
     if (this.movePt >= 0) {
       this.fractalDraw.changeSeedPt(this.movePt,
                                     [this.mouseX,
@@ -862,7 +861,6 @@ SeedEditor.prototype.keyPress = function(evt) {
 
 SeedEditor.prototype.mouseDblClick = function(evt) {
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
-    console.log("INSIDE DBLCLICK DEFINING");
     this.getMousePos(evt);
     this.fractalDraw.addToSeed([this.mouseX, this.mouseY, this.currentSegType]);
     this.fractalDraw.clear();
@@ -871,7 +869,6 @@ SeedEditor.prototype.mouseDblClick = function(evt) {
     this.anchor1 = this.anchor2 = null;
     this.setMode(SeedEditor.EDITMODE.DONE);
   } else if (this.editMode == SeedEditor.EDITMODE.DONE) {
-      console.log("INSIDE DBLCLICK DONE");
     let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
     let closestLn = this.fractalDraw.closestLn([this.rawX, this.rawY]);
     let seed = this.fractalDraw.seed;
