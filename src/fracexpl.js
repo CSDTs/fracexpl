@@ -1646,6 +1646,41 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
     this.height = Math.max(320, mainDiv.dataset['height']);
   }
 
+    this.ctrlPanelDiv = document.createElement("div");
+    this.ctrlPanelDiv.id = "ft-ctrlpanel-"+toolNum;
+    this.ctrlPanelDiv.style.display = 'inline';
+    mainDiv.appendChild(this.ctrlPanelDiv);
+    
+    var levels = 1;
+    if (mainDiv.dataset["levels"] != undefined) {
+	levels = mainDiv.dataset["levels"];
+    }
+    
+    this.drawDiv = new FractalDraw(toolNum, [], this.width, this.height, levels);
+    this.canvasDiv.appendChild(this.drawDiv.getCanvas());
+    this.addMode("Draw Mode", this.drawDiv);
+    this.drawDiv.disableMode();
+    
+    this.editorDiv = new SeedEditor(this.drawDiv, true);
+    this.addMode("Edit Mode", this.editorDiv);
+    this.editorDiv.disableMode();
+    
+    var seedlist = "koch,sprout,tree";
+    if (mainDiv.dataset["seedlist"] != undefined)
+	seedlist = mainDiv.dataset["seedlist"];
+    var stdseeds = seedlist.split(",");
+    for (var i=0; i<stdseeds.length; i++)
+	this.editorDiv.addStdSeed(stdseeds[i]);
+    
+    if (mainDiv.dataset["seed"] != undefined) {
+	this.editorDiv.setSeedByName(mainDiv.dataset["seed"]);
+    }
+    
+    var mode = 1;
+    if ((mainDiv.dataset["mode"] != undefined) &&
+	(mainDiv.dataset["mode"].toLowerCase() == "draw")) {
+	mode = 0;
+    }
 
   this.canvasDiv = document.createElement('div');
   this.canvasDiv.id = 'ft-canvases-' + toolNum;
