@@ -713,8 +713,8 @@ SeedEditor.prototype.mouseMove = function(evt) {
 };
 
 // Global Variables for mouse handling, since click and mousedown conflict.
-let moved = false;
-let dblclick = false;
+let seedEditorMouseMoved = false;
+let seedEditorDoubleClick = false;
 
 SeedEditor.prototype.onMouseDown = function(evt) {
   /* Clone of SeedEditor.prototype.mouseClick's
@@ -740,6 +740,12 @@ SeedEditor.prototype.onMouseDown = function(evt) {
     }
     this.movePt = closestPt;
     this.setMode(SeedEditor.EDITMODE.MOVEPT);
+    this.fractalDraw.drawSeed(false, this.movePt);
+    this.gridhighlight = [this.mouseX, this.mouseY];
+    this.drawWork();
+
+
+
   }
   document.addEventListener ("mousemove" , this.onMouseMove , false);
   document.addEventListener ("mouseup" , this.onMouseUp , false);
@@ -751,18 +757,19 @@ SeedEditor.prototype.onMouseMove = function(evt) {
   clicking the node to activate mode switch */
   evt.preventDefault();
   evt.stopPropagation();
-  moved = true;
+  seedEditorMouseMoved = true;
 }
 
 
 SeedEditor.prototype.onMouseUp = function(evt) {
-/* Checks if drag and drop event by the 'moved' flag. If it is a single click
-after a double click (signaled by the this.mouseDblClick if (state == Done)'s
-statements triggering the 'dblclick' flag to true), it sets the final
-this.mouseDblClick(Event()) to set the node in place */
-  if (!moved) {
-    if (dblclick) {
-      dblclick = false;
+/* Checks if drag and drop event by the 'seedEditorMouseMoved' flag. If
+it is a single click after a double click (signaled by the this.mouseDblClick
+if (state == Done)'s statements triggering the 'seedEditorDoubleClick'
+flag to true), it sets the final this.mouseDblClick(Event()) to set
+the node in place */
+  if (!seedEditorMouseMoved) {
+    if (seedEditorDoubleClick) {
+      seedEditorDoubleClick = false;
       this.mouseDblClick(new Event("click"));
       return;
     }
@@ -770,7 +777,7 @@ this.mouseDblClick(Event()) to set the node in place */
     this.mouseClick(new Event("click"));
     return;
   }
-  moved = false;
+  seedEditorMouseMoved = false;
   document.removeEventListener ("mousemove" , this.onMouseMove , false);
   document.removeEventListener ("mouseup" , this.onMouseUp , false);
   // Finalizes the node's placement after a drag and drop:
@@ -884,7 +891,7 @@ SeedEditor.prototype.mouseDblClick = function(evt) {
       this.fractalDraw.drawSeed(false, this.movePt);
       this.gridhighlight = [this.mouseX, this.mouseY];
       this.drawWork();
-      dblclick = true;
+      seedEditorDoubleClick = true;
       this.setMode(SeedEditor.EDITMODE.MOVEPT);
     }
   }
