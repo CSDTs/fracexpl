@@ -23,8 +23,34 @@ function sqr(x) {
     return x*x;
 }
 
+function openFile(fractalDraw){
+    var f = (document.getElementById('selectFile')).files[0];
+    var reader = new FileReader();
+    reader.onload = function (e) {
+        var data = e.target.result;
+        data = JSON.parse(data);
+        fractalDraw.setSeed(data.seed);
+        fractalDraw.drawSeed(true);
+    };
+    reader.readAsText(f);
+}
+
 function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
     this.seed = seed;
+    var loadAndSave = document.createElement("div");
+    var selectFile = document.createElement("input");
+    selectFile.type = "file";
+    selectFile.id = "selectFile";
+    selectFile.accept = ".json";
+    loadAndSave.appendChild(selectFile);
+    // selectFile.addEventListener('change', openFile, false);
+    var upload = document.createElement("button");
+    upload.innerHTML = "upload";
+    loadAndSave.appendChild(upload);
+    var fractalDraw = this;
+    upload.onclick = function () {
+        openFile(fractalDraw);
+    };
 
     this.canvas = document.createElement("canvas");
     this.canvas.id = 'ft-drawing-canvas-'+toolNum
@@ -36,20 +62,20 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
     this.ctrlPanel = document.createElement("div");
     this.ctrlPanel.id = "ft-drawing-ctrls-"+toolNum;
     this.ctrlPanel.style.display = 'block';
+    this.ctrlPanel.appendChild(loadAndSave);
 
     this.levelButtons = document.createElement("div");
     for (var i=1; i<=8; i++) {
-	var button = document.createElement("button");
-	button.className="btn btn-secondary btn-sm";
-	button.style.marginLeft = "4px";
-	button.addEventListener("click", function(inum) {
-	    this.drawIt(inum); }.bind(this,i));
-	button.innerHTML = "Iter "+i;
-	this.levelButtons.appendChild(button);
+    	var button = document.createElement("button");
+    	button.className="btn btn-secondary btn-sm";
+    	button.style.marginLeft = "4px";
+    	button.addEventListener("click", function(inum) {
+    	    this.drawIt(inum); }.bind(this,i));
+    	button.innerHTML = "Iter "+i;
+    	this.levelButtons.appendChild(button);
     }
     this.currLevels = levels;
     this.ctrlPanel.appendChild(this.levelButtons);
-
     panelRow = document.createElement("div");
     panelRow.style.marginTop = "10px";
     var thickLabel = document.createElement("span");
@@ -70,9 +96,9 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
     this.dimInfo.style.marginLeft = "20px";
     this.dimInfo.innerHTML = "Dim=?";
     panelRow.appendChild(this.dimInfo);
-    
+
     this.ctrlPanel.appendChild(panelRow);
-    
+
     this.drawWidth = 1;
 }
 
@@ -91,7 +117,7 @@ FractalDraw.prototype.checkDim = function(dim) {
 	if (seed[i][2] < 4)
 	    lenSum += linScale**dim;
     }
-    
+
     return lenSum;
 }
 
@@ -122,7 +148,7 @@ FractalDraw.prototype.getDim = function() {
 
     if ((nonrepl == 0.0) && (replSum == 0.0))
 	return 0.0;
-    
+
     var lo = 0.0;
     var hi = 2.0;
     var tmp = this.checkDim(lo);
@@ -347,7 +373,7 @@ function SeedEditor (fractalDraw, enabled) {
     var drawingcanvas = fractalDraw.getCanvas();
     var drawingz = parseInt(drawingcanvas.style["z-index"]);
     drawingcanvas.style["z-index"] = drawingz+1;
-    
+
     this.bgcanvas = document.createElement("canvas");
     this.bgcanvas.id = 'fraceditbg';
     this.bgcanvas.width = drawingcanvas.width;
@@ -373,7 +399,7 @@ function SeedEditor (fractalDraw, enabled) {
     this.workctx = this.workcanvas.getContext("2d");
     this.workrect = this.workcanvas.getBoundingClientRect();
     this.workcanvas.seedEditor = this;
-    
+
     this.gridhighlight = [-1,-1];
     this.workcanvas.onmousemove = this.mouseMove.bind(this);
     this.workcanvas.onclick = this.mouseClick.bind(this);
@@ -382,7 +408,7 @@ function SeedEditor (fractalDraw, enabled) {
     this.workcanvas.tabIndex = 1;
     this.workcanvas.focus();
     this.workcanvas.onkeydown = this.keyPress.bind(this);
-	
+
     this.editMode = SeedEditor.EDITMODE.INIT;
     this.anchor1 = null;
     this.anchor2 = null;
@@ -395,7 +421,7 @@ function SeedEditor (fractalDraw, enabled) {
     var panelTbl = document.createElement("table");
     var panelRow = document.createElement("tr");
     panelTbl.appendChild(panelRow);
-    
+
     var panelTD = document.createElement("td");
     this.currentSegType = -1;
     this.segTypeBtn = [];
@@ -416,7 +442,7 @@ function SeedEditor (fractalDraw, enabled) {
     panelTbl.appendChild(panelRow);
     panelTD = document.createElement("td");
     panelTD.style['padding-top'] = "6px";
-    
+
     this.stdSeeds = [];
     this.stdSeedWidth = [];
     var pickerLabel = document.createElement("span");
@@ -426,7 +452,7 @@ function SeedEditor (fractalDraw, enabled) {
     this.picker.type = "list";
     this.picker.onchange = function() {
 	this.pickSeed(); }.bind(this);
-    
+
     panelTD.appendChild(this.picker);
     this.addSeed("edit", "Make your own...", []);
 
@@ -446,11 +472,17 @@ function SeedEditor (fractalDraw, enabled) {
     this.snapBox.checked = true;
     this.snapBox.style.marginLeft = "8px";
     panelTD.appendChild(this.snapBox);
-    
+
     var snapBoxLabel = document.createElement("span");
     snapBoxLabel.innerHTML = "Snap to grid";
     panelTD.appendChild(snapBoxLabel);
-    
+
+    var saveB = document.createElement("button");
+    saveB.innerHTML = "Save";
+    saveB.onclick = this.save.bind(this);
+
+    panelTD.appendChild(saveB);
+
     panelRow.appendChild(panelTD);
 
     this.ctrlPanel.appendChild(panelTbl);
@@ -513,6 +545,23 @@ SeedEditor.prototype.clearBtnClicked = function() {
     }
     this.reset();
     this.fractalDraw.drawSeed(true);
+}
+
+SeedEditor.prototype.save = function(){
+    var fullname = prompt("Please enter the name of the pattern", "<name goes here>");
+    var output = {
+        "fullname": fullname,
+        "seed": this.fractalDraw.seed,
+        "itNumber" : this.fractalDraw.currLevels,
+        "thickness": this.fractalDraw.drawWidth,
+        "thickness type": 0
+    }
+    output = JSON.stringify(output);
+    var a = document.createElement("a");
+    a.download = fullname +'.json';
+    var blob = new Blob([output], {"type": "application/json"});
+    a.href = URL.createObjectURL(blob);
+    a.click();
 }
 
 SeedEditor.prototype.getCtrls = function() {
@@ -694,7 +743,7 @@ SeedEditor.prototype.mouseClick = function (evt) {
 	    this.picker.selectedIndex = 0;
 	    this.setMode(SeedEditor.EDITMODE.DONE);
 	}
-	
+
 	var closest_pt = this.fractalDraw.closestPt([this.rawX,this.rawY]);
 	if (closest_pt >= 0) {
 	    if (closest_pt == 0) {
@@ -1252,13 +1301,13 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
     if (mainDiv.dataset["width"] != undefined) {
 	this.width = Math.max(640, mainDiv.dataset["width"]);
     }
-    
+
     this.height = 600;
     if (mainDiv.dataset["height"] != undefined) {
 	this.height = Math.max(320, mainDiv.dataset["height"]);
     }
-    
-    
+
+
     this.canvasDiv = document.createElement("div");
     this.canvasDiv.id = "ft-canvases-"+toolNum;
     this.canvasDiv.style.position = "relative";
@@ -1278,32 +1327,32 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
     this.ctrlPanelDiv.id = "ft-ctrlpanel-"+toolNum;
     this.ctrlPanelDiv.style.display = 'inline';
     mainDiv.appendChild(this.ctrlPanelDiv);
-    
+
     var levels = 1;
     if (mainDiv.dataset["levels"] != undefined) {
 	levels = mainDiv.dataset["levels"];
     }
-    
+
     this.drawDiv = new FractalDraw(toolNum, [], this.width, this.height, levels);
     this.canvasDiv.appendChild(this.drawDiv.getCanvas());
     this.addMode("Draw Mode", this.drawDiv);
     this.drawDiv.disableMode();
-    
+
     this.editorDiv = new SeedEditor(this.drawDiv, true);
     this.addMode("Edit Mode", this.editorDiv);
     this.editorDiv.disableMode();
-    
+
     var seedlist = "koch,sprout,tree";
     if (mainDiv.dataset["seedlist"] != undefined)
 	seedlist = mainDiv.dataset["seedlist"];
     var stdseeds = seedlist.split(",");
     for (var i=0; i<stdseeds.length; i++)
 	this.editorDiv.addStdSeed(stdseeds[i]);
-    
+
     if (mainDiv.dataset["seed"] != undefined) {
 	this.editorDiv.setSeedByName(mainDiv.dataset["seed"]);
     }
-    
+
     var mode = 1;
     if ((mainDiv.dataset["mode"] != undefined) &&
 	(mainDiv.dataset["mode"].toLowerCase() == "draw")) {
@@ -1350,4 +1399,3 @@ function fractaltool_init() {
 }
 
 window.addEventListener("load", function (evt) { fractaltool_init(); });
-
