@@ -31,6 +31,7 @@ function openFile(fractalDraw){
         data = JSON.parse(data);
         fractalDraw.setSeed(data.seed);
         fractalDraw.drawSeed(true);
+        fractalDraw.disableMode();
     };
     reader.readAsText(f);
 }
@@ -50,6 +51,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
     var fractalDraw = this;
     upload.onclick = function () {
         openFile(fractalDraw);
+        document.getElementById("Edit Mode").click();
     };
 
     this.canvas = document.createElement("canvas");
@@ -1365,6 +1367,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
 MultiModeTool.prototype.addMode = function(title, modeObj) {
     var button = document.createElement("button");
     button.innerHTML = title;
+    button.id = title;
     button.className = "btn btn-secondary btn-sm";
     button.style.marginLeft = "4px";
     button.onclick = function(modeNum) {
