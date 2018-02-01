@@ -479,11 +479,16 @@ function SeedEditor (fractalDraw, enabled) {
     snapBoxLabel.innerHTML = "Snap to grid";
     panelTD.appendChild(snapBoxLabel);
 
-    var saveB = document.createElement("button");
-    saveB.innerHTML = "Save";
-    saveB.onclick = this.save.bind(this);
+    var saveToLocal = document.createElement("button");
+    saveToLocal.innerHTML = "Save";
+    saveToLocal.onclick = this.save.bind(this);
+    panelTD.appendChild(saveToLocal);
 
-    panelTD.appendChild(saveB);
+    var saveToCloud = document.createElement("button");
+    saveToCloud.innerHTML = "Save to Cloud";
+    saveToCloud.onclick = this.saveToC.bind(this);
+    panelTD.appendChild(saveToCloud);
+
 
     panelRow.appendChild(panelTD);
 
@@ -550,9 +555,10 @@ SeedEditor.prototype.clearBtnClicked = function() {
 }
 
 SeedEditor.prototype.save = function(){
-    var fullname = prompt("Please enter the name of the pattern", "<name goes here>");
+    var input = prompt("Please enter the name of the pattern", "<name goes here>");
+    if (input===null) return;
     var output = {
-        "fullname": fullname,
+        "fullname": input,
         "seed": this.fractalDraw.seed,
         "itNumber" : this.fractalDraw.currLevels,
         "thickness": this.fractalDraw.drawWidth,
@@ -560,12 +566,23 @@ SeedEditor.prototype.save = function(){
     }
     output = JSON.stringify(output);
     var a = document.createElement("a");
-    a.download = fullname +'.json';
+    a.download = input +'.json';
     var blob = new Blob([output], {"type": "application/json"});
     a.href = URL.createObjectURL(blob);
     a.click();
 }
 
+SeedEditor.prototype.saveToC = function(){
+    let cloud = new CloudSaver("https://csdt.rpi.edu/accounts/login/");
+    cloud.loginPopup( function(){
+        console.log();
+    },
+    err);
+}
+
+function err(){
+    console.log(this);
+}
 SeedEditor.prototype.getCtrls = function() {
     return this.ctrlPanel;
 }
