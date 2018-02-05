@@ -718,9 +718,8 @@ let seedEditorDoubleClick = false;
 
 SeedEditor.prototype.onMouseDown = function(evt) {
   /* Clone of SeedEditor.prototype.mouseClick's
-  if: this.editMode == SeedEditor.EDITMODE.DONE
-  so clicking once and dragging activates getting anchor point then if it moves
-  continues on in this.onMousemove */
+  this.editMode == SeedEditor.EDITMODE.DONE
+  so clicking once and dragging activates getting anchor point  */
   let seed = this.fractalDraw.seed;
   this.getMousePos(evt);
   let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
@@ -740,12 +739,10 @@ SeedEditor.prototype.onMouseDown = function(evt) {
     }
     this.movePt = closestPt;
     this.setMode(SeedEditor.EDITMODE.MOVEPT);
+    // Erases previous lines & node when dragging:
     this.fractalDraw.drawSeed(false, this.movePt);
     this.gridhighlight = [this.mouseX, this.mouseY];
     this.drawWork();
-
-
-
   }
   document.addEventListener ("mousemove" , this.onMouseMove , false);
   document.addEventListener ("mouseup" , this.onMouseUp , false);
@@ -755,8 +752,6 @@ SeedEditor.prototype.onMouseDown = function(evt) {
 SeedEditor.prototype.onMouseMove = function(evt) {
   /* Triggers flag to verify that you are drag n' dropping, instead of just
   clicking the node to activate mode switch */
-  evt.preventDefault();
-  evt.stopPropagation();
   seedEditorMouseMoved = true;
 }
 
@@ -1267,8 +1262,8 @@ SeedEditor.StdSeeds = {
       [500.0, 138.0, 5],
     ],
   },
-  'fractalsprials': {
-    fullname: 'fractalsprials',
+  'fractalspirals': {
+    fullname: 'fractalspirals',
     thickness: 2.0,
     thicknessType: 0,
     itNumber: 9,
