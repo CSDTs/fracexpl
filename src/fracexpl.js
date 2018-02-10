@@ -564,7 +564,7 @@ SeedEditor.prototype.save = function(){
         "thickness": this.fractalDraw.drawWidth,
         "thickness type": 0
     }
-    output = JSON.stringify(output);
+
     var a = document.createElement("a");
     a.download = input +'.json';
     var blob = new Blob([output], {"type": "application/json"});
@@ -572,17 +572,51 @@ SeedEditor.prototype.save = function(){
     a.click();
 }
 
+function err(){
+    console.log("can't login to CSDTs");
+}
+// save to cloud
 SeedEditor.prototype.saveToC = function(){
-    let cloud = new CloudSaver("https://csdt.rpi.edu/accounts/login/");
-    cloud.loginPopup( function(){
-        console.log();
-    },
-    err);
+    let cloud = new CloudSaver();
+    var input = prompt("Please enter the name of the pattern", "<name goes here>");
+
+    if (input===null) return;
+    var output = {
+        "fullname": input,
+        "seed": this.fractalDraw.seed,
+        "itNumber" : this.fractalDraw.currLevels,
+        "thickness": this.fractalDraw.drawWidth,
+        "thickness type": 0
+    }
+
+   let err0 = function(){
+       alert("Fail to login,Please check your username or password");
+   }
+
+   let err1 = function(){
+       alert("file can not be saved");
+   }
+   let success= function(data){
+   		let dataId = data.id;
+   		let dataUrl = data.url;
+   		const APPID = 69;
+   		let success0 = function(){
+            alert(output.fullname;+ " is saved to cloud");
+   		}
+   		cloud.createProject(output.fullname,APPID,dataId,dataId,success0,err);
+   }
+
+    cloud.loginPopup(function(userInfo){
+         let data = JSON.stringify(output);
+//          console.log(output);
+         let blob = new Blob([data], {"type": "application/json"});
+         let formData = new FormData();
+         formData.append('file', blob);
+         cloud.saveFile(formData, success, err);
+    } , err);
 }
 
-function err(){
-    console.log(this);
-}
+
 SeedEditor.prototype.getCtrls = function() {
     return this.ctrlPanel;
 }
