@@ -97,7 +97,6 @@ FractalDraw.prototype.checkDim = function(dim) {
   let baseline = Math.sqrt((seed[seed.length - 1][0] - seed[0][0]) ** 2 +
     (seed[seed.length - 1][1] - seed[0][1]) ** 2);
   if (baseline < 1.0) return -1.0;
-
   let lenSum = 0.0;
   for (let i = 1; i < seed.length; i++) {
     let segLen = Math.sqrt((seed[i][0] - seed[i - 1][0]) ** 2 +
@@ -172,7 +171,6 @@ FractalDraw.prototype.getDim = function() {
       return -1.0;
     }
   }
-
   if ((nonrepl == 0.0) && (replSum == 0.0)) return 0.0;
 
   let lo = 0.0;
@@ -192,7 +190,6 @@ FractalDraw.prototype.getDim = function() {
       hi = mid;
     }
   }
-
   return (lo + hi) / 2;
 };
 
@@ -237,7 +234,6 @@ FractalDraw.prototype.changeSeedPt = function(ptNum, newPoint) {
 
 FractalDraw.prototype.closestPt = function(pt) {
   if (this.seed.length < 1) return -1;
-
   let clIdx = 0;
   let clDistSq = sqr(pt[0] - this.seed[0][0]) + sqr(pt[1] - this.seed[0][1]);
   for (let i = 1; i < this.seed.length; i++) {
@@ -277,7 +273,6 @@ function ptlsdist2(pt, e1, e2) {
 
 FractalDraw.prototype.closestLn = function(pt) {
   if (this.seed.length < 1) return -1;
-
   let clIdx = 0;
   let clDistSq = ptlsdist2(pt, this.seed[0], this.seed[1]);
   for (let i = 1; i < this.seed.length - 1; i++) {
@@ -450,6 +445,8 @@ function SeedEditor(fractalDraw, enabled) {
   this.workcanvas.onmousemove = this.mouseMove.bind(this);
   this.workcanvas.onclick = this.mouseClick.bind(this);
   this.workcanvas.ondblclick = this.mouseDblClick.bind(this);
+  this.workcanvas.onmouseup = this.onMouseUp.bind(this);
+  this.workcanvas.onmousedown = this.onMouseDown.bind(this);
 
   this.workcanvas.tabIndex = 1;
   this.workcanvas.focus();
@@ -751,6 +748,73 @@ SeedEditor.prototype.mouseMove = function(evt) {
     this.drawWork();
   }
 };
+
+// Global Variables for mouse handling, since click and mousedown conflict.
+let seedEditorMouseMoved = false;
+let seedEditorDoubleClick = false;
+
+SeedEditor.prototype.onMouseDown = function(evt) {
+  /* Clone of SeedEditor.prototype.mouseClick's
+  this.editMode == SeedEditor.EDITMODE.DONE
+  so clicking once and dragging activates getting anchor point  */
+  let seed = this.fractalDraw.seed;
+  this.getMousePos(evt);
+  let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
+  if (closestPt < 0) return;
+  if (closestPt >= 0) {
+    if (closestPt == 0) {
+      this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
+    } else {
+      this.anchor1 = [seed[closestPt - 1][0],
+      seed[closestPt - 1][1],
+      seed[closestPt][2]];
+      if (closestPt < seed.length - 1) {
+        this.anchor2 = [seed[closestPt + 1][0],
+                        seed[closestPt + 1][1],
+                        seed[closestPt + 1][2]];
+      }
+    }
+    this.movePt = closestPt;
+    this.setMode(SeedEditor.EDITMODE.MOVEPT);
+    // Erases previous lines & node when dragging:
+    this.fractalDraw.drawSeed(false, this.movePt);
+    this.gridhighlight = [this.mouseX, this.mouseY];
+    this.drawWork();
+  }
+  document.addEventListener ("mousemove" , this.onMouseMove , false);
+  document.addEventListener ("mouseup" , this.onMouseUp , false);
+}
+
+
+SeedEditor.prototype.onMouseMove = function(evt) {
+  /* Triggers flag to verify that you are drag n' dropping, instead of just
+  clicking the node to activate mode switch */
+  seedEditorMouseMoved = true;
+}
+
+
+SeedEditor.prototype.onMouseUp = function(evt) {
+/* Checks if drag and drop event by the 'seedEditorMouseMoved' flag. If
+it is a single click after a double click (signaled by the this.mouseDblClick
+if (state == Done)'s statements triggering the 'seedEditorDoubleClick'
+flag to true), it sets the final this.mouseDblClick(Event()) to set
+the node in place */
+  if (!seedEditorMouseMoved) {
+    if (seedEditorDoubleClick) {
+      seedEditorDoubleClick = false;
+      this.mouseDblClick(new Event("click"));
+      return;
+    }
+    this.setMode(SeedEditor.EDITMODE.DONE);
+    this.mouseClick(new Event("click"));
+    return;
+  }
+  seedEditorMouseMoved = false;
+  document.removeEventListener ("mousemove" , this.onMouseMove , false);
+  document.removeEventListener ("mouseup" , this.onMouseUp , false);
+  // Finalizes the node's placement after a drag and drop:
+  this.setMode(SeedEditor.EDITMODE.MOVEPT);
+}
 
 SeedEditor.prototype.mouseClick = function(evt) {
   let seed = this.fractalDraw.seed; // Better way to do this?
@@ -1718,7 +1782,6 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
   loadAndSave.appendChild(save);
   this.mainDiv.appendChild(loadAndSave);
 
-
   this.canvasDiv = document.createElement('div');
   this.canvasDiv.id = 'ft-canvases-' + toolNum;
   this.canvasDiv.style.position = 'relative';
@@ -1773,6 +1836,7 @@ MultiModeTool.prototype.addMode = function(title, modeObj) {
   let button = document.createElement('button');
   button.innerHTML = title;
   button.id = title;
+
   button.className = 'btn btn-secondary btn-sm';
   button.style.marginLeft = '4px';
   button.onclick = function(modeNum) {
