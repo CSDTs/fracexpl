@@ -160,8 +160,8 @@ FractalDraw.prototype.getDim = function() {
     if (seed[i][2] < 4) {
       replSum += linScale;
     } else if (seed[i][2] == 4) {
-      nonrepl += linScale;
-    } // Visible but non-replicating
+      nonrepl += linScale; // Visible but non-replicating
+    }
   }
 
   if (nonrepl > 0.0) {
