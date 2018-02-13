@@ -176,16 +176,6 @@ FractalDraw.prototype.getDim = function() {
   let hi = 2.0;
   let tmp = this.checkDim(lo);
   if (tmp < 1.0) return -1.0;
-  tmp = this.checkDim(hi);
-  if ((tmp == -1.0) || (tmp > 1.0)) return -1.0;
-
-  while ((hi - lo) > 0.0005) {
-    let mid = (lo + hi) / 2;
-    tmp = this.checkDim(mid);
-    if (tmp >= 1.0) lo = mid;
-    else hi = mid;
-  }
-
 
   tmp = this.checkDim(hi);
   if ((tmp == -1.0) || (tmp > 1.0)) return -1.0;
