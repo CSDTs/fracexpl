@@ -37,6 +37,7 @@ function sqr(x) {
 function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
   this.seed = seed;
 
+
   this.canvas = document.createElement('canvas');
   this.canvas.id = 'ft-drawing-canvas-' + toolNum;
   this.canvas.width = Math.max(640, askWidth);
@@ -87,7 +88,6 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
   panelRow.appendChild(this.dimInfo);
 
   this.ctrlPanel.appendChild(panelRow);
-
   this.drawWidth = 1;
 }
 
@@ -109,6 +109,41 @@ FractalDraw.prototype.checkDim = function(dim) {
   }
 
   return lenSum;
+};
+
+FractalDraw.prototype.loadLocally = function(evt) {
+  let file = evt.target.files[0];
+  if (!file.type.match('application/json')) {
+    console.log('bad file type');
+    return;
+  }
+
+  let reader = new FileReader();
+  let myself = this;
+  reader.onload = function(e) {
+    let data = JSON.parse(e.target.result);
+    myself.setSeed(data.seed);
+    myself.drawSeed(true);
+    myself.disableMode();
+    document.getElementById('Edit Mode').click();
+  };
+  reader.readAsText(file);
+};
+
+FractalDraw.prototype.saveLocally = function() {
+  let name = prompt('Please enter the name of the pattern',
+    '<name goes here>');
+  let data = {
+    'fullname': name,
+    'seed': this.seed,
+    'itNumber': this.currLevels,
+    'thickness': this.drawWidth,
+    'thickness type': 0,
+  };
+  let blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: 'application/json',
+  });
+  saveAs(blob, name + '.json', false);
 };
 
 FractalDraw.prototype.getDim = function() {
@@ -233,7 +268,7 @@ function ptlsdist2(pt, e1, e2) {
   }
   let seglen = sqr(e1[0] - e2[0]) + sqr(e1[1] - e2[1]);
   let t = ((pt[0] - e1[0]) * (e2[0] - e1[0]) +
-           (pt[1] - e1[1]) * (e2[1] - e1[1])) / seglen;
+    (pt[1] - e1[1]) * (e2[1] - e1[1])) / seglen;
   t = Math.max(0, Math.min(1, t)); // constrain to 0<=t<=1 (on segment)
   let lx = e1[0] + t * (e2[0] - e1[0]);
   let ly = e1[1] + t * (e2[1] - e1[1]);
@@ -439,7 +474,7 @@ function SeedEditor(fractalDraw, enabled) {
   for (let i = 0; i < SeedEditor.SegType.length; i++) {
     let typeBtn = document.createElement('button');
     //  typeBtn.innerHTML = SeedEditor.SegType[i].name;
-    typeBtn.innerHTML = '<img src="button' + (i + 1) + '.png" />';
+    typeBtn.innerHTML = '<img src="button" + (i + 1) + ".png" />';
     typeBtn.className = 'btn btn-secondary btn-sm';
     typeBtn.style.marginLeft = '4px';
     typeBtn.onclick = function(type) {
@@ -449,7 +484,6 @@ function SeedEditor(fractalDraw, enabled) {
     panelTD.appendChild(typeBtn);
   }
   panelRow.appendChild(panelTD);
-
   panelRow = document.createElement('tr');
   panelTbl.appendChild(panelRow);
   panelTD = document.createElement('td');
@@ -769,10 +803,10 @@ SeedEditor.prototype.mouseClick = function(evt) {
     }
   } else if (this.editMode == SeedEditor.EDITMODE.MOVEPT) {
     if (this.movePt >= 0) {
-      this.fractalDraw.changeSeedPt(this.movePt,
-                                    [this.mouseX,
-                                      this.mouseY,
-                                      this.anchor1[2]]);
+      this.fractalDraw.changeSeedPt(this.movePt, [this.mouseX,
+        this.mouseY,
+        this.anchor1[2],
+      ]);
       this.fractalDraw.clear();
       this.fractalDraw.drawSeed(true);
       this.clearWork();
@@ -1657,6 +1691,34 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
   }
 
 
+  let levels = 1;
+  if (mainDiv.dataset['levels'] != undefined) {
+    levels = mainDiv.dataset['levels'];
+  }
+  this.drawDiv = new FractalDraw(toolNum, [], this.width, this.height, levels);
+
+  let drawer = this.drawDiv;
+  // load files
+  let loadAndSave = document.createElement('div');
+  let selectFile = document.createElement('input');
+  selectFile.type = 'file';
+  selectFile.id = 'selectFile';
+  selectFile.accept = '.json';
+  selectFile.style = 'display: inline;';
+  selectFile.onchange = function(event) {
+    drawer.loadLocally(event);
+  };
+  loadAndSave.appendChild(selectFile);
+  // save files
+  let save = document.createElement('button');
+  save.innerHTML = 'Save';
+  save.onclick = function(event) {
+    drawer.saveLocally(event);
+  };
+  loadAndSave.appendChild(save);
+  this.mainDiv.appendChild(loadAndSave);
+
+
   this.canvasDiv = document.createElement('div');
   this.canvasDiv.id = 'ft-canvases-' + toolNum;
   this.canvasDiv.style.position = 'relative';
@@ -1677,12 +1739,6 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
   this.ctrlPanelDiv.style.display = 'inline';
   mainDiv.appendChild(this.ctrlPanelDiv);
 
-  let levels = 1;
-  if (mainDiv.dataset['levels'] != undefined) {
-    levels = mainDiv.dataset['levels'];
-  }
-
-  this.drawDiv = new FractalDraw(toolNum, [], this.width, this.height, levels);
   this.canvasDiv.appendChild(this.drawDiv.getCanvas());
   this.addMode('Draw Mode', this.drawDiv);
   this.drawDiv.disableMode();
@@ -1716,6 +1772,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
 MultiModeTool.prototype.addMode = function(title, modeObj) {
   let button = document.createElement('button');
   button.innerHTML = title;
+  button.id = title;
   button.className = 'btn btn-secondary btn-sm';
   button.style.marginLeft = '4px';
   button.onclick = function(modeNum) {
