@@ -51,7 +51,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
   this.ctrlPanel.style.display = 'block';
 
   this.levelButtons = document.createElement('div');
-  for (let i = 1; i <= 8; i++) {
+  for (i = 1; i <= 8; i++) {
     let button = document.createElement('button');
     button.className = 'btn btn-secondary btn-sm';
     button.style.marginLeft = '4px';
