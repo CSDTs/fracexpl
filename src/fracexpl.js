@@ -165,7 +165,9 @@ FractalDraw.prototype.getDim = function() {
   }
 
   if (nonrepl > 0.0) {
-    if (replSum < 1.0) return 1.0;
+    if (replSum < 1.0) {
+      return 1.0;
+    }
     else {
       return -1.0;
     }
