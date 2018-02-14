@@ -19,6 +19,10 @@
  * through which recipients can access the Corresponding Source.
  */
 
+//all instances need to use the same cloud
+window.cloud = new CloudSaver();
+window.applicationID = 69;
+
 /** Returns the square of a value
 @param {double} x - The value to be squared
 @return {double} - The square of x
@@ -130,6 +134,25 @@ FractalDraw.prototype.loadLocally = function(evt) {
   reader.readAsText(file);
 };
 
+FractalDraw.prototype.loadRemotely = function(evt) {
+  let file = evt.target.files[0];
+  if (!file.type.match('application/json')) {
+    console.log('bad file type');
+    return;
+  }
+
+  let reader = new FileReader();
+  let myself = this;
+  reader.onload = function(e) {
+    let data = JSON.parse(e.target.result);
+    myself.setSeed(data.seed);
+    myself.drawSeed(true);
+    myself.disableMode();
+    document.getElementById('Edit Mode').click();
+  };
+  reader.readAsText(file);
+};
+
 FractalDraw.prototype.saveLocally = function() {
   let name = prompt('Please enter the name of the pattern',
     '<name goes here>');
@@ -144,6 +167,65 @@ FractalDraw.prototype.saveLocally = function() {
     type: 'application/json',
   });
   saveAs(blob, name + '.json', false);
+};
+
+FractalDraw.prototype.saveRemotely = function() {
+  cloud.getUser(startSaving, notLoggedIn)
+  let myself = this;
+  function startSaving() {
+    let name = prompt('Please enter the name of the pattern',
+      '<name goes here>');
+    let saveData = {
+      'fullname': name,
+      'seed': this.seed,
+      'itNumber': this.currLevels,
+      'thickness': this.drawWidth,
+      'thickness type': 0,
+    };
+  }
+  function notLoggedIn() {
+    cloud.loginPopup(startSaving,failedLoggedIn)
+  }
+  function failedLoggedIn(data) {
+    console.log(data);
+    alert('Failed To Log In');
+  }
+  this.canvas.toBlob(saveImg)
+  function gotUser
+
+  function saveImg(blob) {
+    let formData = new FormData();
+    formData.append('file', blob);
+    cloud.saveFile(formData, savedImage, error);
+  }
+  function savedImage(data) {
+    myself.cloudImg = data.id
+    saveSeed();
+  }
+  function error(data) {
+    console.log(data);
+    alert('Failed Saving File To Cloud');
+  }
+  function saveSeed() {
+    let blob = new Blob([JSON.stringify(saveData, null, 2)], {
+      type: 'application/json',
+    });
+    let formData = new FormData();
+    formData.append('file', blob);
+    cloud.saveFile(formData, savedSeed, error);
+  }
+  function savedSeed(data) {
+    myself.cloudSeed = data.id
+    createProject();
+  }
+  function createProject(data) {
+    cloud.createProject(name, window.applicationID, myself.cloudSeed,
+        myself.cloudImg, createdProject, error);
+  }
+  function createdProject(data) {
+    myself.cloudproject = data.id
+    alert('Success');
+  }
 };
 
 FractalDraw.prototype.getDim = function() {
@@ -1696,28 +1778,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
     levels = mainDiv.dataset['levels'];
   }
   this.drawDiv = new FractalDraw(toolNum, [], this.width, this.height, levels);
-
-  let drawer = this.drawDiv;
-  // load files
-  let loadAndSave = document.createElement('div');
-  let selectFile = document.createElement('input');
-  selectFile.type = 'file';
-  selectFile.id = 'selectFile';
-  selectFile.accept = '.json';
-  selectFile.style = 'display: inline;';
-  selectFile.onchange = function(event) {
-    drawer.loadLocally(event);
-  };
-  loadAndSave.appendChild(selectFile);
-  // save files
-  let save = document.createElement('button');
-  save.innerHTML = 'Save';
-  save.onclick = function(event) {
-    drawer.saveLocally(event);
-  };
-  loadAndSave.appendChild(save);
-  this.mainDiv.appendChild(loadAndSave);
-
+  this.setupSaveMenu();
 
   this.canvasDiv = document.createElement('div');
   this.canvasDiv.id = 'ft-canvases-' + toolNum;
@@ -1795,6 +1856,95 @@ MultiModeTool.prototype.setMode = function(modeNum) {
     this.modeButtons[modeNum].disabled = true;
     this.currentMode = modeNum;
   }
+};
+
+
+MultiModeTool.prototype.setupSaveMenu = function() {
+  let drawer = this.drawDiv;
+  let loadAndSave = document.createElement('div');
+  let loadDropdown = document.createElement('div');
+  loadDropdown.class = 'dropdown';
+  let saveDropdown = document.createElement('div');
+  loadDropdown.class = 'dropdown';
+
+  // load dropdown button
+  let dropdownBtn = document.createElement('button');
+  dropdownBtn.innerHTML = 'load';
+  dropdownBtn.class = 'btn btn-primary dropdown-toggle';
+  dropdownBtn.type = 'button';
+  dropdownBtn.setAttribute('data-toggle', 'dropdown1');
+  let caret = document.createElement('span');
+  dropdownBtn.appendChild(caret);
+  loadDropdown.appendChild(dropdownBtn);
+
+  // list
+  let dropdownList = document.createElement('ul');
+  dropdownList.class = 'dropdown-menu';
+
+  // load files
+  let selectFileItem = document.createElement('li');
+  let selectFile = document.createElement('input');
+  selectFile.type = 'file';
+  selectFile.id = 'selectFile';
+  selectFile.accept = '.json';
+  selectFile.style = 'display: inline;';
+  selectFile.onchange = function(event) {
+    drawer.loadLocally(event);
+  };
+  selectFileItem.appendChild(selectFile);
+  dropdownList.appendChild(selectFileItem);
+
+  // load files from cloud
+  let loadFromCloudItem = document.createElement('li');
+  let loadFromCloud = document.createElement('button');
+  loadFromCloud.innerHTML = 'Save To File';
+  loadFromCloud.onclick = function(event) {
+    drawer.loadRemotely(event);
+  };
+  loadFromCloudItem.appendChild(loadFromCloud);
+  dropdownList.appendChild(selectFileItem);
+  loadDropdown.appendChild(dropdownList);
+  loadAndSave.appendChild(loadDropdown);
+
+  // load dropdown button
+  let dropdownBtn2 = document.createElement('button');
+  dropdownBtn2.innerHTML = 'save';
+  dropdownBtn2.class = 'btn btn-primary dropdown-toggle';
+  dropdownBtn2.type = 'button';
+  dropdownBtn2.setAttribute('data-toggle', 'dropdown2');
+  let caret2 = document.createElement('span');
+  dropdownBtn2.appendChild(caret2);
+  saveDropdown.appendChild(dropdownBtn2);
+
+  // list
+  let dropdownList2 = document.createElement('ul');
+  dropdownList.class = 'dropdown-menu';
+
+  // save files
+  let saveItem = document.createElement('li');
+  let save = document.createElement('button');
+  save.innerHTML = 'Save To File';
+  save.onclick = function(event) {
+    drawer.saveLocally(event);
+  };
+  saveItem.appendChild(save);
+  dropdownList2.appendChild(saveItem);
+
+  // save to cloud
+  let saveToCloudItem = document.createElement('li');
+  let saveToCloud = document.createElement('button');
+  saveToCloud.innerHTML = 'Save To Cloud';
+  saveToCloud.onclick = function(event) {
+    drawer.saveRemotely(event);
+  };
+  saveToCloudItem.appendChild(saveToCloud);
+  dropdownList2.appendChild(saveToCloudItem);
+  saveDropdown.appendChild(dropdownList2);
+  loadAndSave.appendChild(saveDropdown);
+
+  this.mainDiv.appendChild(loadAndSave);
+  $('.dropdown-toggle').dropdown();
+  $('.btn').dropdown();
 };
 
 let fractaltoolInstances = null;

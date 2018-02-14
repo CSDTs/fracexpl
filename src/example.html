@@ -1,24 +1,51 @@
 <!DOCTYPE HTML>
-<html> <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Fractal Explorer - Example</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <script src="FileSaver.min.js"></script>
-    <script src="fracexpl.js"></script>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fractal Explorer - Example</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="FileSaver.min.js"></script>
+  <script src="saveToCloud.js"></script>
+  <script src="fracexpl.js"></script>
 </head>
 
 <body>
-<div class="container">
+  <div class="container">
 
-<div style="margin-top: 20px; margin-bottom: 40px;">
-<span style="font-size: 200%;">Fractal Explorer &ndash; Example</span><br/>
-</div>
+    <div style="margin-top: 20px; margin-bottom: 40px;">
+      <span style="font-size: 200%;">Fractal Explorer &ndash; Example</span><br/>
+    </div>
 
-<div class="fractaltool" data-width="800" data-height="600" data-mode="draw"
-     data-seedlist="koch,sierpinski" data-seed="koch"></div>
+    <div class="fractaltool" data-width="800" data-height="600" data-mode="draw" data-seedlist="koch,sierpinski" data-seed="koch">
+      <div id="LoadAndSave" style>
+        <div id="Load" class="dropdown">
+          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Load
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><button id="LoadFromCloud">Load From Cloud</a></li>
+            <li><input type="file" id="selectFile" accept=".json"/></li>
+          </ul>
+        </div>
+        <div id="Save" class="dropdown">
+          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Save
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><button id="SaveToCloud">Save To Cloud</a></li>
+            <li><button id="SaveLocally">Save To File</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
-</div>
+  </div>
 
-</body> </html>
+</body>
+
+</html>
