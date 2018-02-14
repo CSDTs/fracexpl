@@ -135,7 +135,8 @@ FractalDraw.prototype.loadLocally = function(evt) {
 };
 
 FractalDraw.prototype.loadRemotely = function(evt) {
-  cloud.getUser(getProjectData, notLoggedIn)
+  let myself = this;
+  cloud.getUser(getProjectData, notLoggedIn);
   function getProjectData(data) {
     cloud.listProject(data.id,displayList,error)
   }
@@ -148,31 +149,40 @@ FractalDraw.prototype.loadRemotely = function(evt) {
   }
   function displayList(data) {
     var dialogDiv = $('#projectListDialog');
-    document.getElementById('projectList').click();
+    dialogDiv.dialog('destroy');
+    projectList = document.getElementById('projectList');
+    while (projectList.firstChild) {
+        projectList.removeChild(projectList.firstChild);
+    }
     for (var i = 0; i < data.length; i++) {
-      (function() {
+      if(data[i].application == applicationID) {
         let listItem = document.createElement('li');
         listItem.class = 'ui-widget-content';
         listItem.innerHTML = data[i].name;
         listItem.option = data[i].id;
-      });
+        projectList.appendChild(listItem);
+      }
     }
-    $('#projectList').selector();
+    $('#projectList').selectable();
     dialogDiv.dialog({
     modal : true,
     buttons : [
             {
-                text : "Yes",
+                text : "Select",
                 class : 'Green',
                 click : function() {
-                    // Some functionality.
+                  $( this ).dialog( "close" );
+                  selected = projectList.getElementsByClassName('ui-selected');
+                  if(selected[0]) {
+                    cloud.loadProject(selected[0].option,load,error);
+                  }
                 }
             },
             {
-                text : "No",
+                text : "Cancel",
                 class : 'Red',
                 click : function() {
-                    // Some functionality.
+                  $( this ).dialog( "close" );
                 }
             } ]
     });
@@ -180,6 +190,13 @@ FractalDraw.prototype.loadRemotely = function(evt) {
   function error(data) {
     console.log(data);
     alert('Failed To Get Project');
+  }
+  function load(string) {
+    let data = JSON.parse(string);
+    myself.setSeed(data.seed);
+    myself.drawSeed(true);
+    myself.disableMode();
+    document.getElementById('Edit Mode').click();
   }
 };
 
@@ -1928,8 +1945,6 @@ MultiModeTool.prototype.setupSaveMenu = function() {
   loadAndSave.appendChild(saveToCloud);
 
   this.mainDiv.appendChild(loadAndSave);
-  $('.dropdown-toggle').dropdown();
-  $('.btn').dropdown();
 };
 
 let fractaltoolInstances = null;
@@ -1946,6 +1961,42 @@ function fractalToolInit() {
 window.addEventListener('load', function(evt) {
   fractalToolInit();
 });
+
+CloudSaver.prototype.loginPopup = function(callBack, errorCallBack) {
+  this.getCSRFToken();
+  let dialogDiv = $('#loginDialog');
+  dialogDiv.dialog('destroy');
+  dialogDiv.dialog({
+  modal : true,
+  buttons : [
+    {
+        text : "Submit",
+        class : 'Green',
+        click : function() {
+          let username = document.getElementsByName('username')[0].value;
+          let password = document.getElementsByName('password')[0].value;
+          if (!username || !password) {
+            errorCallBack('Didn\'t log in');
+            return;
+          }
+          cloud.login(username, password, function(data) {
+            cloud.getUser(callBack, errorCallBack);
+          },
+            errorCallBack
+          );
+          $( this ).dialog( "close" );
+        }
+    },
+    {
+        text : "Cancel",
+        class : 'Red',
+        click : function() {
+          $( this ).dialog( "close" );
+          errorCallBack('Didn\'t log in');
+        }
+    } ]
+  });
+};
 
 // Local Variables:
 // mode: js

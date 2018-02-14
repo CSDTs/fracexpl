@@ -29,7 +29,12 @@
   </style>
   <script>
      $(function() {
-        $( "#dialog-1" ).dialog({
+        $( "#projectListDialog" ).dialog({
+           autoOpen: false,
+        });
+      });
+     $(function() {
+        $( "#loginDialog" ).dialog({
            autoOpen: false,
         });
       });
@@ -40,9 +45,16 @@
   <div class="container">
 
 
-    <div id = "projectListDialog" title = "Select A Project">
-        <ol id="projectList">
-        </ol>
+    <div id="projectListDialog" title="Select A Project">
+      <ol id="projectList">
+      </ol>
+    </div>
+    <div id="loginDialog" title="Login">
+      User Name:
+      <input type="text" name="username"/>
+      <br/>
+      Password:
+      <input type="password" name="password"/>
     </div>
     <div style="margin-top: 20px; margin-bottom: 40px;">
       <span style="font-size: 200%;">Fractal Explorer &ndash; Example</span><br/>
