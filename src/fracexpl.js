@@ -148,6 +148,16 @@ FractalDraw.prototype.loadRemotely = function(evt) {
   }
   function displayList(data) {
     var dialogDiv = $('#projectListDialog');
+    document.getElementById('projectList').click();
+    for (var i = 0; i < data.length; i++) {
+      (function() {
+        let listItem = document.createElement('li');
+        listItem.class = 'ui-widget-content';
+        listItem.innerHTML = data[i].name;
+        listItem.option = data[i].id;
+      });
+    }
+    $('#projectList').selector();
     dialogDiv.dialog({
     modal : true,
     buttons : [
