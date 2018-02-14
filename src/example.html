@@ -7,41 +7,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fractal Explorer - Example</title>
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
   <script src="FileSaver.min.js"></script>
   <script src="saveToCloud.js"></script>
   <script src="fracexpl.js"></script>
+  <style>
+     .ui-widget-header,.ui-state-default, ui-button {
+        background:#b9cd6d;
+        border: 1px solid #b9cd6d;
+        color: #FFFFFF;
+        font-weight: bold;
+     }
+  </style>
+  <script>
+     $(function() {
+        $( "#dialog-1" ).dialog({
+           autoOpen: false,
+        });
+      });
+  </script>
 </head>
 
 <body>
   <div class="container">
 
+
+    <div id = "projectListDialog" title = "Select A Project">
+        <ol id="selectable">
+        </ol>
+    </div>
     <div style="margin-top: 20px; margin-bottom: 40px;">
       <span style="font-size: 200%;">Fractal Explorer &ndash; Example</span><br/>
     </div>
-
     <div class="fractaltool" data-width="800" data-height="600" data-mode="draw" data-seedlist="koch,sierpinski" data-seed="koch">
-      <div id="LoadAndSave" style>
-        <div id="Load" class="dropdown">
-          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Load
-            <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu">
-            <li><button id="LoadFromCloud">Load From Cloud</a></li>
-            <li><input type="file" id="selectFile" accept=".json"/></li>
-          </ul>
-        </div>
-        <div id="Save" class="dropdown">
-          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Save
-            <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu">
-            <li><button id="SaveToCloud">Save To Cloud</a></li>
-            <li><button id="SaveLocally">Save To File</a></li>
-          </ul>
-        </div>
-      </div>
     </div>
 
   </div>

@@ -135,22 +135,42 @@ FractalDraw.prototype.loadLocally = function(evt) {
 };
 
 FractalDraw.prototype.loadRemotely = function(evt) {
-  let file = evt.target.files[0];
-  if (!file.type.match('application/json')) {
-    console.log('bad file type');
-    return;
+  cloud.getUser(getProjectData, notLoggedIn)
+  function getProjectData(data) {
+    cloud.listProject(data.id,displayList,error)
   }
-
-  let reader = new FileReader();
-  let myself = this;
-  reader.onload = function(e) {
-    let data = JSON.parse(e.target.result);
-    myself.setSeed(data.seed);
-    myself.drawSeed(true);
-    myself.disableMode();
-    document.getElementById('Edit Mode').click();
-  };
-  reader.readAsText(file);
+  function notLoggedIn() {
+    cloud.loginPopup(getProjectData,failedLoggedIn);
+  }
+  function failedLoggedIn(data) {
+    console.log(data);
+    alert('Failed To Log In');
+  }
+  function displayList(data) {
+    var dialogDiv = $('#projectListDialog');
+    dialogDiv.dialog({
+    modal : true,
+    buttons : [
+            {
+                text : "Yes",
+                class : 'Green',
+                click : function() {
+                    // Some functionality.
+                }
+            },
+            {
+                text : "No",
+                class : 'Red',
+                click : function() {
+                    // Some functionality.
+                }
+            } ]
+    });
+  }
+  function error(data) {
+    console.log(data);
+    alert('Failed To Get Project');
+  }
 };
 
 FractalDraw.prototype.saveLocally = function() {
@@ -182,17 +202,15 @@ FractalDraw.prototype.saveRemotely = function() {
       'thickness': this.drawWidth,
       'thickness type': 0,
     };
+    this.canvas.toBlob(saveImg)
   }
   function notLoggedIn() {
-    cloud.loginPopup(startSaving,failedLoggedIn)
+    cloud.loginPopup(startSaving,failedLoggedIn);
   }
   function failedLoggedIn(data) {
     console.log(data);
     alert('Failed To Log In');
   }
-  this.canvas.toBlob(saveImg)
-  function gotUser
-
   function saveImg(blob) {
     let formData = new FormData();
     formData.append('file', blob);
@@ -1862,27 +1880,8 @@ MultiModeTool.prototype.setMode = function(modeNum) {
 MultiModeTool.prototype.setupSaveMenu = function() {
   let drawer = this.drawDiv;
   let loadAndSave = document.createElement('div');
-  let loadDropdown = document.createElement('div');
-  loadDropdown.class = 'dropdown';
-  let saveDropdown = document.createElement('div');
-  loadDropdown.class = 'dropdown';
-
-  // load dropdown button
-  let dropdownBtn = document.createElement('button');
-  dropdownBtn.innerHTML = 'load';
-  dropdownBtn.class = 'btn btn-primary dropdown-toggle';
-  dropdownBtn.type = 'button';
-  dropdownBtn.setAttribute('data-toggle', 'dropdown1');
-  let caret = document.createElement('span');
-  dropdownBtn.appendChild(caret);
-  loadDropdown.appendChild(dropdownBtn);
-
-  // list
-  let dropdownList = document.createElement('ul');
-  dropdownList.class = 'dropdown-menu';
 
   // load files
-  let selectFileItem = document.createElement('li');
   let selectFile = document.createElement('input');
   selectFile.type = 'file';
   selectFile.id = 'selectFile';
@@ -1891,56 +1890,32 @@ MultiModeTool.prototype.setupSaveMenu = function() {
   selectFile.onchange = function(event) {
     drawer.loadLocally(event);
   };
-  selectFileItem.appendChild(selectFile);
-  dropdownList.appendChild(selectFileItem);
+  loadAndSave.appendChild(selectFile);
 
   // load files from cloud
   let loadFromCloudItem = document.createElement('li');
   let loadFromCloud = document.createElement('button');
-  loadFromCloud.innerHTML = 'Save To File';
+  loadFromCloud.innerHTML = 'Load From Cloud';
   loadFromCloud.onclick = function(event) {
     drawer.loadRemotely(event);
   };
-  loadFromCloudItem.appendChild(loadFromCloud);
-  dropdownList.appendChild(selectFileItem);
-  loadDropdown.appendChild(dropdownList);
-  loadAndSave.appendChild(loadDropdown);
-
-  // load dropdown button
-  let dropdownBtn2 = document.createElement('button');
-  dropdownBtn2.innerHTML = 'save';
-  dropdownBtn2.class = 'btn btn-primary dropdown-toggle';
-  dropdownBtn2.type = 'button';
-  dropdownBtn2.setAttribute('data-toggle', 'dropdown2');
-  let caret2 = document.createElement('span');
-  dropdownBtn2.appendChild(caret2);
-  saveDropdown.appendChild(dropdownBtn2);
-
-  // list
-  let dropdownList2 = document.createElement('ul');
-  dropdownList.class = 'dropdown-menu';
+  loadAndSave.appendChild(loadFromCloud);
 
   // save files
-  let saveItem = document.createElement('li');
   let save = document.createElement('button');
   save.innerHTML = 'Save To File';
   save.onclick = function(event) {
     drawer.saveLocally(event);
   };
-  saveItem.appendChild(save);
-  dropdownList2.appendChild(saveItem);
+  loadAndSave.appendChild(save);
 
   // save to cloud
-  let saveToCloudItem = document.createElement('li');
   let saveToCloud = document.createElement('button');
   saveToCloud.innerHTML = 'Save To Cloud';
   saveToCloud.onclick = function(event) {
     drawer.saveRemotely(event);
   };
-  saveToCloudItem.appendChild(saveToCloud);
-  dropdownList2.appendChild(saveToCloudItem);
-  saveDropdown.appendChild(dropdownList2);
-  loadAndSave.appendChild(saveDropdown);
+  loadAndSave.appendChild(saveToCloud);
 
   this.mainDiv.appendChild(loadAndSave);
   $('.dropdown-toggle').dropdown();
