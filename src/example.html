@@ -1,23 +1,70 @@
 <!DOCTYPE HTML>
-<html> <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Fractal Explorer - Example</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <script src="FileSaver.min.js"></script>
-    <script src="fracexpl.js"></script>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fractal Explorer - Example</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+  <script src="FileSaver.min.js"></script>
+  <script src="saveToCloud.js"></script>
+  <script src="fracexpl.js"></script>
+  <style>
+     .ui-widget-header,.ui-state-default, ui-button {
+        background:#b9cd6d;
+        border: 1px solid #b9cd6d;
+        color: #FFFFFF;
+        font-weight: bold;
+     }
+    #feedback { font-size: 1.4em; }
+    #selectable .ui-selecting { background: #FECA40; }
+    #selectable .ui-selected { background: #F39814; color: white; }
+    #selectable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+    #selectable li { margin: 3px; padding: 0.4em; font-size: 1.4em; height: 18px; }
+  </style>
+  <script>
+     $(function() {
+        $( "#projectListDialog" ).dialog({
+           autoOpen: false,
+        });
+      });
+     $(function() {
+        $( "#loginDialog" ).dialog({
+           autoOpen: false,
+        });
+      });
+  </script>
 </head>
 
 <body>
-<div class="container">
+  <div class="container">
 
-<div style="margin-top: 20px; margin-bottom: 40px;">
-<span style="font-size: 200%;">Fractal Explorer &ndash; Example</span><br/>
-</div>
 
-<div class="fractaltool" data-width="800" data-height="600" data-mode="draw"
-     data-seedlist="koch,sierpinski" data-seed="koch"></div>
+    <div id="projectListDialog" title="Select A Project">
+      <ol id="projectList">
+      </ol>
+    </div>
+    <div id="loginDialog" title="Login">
+      User Name:
+      <input type="text" name="username"/>
+      <br/>
+      Password:
+      <input type="password" name="password"/>
+    </div>
+    <div style="margin-top: 20px; margin-bottom: 40px;">
+      <span style="font-size: 200%;">Fractal Explorer &ndash; Example</span><br/>
+    </div>
+    <div class="fractaltool" data-width="800" data-height="600" data-mode="draw" data-seedlist="koch,sierpinski" data-seed="koch">
+    </div>
 
-</div>
-</body> </html>
+  </div>
+
+
+</body>
+
+</html>

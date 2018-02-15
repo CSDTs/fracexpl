@@ -18,6 +18,10 @@
  * section 4, provided you include this license notice and a URL
  * through which recipients can access the Corresponding Source.
  */
+//all instances need to use the same cloud
+window.cloud = new CloudSaver();
+window.applicationID = 69;
+
 /** Returns the square of a value
 @param {double} x - The value to be squared
 @return {double} - The square of x
@@ -127,6 +131,72 @@ FractalDraw.prototype.loadLocally = function(evt) {
   reader.readAsText(file);
 };
 
+FractalDraw.prototype.loadRemotely = function(evt) {
+  let myself = this;
+  cloud.getUser(getProjectData, notLoggedIn);
+  function getProjectData(data) {
+    cloud.listProject(data.id,displayList,error)
+  }
+  function notLoggedIn() {
+    cloud.loginPopup(getProjectData,failedLoggedIn);
+  }
+  function failedLoggedIn(data) {
+    console.log(data);
+    alert('Failed To Log In');
+  }
+  function displayList(data) {
+    var dialogDiv = $('#projectListDialog');
+    dialogDiv.dialog('destroy');
+    projectList = document.getElementById('projectList');
+    while (projectList.firstChild) {
+        projectList.removeChild(projectList.firstChild);
+    }
+    for (var i = 0; i < data.length; i++) {
+      if(data[i].application == applicationID) {
+        let listItem = document.createElement('li');
+        listItem.class = 'ui-widget-content';
+        listItem.innerHTML = data[i].name;
+        listItem.option = data[i].id;
+        projectList.appendChild(listItem);
+      }
+    }
+    $('#projectList').selectable();
+    dialogDiv.dialog({
+    modal : true,
+    buttons : [
+            {
+                text : "Select",
+                class : 'Green',
+                click : function() {
+                  $( this ).dialog( "close" );
+                  selected = projectList.getElementsByClassName('ui-selected');
+                  if(selected[0]) {
+                    cloud.loadProject(selected[0].option,load,error);
+                  }
+                }
+            },
+            {
+                text : "Cancel",
+                class : 'Red',
+                click : function() {
+                  $( this ).dialog( "close" );
+                }
+            } ]
+    });
+  }
+  function error(data) {
+    console.log(data);
+    alert('Failed To Get Project');
+  }
+  function load(string) {
+    let data = JSON.parse(string);
+    myself.setSeed(data.seed);
+    myself.drawSeed(true);
+    myself.disableMode();
+    document.getElementById('Edit Mode').click();
+  }
+};
+
 FractalDraw.prototype.saveLocally = function() {
   let name = prompt('Please enter the name of the pattern',
     '<name goes here>');
@@ -141,6 +211,63 @@ FractalDraw.prototype.saveLocally = function() {
     type: 'application/json',
   });
   saveAs(blob, name + '.json', false);
+};
+
+FractalDraw.prototype.saveRemotely = function() {
+  cloud.getUser(startSaving, notLoggedIn)
+  let myself = this;
+  function startSaving() {
+    let name = prompt('Please enter the name of the pattern',
+      '<name goes here>');
+    let saveData = {
+      'fullname': name,
+      'seed': this.seed,
+      'itNumber': this.currLevels,
+      'thickness': this.drawWidth,
+      'thickness type': 0,
+    };
+    this.canvas.toBlob(saveImg)
+  }
+  function notLoggedIn() {
+    cloud.loginPopup(startSaving,failedLoggedIn);
+  }
+  function failedLoggedIn(data) {
+    console.log(data);
+    alert('Failed To Log In');
+  }
+  function saveImg(blob) {
+    let formData = new FormData();
+    formData.append('file', blob);
+    cloud.saveFile(formData, savedImage, error);
+  }
+  function savedImage(data) {
+    myself.cloudImg = data.id
+    saveSeed();
+  }
+  function error(data) {
+    console.log(data);
+    alert('Failed Saving File To Cloud');
+  }
+  function saveSeed() {
+    let blob = new Blob([JSON.stringify(saveData, null, 2)], {
+      type: 'application/json',
+    });
+    let formData = new FormData();
+    formData.append('file', blob);
+    cloud.saveFile(formData, savedSeed, error);
+  }
+  function savedSeed(data) {
+    myself.cloudSeed = data.id
+    createProject();
+  }
+  function createProject(data) {
+    cloud.createProject(name, window.applicationID, myself.cloudSeed,
+        myself.cloudImg, createdProject, error);
+  }
+  function createdProject(data) {
+    myself.cloudproject = data.id
+    alert('Success');
+  }
 };
 
 FractalDraw.prototype.getDim = function() {
@@ -1762,28 +1889,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
     levels = mainDiv.dataset['levels'];
   }
   this.drawDiv = new FractalDraw(toolNum, [], this.width, this.height, levels);
-
-  let drawer = this.drawDiv;
-  // load files
-  let loadAndSave = document.createElement('div');
-  let selectFile = document.createElement('input');
-  selectFile.type = 'file';
-  selectFile.id = 'selectFile';
-  selectFile.accept = '.json';
-  selectFile.style = 'display: inline;';
-  selectFile.onchange = function(event) {
-    drawer.loadLocally(event);
-  };
-  loadAndSave.appendChild(selectFile);
-  // save files
-  let save = document.createElement('button');
-  save.innerHTML = 'Save';
-  save.onclick = function(event) {
-    drawer.saveLocally(event);
-  };
-  loadAndSave.appendChild(save);
-  this.mainDiv.appendChild(loadAndSave);
-
+  this.setupSaveMenu();
 
   this.canvasDiv = document.createElement('div');
   this.canvasDiv.id = 'ft-canvases-' + toolNum;
@@ -1863,6 +1969,50 @@ MultiModeTool.prototype.setMode = function(modeNum) {
   }
 };
 
+
+MultiModeTool.prototype.setupSaveMenu = function() {
+  let drawer = this.drawDiv;
+  let loadAndSave = document.createElement('div');
+
+  // load files
+  let selectFile = document.createElement('input');
+  selectFile.type = 'file';
+  selectFile.id = 'selectFile';
+  selectFile.accept = '.json';
+  selectFile.style = 'display: inline;';
+  selectFile.onchange = function(event) {
+    drawer.loadLocally(event);
+  };
+  loadAndSave.appendChild(selectFile);
+
+  // load files from cloud
+  let loadFromCloudItem = document.createElement('li');
+  let loadFromCloud = document.createElement('button');
+  loadFromCloud.innerHTML = 'Load From Cloud';
+  loadFromCloud.onclick = function(event) {
+    drawer.loadRemotely(event);
+  };
+  loadAndSave.appendChild(loadFromCloud);
+
+  // save files
+  let save = document.createElement('button');
+  save.innerHTML = 'Save To File';
+  save.onclick = function(event) {
+    drawer.saveLocally(event);
+  };
+  loadAndSave.appendChild(save);
+
+  // save to cloud
+  let saveToCloud = document.createElement('button');
+  saveToCloud.innerHTML = 'Save To Cloud';
+  saveToCloud.onclick = function(event) {
+    drawer.saveRemotely(event);
+  };
+  loadAndSave.appendChild(saveToCloud);
+
+  this.mainDiv.appendChild(loadAndSave);
+};
+
 let fractaltoolInstances = null;
 
 /** Starts the fractal tool on load. */
@@ -1877,6 +2027,42 @@ function fractalToolInit() {
 window.addEventListener('load', function(evt) {
   fractalToolInit();
 });
+
+CloudSaver.prototype.loginPopup = function(callBack, errorCallBack) {
+  this.getCSRFToken();
+  let dialogDiv = $('#loginDialog');
+  dialogDiv.dialog('destroy');
+  dialogDiv.dialog({
+  modal : true,
+  buttons : [
+    {
+        text : "Submit",
+        class : 'Green',
+        click : function() {
+          let username = document.getElementsByName('username')[0].value;
+          let password = document.getElementsByName('password')[0].value;
+          if (!username || !password) {
+            errorCallBack('Didn\'t log in');
+            return;
+          }
+          cloud.login(username, password, function(data) {
+            cloud.getUser(callBack, errorCallBack);
+          },
+            errorCallBack
+          );
+          $( this ).dialog( "close" );
+        }
+    },
+    {
+        text : "Cancel",
+        class : 'Red',
+        click : function() {
+          $( this ).dialog( "close" );
+          errorCallBack('Didn\'t log in');
+        }
+    } ]
+  });
+};
 
 // Local Variables:
 // mode: js
