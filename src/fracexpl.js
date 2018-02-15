@@ -133,7 +133,24 @@ FractalDraw.prototype.loadLocally = function(evt) {
 
 FractalDraw.prototype.loadRemotely = function(evt) {
   let myself = this;
-  cloud.getUser(getProjectData, notLoggedIn);
+  cloud.getUser(isLoggedIn, failedLoggedIn);
+  let attemptedLogin = false;
+  function isLoggedIn(data) {
+    if (data.id) {
+      getProjectData(data);
+    }
+    else if(!attemptedLogin) {
+      attemptedLogin = true;
+      cloud.loginPopup(isLoggedIn,failedLoggedIn);
+    }
+    else {
+      alert('Bad Username or Password');
+    }
+  }
+  function failedLoggedIn(data) {
+    console.log(data);
+    alert('Error logging in');
+  }
   function getProjectData(data) {
     cloud.listProject(data.id,displayList,error)
   }
@@ -214,10 +231,27 @@ FractalDraw.prototype.saveLocally = function() {
 };
 
 FractalDraw.prototype.saveRemotely = function() {
-  cloud.getUser(startSaving, notLoggedIn)
+  cloud.getUser(isLoggedIn, failedLoggedIn)
   let myself = this;
   let name = null;
   let saveData = null;
+  let attemptedLogin = false;
+  function isLoggedIn(data) {
+    if (data.id) {
+      startSaving();
+    }
+    else if(!attemptedLogin) {
+      attemptedLogin = true;
+      cloud.loginPopup(isLoggedIn,failedLoggedIn);
+    }
+    else {
+      alert('Bad Username or Password');
+    }
+  }
+  function failedLoggedIn(data) {
+    console.log(data);
+    alert('Error logging in');
+  }
   function startSaving() {
     name = prompt('Please enter the name of the pattern',
       '<name goes here>');
@@ -230,13 +264,6 @@ FractalDraw.prototype.saveRemotely = function() {
       'thickness type': 0,
     };
     myself.canvas.toBlob(saveImg)
-  }
-  function notLoggedIn() {
-    cloud.loginPopup(startSaving,failedLoggedIn);
-  }
-  function failedLoggedIn(data) {
-    console.log(data);
-    alert('Failed To Log In');
   }
   function saveImg(blob) {
     let formData = new FormData();
@@ -1915,7 +1942,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
   mainDiv.appendChild(this.ctrlPanelDiv);
 
   this.canvasDiv.appendChild(this.drawDiv.getCanvas());
-  this.addMode('Iterate Mode', this.drawDiv);
+  this.addMode('Draw Mode', this.drawDiv);
   this.drawDiv.disableMode();
 
   this.editorDiv = new SeedEditor(this.drawDiv, true);
@@ -2042,6 +2069,7 @@ CloudSaver.prototype.loginPopup = function(callBack, errorCallBack) {
         text : "Submit",
         class : 'Green',
         click : function() {
+          $( this ).dialog( "close" );
           let username = document.getElementsByName('username')[0].value;
           let password = document.getElementsByName('password')[0].value;
           if (!username || !password) {
@@ -2053,7 +2081,6 @@ CloudSaver.prototype.loginPopup = function(callBack, errorCallBack) {
           },
             errorCallBack
           );
-          $( this ).dialog( "close" );
         }
     },
     {
