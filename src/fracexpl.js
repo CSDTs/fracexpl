@@ -1912,7 +1912,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
   mainDiv.appendChild(this.ctrlPanelDiv);
 
   this.canvasDiv.appendChild(this.drawDiv.getCanvas());
-  this.addMode('Draw Mode', this.drawDiv);
+  this.addMode('Iterate Mode', this.drawDiv);
   this.drawDiv.disableMode();
 
   this.editorDiv = new SeedEditor(this.drawDiv, true);
