@@ -216,17 +216,20 @@ FractalDraw.prototype.saveLocally = function() {
 FractalDraw.prototype.saveRemotely = function() {
   cloud.getUser(startSaving, notLoggedIn)
   let myself = this;
+  let name = null;
+  let saveData = null;
   function startSaving() {
-    let name = prompt('Please enter the name of the pattern',
+    name = prompt('Please enter the name of the pattern',
       '<name goes here>');
-    let saveData = {
+    if (!name) return;
+    saveData = {
       'fullname': name,
-      'seed': this.seed,
-      'itNumber': this.currLevels,
-      'thickness': this.drawWidth,
+      'seed': myself.seed,
+      'itNumber': myself.currLevels,
+      'thickness': myself.drawWidth,
       'thickness type': 0,
     };
-    this.canvas.toBlob(saveImg)
+    myself.canvas.toBlob(saveImg)
   }
   function notLoggedIn() {
     cloud.loginPopup(startSaving,failedLoggedIn);
