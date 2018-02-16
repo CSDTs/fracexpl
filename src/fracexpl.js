@@ -1967,7 +1967,6 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
   this.setMode(mode);
 }
 
-
 MultiModeTool.prototype.addMode = function(title, modeObj) {
   let button = document.createElement('button');
   button.innerHTML = title;
