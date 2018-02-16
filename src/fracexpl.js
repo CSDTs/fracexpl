@@ -732,7 +732,10 @@ SeedEditor.prototype.pickSeed = function() {
   this.fractalDraw.drawSeed(true);
 };
 
+let globalClearedCanvas = false;
+
 SeedEditor.prototype.clearBtnClicked = function() {
+  globalClearedCanvas = true;
   if (this.editMode == SeedEditor.EDITMODE.LOCKED) {
     this.picker.selectedIndex = 0;
     this.setMode(SeedEditor.EDITMODE.DONE);
@@ -912,32 +915,34 @@ SeedEditor.prototype.onMouseDown = function(evt) {
   /* Clone of SeedEditor.prototype.mouseClick's
   this.editMode == SeedEditor.EDITMODE.DONE
   so clicking once and dragging activates getting anchor point  */
-  let seed = this.fractalDraw.seed;
-  this.getMousePos(evt);
-  let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
-  if (closestPt < 0) return;
-  if (closestPt >= 0) {
-    if (closestPt == 0) {
-      this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
-    } else {
-      this.anchor1 = [seed[closestPt - 1][0],
-      seed[closestPt - 1][1],
-      seed[closestPt][2]];
-      if (closestPt < seed.length - 1) {
-        this.anchor2 = [seed[closestPt + 1][0],
-                        seed[closestPt + 1][1],
-                        seed[closestPt + 1][2]];
+  if (!globalClearedCanvas) {
+    let seed = this.fractalDraw.seed;
+    this.getMousePos(evt);
+    let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
+    if (closestPt < 0) return;
+    if (closestPt >= 0) {
+      if (closestPt == 0) {
+        this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
+      } else {
+        this.anchor1 = [seed[closestPt - 1][0],
+        seed[closestPt - 1][1],
+        seed[closestPt][2]];
+        if (closestPt < seed.length - 1) {
+          this.anchor2 = [seed[closestPt + 1][0],
+                          seed[closestPt + 1][1],
+                          seed[closestPt + 1][2]];
+        }
       }
+      this.movePt = closestPt;
+      this.setMode(SeedEditor.EDITMODE.MOVEPT);
+      // Erases previous lines & node when dragging:
+      this.fractalDraw.drawSeed(false, this.movePt);
+      this.gridhighlight = [this.mouseX, this.mouseY];
+      this.drawWork();
     }
-    this.movePt = closestPt;
-    this.setMode(SeedEditor.EDITMODE.MOVEPT);
-    // Erases previous lines & node when dragging:
-    this.fractalDraw.drawSeed(false, this.movePt);
-    this.gridhighlight = [this.mouseX, this.mouseY];
-    this.drawWork();
+    document.addEventListener ("mousemove" , this.onMouseMove , false);
+    document.addEventListener ("mouseup" , this.onMouseUp , false);
   }
-  document.addEventListener ("mousemove" , this.onMouseMove , false);
-  document.addEventListener ("mouseup" , this.onMouseUp , false);
 }
 
 
@@ -954,21 +959,23 @@ it is a single click after a double click (signaled by the this.mouseDblClick
 if (state == Done)'s statements triggering the 'seedEditorDoubleClick'
 flag to true), it sets the final this.mouseDblClick(Event()) to set
 the node in place */
-  if (!seedEditorMouseMoved) {
-    if (seedEditorDoubleClick) {
-      seedEditorDoubleClick = false;
-      this.mouseDblClick(new Event("click"));
+  if (!globalClearedCanvas) {
+    if (!seedEditorMouseMoved) {
+      if (seedEditorDoubleClick) {
+        seedEditorDoubleClick = false;
+        this.mouseDblClick(new Event("click"));
+        return;
+      }
+      this.setMode(SeedEditor.EDITMODE.DONE);
+      this.mouseClick(new Event("click"));
       return;
     }
-    this.setMode(SeedEditor.EDITMODE.DONE);
-    this.mouseClick(new Event("click"));
-    return;
+    seedEditorMouseMoved = false;
+    document.removeEventListener ("mousemove" , this.onMouseMove , false);
+    document.removeEventListener ("mouseup" , this.onMouseUp , false);
+    // Finalizes the node's placement after a drag and drop:
+    this.setMode(SeedEditor.EDITMODE.MOVEPT);
   }
-  seedEditorMouseMoved = false;
-  document.removeEventListener ("mousemove" , this.onMouseMove , false);
-  document.removeEventListener ("mouseup" , this.onMouseUp , false);
-  // Finalizes the node's placement after a drag and drop:
-  this.setMode(SeedEditor.EDITMODE.MOVEPT);
 }
 
 
@@ -1032,6 +1039,7 @@ SeedEditor.prototype.mouseClick = function(evt) {
       this.setMode(SeedEditor.EDITMODE.DONE);
       this.movePt = -1;
       this.anchor1 = this.anchor2 = null;
+      globalClearedCanvas = false;
     }
   }
 };
