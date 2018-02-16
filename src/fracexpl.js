@@ -959,6 +959,9 @@ it is a single click after a double click (signaled by the this.mouseDblClick
 if (state == Done)'s statements triggering the 'seedEditorDoubleClick'
 flag to true), it sets the final this.mouseDblClick(Event()) to set
 the node in place */
+  if (this === document) {
+    return;
+  }
   if (!globalClearedCanvas) {
     if (!seedEditorMouseMoved) {
       if (seedEditorDoubleClick) {
@@ -966,8 +969,17 @@ the node in place */
         this.mouseDblClick(new Event("click"));
         return;
       }
-      this.setMode(SeedEditor.EDITMODE.DONE);
-      this.mouseClick(new Event("click"));
+      if (this.fractalDraw.seed.length < 1) {
+        this.setMode(SeedEditor.EDITMODE.INIT);
+      } else {
+        if (this.editMode !== 1) {
+          this.setMode(SeedEditor.EDITMODE.DONE);
+        }
+      }
+      let event0 = new Event("click");
+      event0.clientX = evt.clientX;
+      event0.clientY = evt.clientY;
+      this.mouseClick(event0);
       return;
     }
     seedEditorMouseMoved = false;
