@@ -959,9 +959,6 @@ it is a single click after a double click (signaled by the this.mouseDblClick
 if (state == Done)'s statements triggering the 'seedEditorDoubleClick'
 flag to true), it sets the final this.mouseDblClick(Event()) to set
 the node in place */
-  if (this === document) {
-    return;
-  }
   if (!globalClearedCanvas) {
     if (!seedEditorMouseMoved) {
       if (seedEditorDoubleClick) {
