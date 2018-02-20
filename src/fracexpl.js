@@ -18,10 +18,6 @@
  * section 4, provided you include this license notice and a URL
  * through which recipients can access the Corresponding Source.
  */
-//all instances need to use the same cloud
-window.cloud = new CloudSaver();
-window.applicationID = 69;
-
 /** Returns the square of a value
 @param {double} x - The value to be squared
 @return {double} - The square of x
@@ -29,6 +25,9 @@ window.applicationID = 69;
 function sqr(x) {
   return x * x;
 }
+
+window.cloud = new CloudSaver();
+window.applicationID = 69;
 
 /** The main fractal drawing function
 @param {int} toolNum - The canvas number
@@ -44,8 +43,8 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
   this.canvas.id = 'ft-drawing-canvas-' + toolNum;
   this.canvas.width = Math.max(640, askWidth);
   this.canvas.height = Math.max(320, askHeight);
-  this.canvas.style.cssText = 'border:1px solid black; position:absolute;' +
-    'left:0; top:0; z-index: 1;';
+  this.canvas.style.cssText = 'border: 1px solid black; position:absolute;' +
+                              'left: 0; top: 0; z-index: 1;';
   this.ctx = this.canvas.getContext('2d');
 
   this.ctrlPanel = document.createElement('div');
@@ -53,7 +52,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
   this.ctrlPanel.style.display = 'block';
 
   this.levelButtons = document.createElement('div');
-  for (i = 1; i <= 8; i++) {
+  for (let i = 1; i <= 8; i++) {
     let button = document.createElement('button');
     button.className = 'btn btn-secondary btn-sm';
     button.style.marginLeft = '4px';
@@ -90,6 +89,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
   panelRow.appendChild(this.dimInfo);
 
   this.ctrlPanel.appendChild(panelRow);
+
   this.drawWidth = 1;
 }
 
@@ -110,6 +110,51 @@ FractalDraw.prototype.checkDim = function(dim) {
   }
 
   return lenSum;
+};
+
+FractalDraw.prototype.getDim = function() {
+  let seed = this.seed;
+  let replSum = 0.0;
+  let nonrepl = 0.0;
+  let baseline = Math.sqrt((seed[seed.length - 1][0] - seed[0][0]) ** 2 +
+    (seed[seed.length - 1][1] - seed[0][1]) ** 2);
+  if (baseline < 1.0) return -1.0;
+
+  for (let i = 1; i < seed.length; i++) {
+    let segLen = Math.sqrt((seed[i][0] - seed[i - 1][0]) ** 2 +
+      (seed[i][1] - seed[i - 1][1]) ** 2);
+    let linScale = segLen / baseline;
+    if (seed[i][2] < 4) {
+      replSum += linScale;
+    } else if (seed[i][2] == 4) {
+      nonrepl += linScale;
+    } // Visible but non-replicating
+  }
+
+  if (nonrepl > 0.0) {
+    if (replSum < 1.0) return 1.0;
+    else {
+      return -1.0;
+    }
+  }
+
+  if ((nonrepl == 0.0) && (replSum == 0.0)) return 0.0;
+
+  let lo = 0.0;
+  let hi = 2.0;
+  let tmp = this.checkDim(lo);
+  if (tmp < 1.0) return -1.0;
+  tmp = this.checkDim(hi);
+  if ((tmp == -1.0) || (tmp > 1.0)) return -1.0;
+
+  while ((hi - lo) > 0.0005) {
+    let mid = (lo + hi) / 2;
+    tmp = this.checkDim(mid);
+    if (tmp >= 1.0) lo = mid;
+    else hi = mid;
+  }
+
+  return (lo + hi) / 2;
 };
 
 FractalDraw.prototype.loadLocally = function(evt) {
@@ -300,55 +345,6 @@ FractalDraw.prototype.saveRemotely = function() {
   }
 };
 
-FractalDraw.prototype.getDim = function() {
-  let seed = this.seed;
-  let replSum = 0.0;
-  let nonrepl = 0.0;
-  let baseline = Math.sqrt((seed[seed.length - 1][0] - seed[0][0]) ** 2 +
-    (seed[seed.length - 1][1] - seed[0][1]) ** 2);
-  if (baseline < 1.0) return -1.0;
-
-  for (let i = 1; i < seed.length; i++) {
-    let segLen = Math.sqrt((seed[i][0] - seed[i - 1][0]) ** 2 +
-      (seed[i][1] - seed[i - 1][1]) ** 2);
-    let linScale = segLen / baseline;
-    if (seed[i][2] < 4) {
-      replSum += linScale;
-    } else if (seed[i][2] == 4) {
-      nonrepl += linScale; // Visible but non-replicating
-    }
-  }
-
-  if (nonrepl > 0.0) {
-    if (replSum < 1.0) {
-      return 1.0;
-    } else {
-      return -1.0;
-    }
-  }
-
-  if ((nonrepl == 0.0) && (replSum == 0.0)) return 0.0;
-
-  let lo = 0.0;
-  let hi = 2.0;
-  let tmp = this.checkDim(lo);
-  if (tmp < 1.0) return -1.0;
-
-  tmp = this.checkDim(hi);
-  if ((tmp == -1.0) || (tmp > 1.0)) return -1.0;
-
-  while ((hi - lo) > 0.0005) {
-    let mid = (lo + hi) / 2;
-    tmp = this.checkDim(mid);
-    if (tmp >= 1.0) {
-      lo = mid;
-    } else {
-      hi = mid;
-    }
-  }
-
-  return (lo + hi) / 2;
-};
 
 FractalDraw.prototype.setSeed = function(newSeed) {
   this.seed = newSeed;
@@ -417,20 +413,19 @@ FractalDraw.prototype.closestPt = function(pt) {
 */
 function ptlsdist2(pt, e1, e2) {
   if ((e1[0] == e2[0]) && (e1[1] == e2[1])) {
-    return sqr(pt[0] - e1[0]) + (pt[1] - e1[1]); // shouldn't happen?
-  }
+    return sqr(pt[0] - e1[0]) + (pt[1] - e1[1]);
+  } // shouldn't happen?
   let seglen = sqr(e1[0] - e2[0]) + sqr(e1[1] - e2[1]);
-  let t = ((pt[0] - e1[0]) * (e2[0] - e1[0]) +
-    (pt[1] - e1[1]) * (e2[1] - e1[1])) / seglen;
+  let t = ((pt[0] - e1[0]) * (e2[0] - e1[0]) + (pt[1] - e1[1])
+          * (e2[1] - e1[1])) / seglen;
   t = Math.max(0, Math.min(1, t)); // constrain to 0<=t<=1 (on segment)
   let lx = e1[0] + t * (e2[0] - e1[0]);
   let ly = e1[1] + t * (e2[1] - e1[1]);
   return sqr(pt[0] - lx) + sqr(pt[1] - ly);
-};
+}
 
 FractalDraw.prototype.closestLn = function(pt) {
   if (this.seed.length < 1) return -1;
-
   let clIdx = 0;
   let clDistSq = ptlsdist2(pt, this.seed[0], this.seed[1]);
   for (let i = 1; i < this.seed.length - 1; i++) {
@@ -520,7 +515,7 @@ FractalDraw.prototype.basedraw = function(start, end, hflip, level) {
   if (this.seed.length < 2) return;
   let dx = this.seed[this.seed.length - 1][0] - this.seed[0][0];
   let dy = this.seed[this.seed.length - 1][1] - this.seed[0][1];
-  let blLen = dx * dx + dy * dy;
+  let d = dx * dx + dy * dy;
   let dx1 = end[0] - start[0];
   let dy1 = end[1] - start[1];
   if (dx1 * dx1 + dy1 * dy1 < 1.0) {
@@ -530,11 +525,11 @@ FractalDraw.prototype.basedraw = function(start, end, hflip, level) {
     this.ctx.stroke();
     return;
   }
-  let a = (dx * dx1 + hflip * dy * dy1) / blLen;
-  let b = (dx1 * dy - hflip * dx * dy1) / blLen;
+  let a = (dx * dx1 + hflip * dy * dy1) / d;
+  let b = (dx1 * dy - hflip * dx * dy1) / d;
   let tx = start[0] - a * this.seed[0][0] - b * this.seed[0][1];
-  let c = (dx * dy1 - hflip * dy * dx1) / blLen;
-  let d = (dy1 * dy + hflip * dx * dx1) / blLen;
+  let c = (dx * dy1 - hflip * dy * dx1) / d;
+  d = (dy1 * dy + hflip * dx * dx1) / d;
   let ty = start[1] - c * this.seed[0][0] - d * this.seed[0][1];
   let xx = a * this.seed[0][0] + b * this.seed[0][1] + tx;
   let yy = c * this.seed[0][0] + d * this.seed[0][1] + ty;
@@ -639,6 +634,7 @@ function SeedEditor(fractalDraw, enabled) {
     panelTD.appendChild(typeBtn);
   }
   panelRow.appendChild(panelTD);
+
   panelRow = document.createElement('tr');
   panelTbl.appendChild(panelRow);
   panelTD = document.createElement('td');
@@ -736,7 +732,10 @@ SeedEditor.prototype.pickSeed = function() {
   this.fractalDraw.drawSeed(true);
 };
 
+let globalClearedCanvas = false;
+
 SeedEditor.prototype.clearBtnClicked = function() {
+  globalClearedCanvas = true;
   if (this.editMode == SeedEditor.EDITMODE.LOCKED) {
     this.picker.selectedIndex = 0;
     this.setMode(SeedEditor.EDITMODE.DONE);
@@ -860,7 +859,8 @@ SeedEditor.prototype.drawWork = function() {
 
   if ((this.gridhighlight[0] != -1) && (this.gridhighlight[1] != -1)) {
     this.workctx.beginPath();
-    this.workctx.arc(this.gridhighlight[0], this.gridhighlight[1],
+    this.workctx.arc(this.gridhighlight[0],
+      this.gridhighlight[1],
       3.5, 0, 6.28);
     this.workctx.fill();
   }
@@ -882,7 +882,6 @@ SeedEditor.prototype.clearWork = function() {
 };
 
 SeedEditor.prototype.getMousePos = function(evt) {
-  this.workrect = this.workcanvas.getBoundingClientRect();
   this.rawX = evt.clientX - this.workrect.left;
   this.rawY = evt.clientY - this.workrect.top;
   if (this.snapBox.checked) {
@@ -916,32 +915,34 @@ SeedEditor.prototype.onMouseDown = function(evt) {
   /* Clone of SeedEditor.prototype.mouseClick's
   this.editMode == SeedEditor.EDITMODE.DONE
   so clicking once and dragging activates getting anchor point  */
-  let seed = this.fractalDraw.seed;
-  this.getMousePos(evt);
-  let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
-  if (closestPt < 0) return;
-  if (closestPt >= 0) {
-    if (closestPt == 0) {
-      this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
-    } else {
-      this.anchor1 = [seed[closestPt - 1][0],
-      seed[closestPt - 1][1],
-      seed[closestPt][2]];
-      if (closestPt < seed.length - 1) {
-        this.anchor2 = [seed[closestPt + 1][0],
-                        seed[closestPt + 1][1],
-                        seed[closestPt + 1][2]];
+  if (!globalClearedCanvas) {
+    let seed = this.fractalDraw.seed;
+    this.getMousePos(evt);
+    let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
+    if (closestPt < 0) return;
+    if (closestPt >= 0) {
+      if (closestPt == 0) {
+        this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
+      } else {
+        this.anchor1 = [seed[closestPt - 1][0],
+        seed[closestPt - 1][1],
+        seed[closestPt][2]];
+        if (closestPt < seed.length - 1) {
+          this.anchor2 = [seed[closestPt + 1][0],
+                          seed[closestPt + 1][1],
+                          seed[closestPt + 1][2]];
+        }
       }
+      this.movePt = closestPt;
+      this.setMode(SeedEditor.EDITMODE.MOVEPT);
+      // Erases previous lines & node when dragging:
+      this.fractalDraw.drawSeed(false, this.movePt);
+      this.gridhighlight = [this.mouseX, this.mouseY];
+      this.drawWork();
     }
-    this.movePt = closestPt;
-    this.setMode(SeedEditor.EDITMODE.MOVEPT);
-    // Erases previous lines & node when dragging:
-    this.fractalDraw.drawSeed(false, this.movePt);
-    this.gridhighlight = [this.mouseX, this.mouseY];
-    this.drawWork();
+    document.addEventListener ("mousemove" , this.onMouseMove , false);
+    document.addEventListener ("mouseup" , this.onMouseUp , false);
   }
-  document.addEventListener ("mousemove" , this.onMouseMove , false);
-  document.addEventListener ("mouseup" , this.onMouseUp , false);
 }
 
 
@@ -958,22 +959,38 @@ it is a single click after a double click (signaled by the this.mouseDblClick
 if (state == Done)'s statements triggering the 'seedEditorDoubleClick'
 flag to true), it sets the final this.mouseDblClick(Event()) to set
 the node in place */
-  if (!seedEditorMouseMoved) {
-    if (seedEditorDoubleClick) {
-      seedEditorDoubleClick = false;
-      this.mouseDblClick(new Event("click"));
-      return;
-    }
-    this.setMode(SeedEditor.EDITMODE.DONE);
-    this.mouseClick(new Event("click"));
+  if (this === document) {
     return;
   }
-  seedEditorMouseMoved = false;
-  document.removeEventListener ("mousemove" , this.onMouseMove , false);
-  document.removeEventListener ("mouseup" , this.onMouseUp , false);
-  // Finalizes the node's placement after a drag and drop:
-  this.setMode(SeedEditor.EDITMODE.MOVEPT);
+  if (!globalClearedCanvas) {
+    if (!seedEditorMouseMoved) {
+      if (seedEditorDoubleClick) {
+        seedEditorDoubleClick = false;
+        this.mouseDblClick(new Event("click"));
+        return;
+      }
+      if (this.fractalDraw.seed.length < 1) {
+        this.setMode(SeedEditor.EDITMODE.INIT);
+      } else {
+        if (this.editMode !== 1) {
+          this.setMode(SeedEditor.EDITMODE.DONE);
+        }
+      }
+      let event0 = new Event("click");
+      event0.clientX = evt.clientX;
+      event0.clientY = evt.clientY;
+      this.mouseClick(event0);
+      return;
+    }
+    seedEditorMouseMoved = false;
+    document.removeEventListener ("mousemove" , this.onMouseMove , false);
+    document.removeEventListener ("mouseup" , this.onMouseUp , false);
+    // Finalizes the node's placement after a drag and drop:
+    this.setMode(SeedEditor.EDITMODE.MOVEPT);
+  }
 }
+
+
 
 SeedEditor.prototype.mouseClick = function(evt) {
   let seed = this.fractalDraw.seed; // Better way to do this?
@@ -1002,14 +1019,12 @@ SeedEditor.prototype.mouseClick = function(evt) {
         this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
       } else {
         this.anchor1 = [seed[closestPt - 1][0],
-          seed[closestPt - 1][1],
-          seed[closestPt][2],
-        ];
+        seed[closestPt - 1][1],
+        seed[closestPt][2]];
         if (closestPt < seed.length - 1) {
           this.anchor2 = [seed[closestPt + 1][0],
-            seed[closestPt + 1][1],
-            seed[closestPt + 1][2],
-          ];
+                          seed[closestPt + 1][1],
+                          seed[closestPt + 1][2]];
         }
       }
       this.movePt = closestPt;
@@ -1026,16 +1041,17 @@ SeedEditor.prototype.mouseClick = function(evt) {
     }
   } else if (this.editMode == SeedEditor.EDITMODE.MOVEPT) {
     if (this.movePt >= 0) {
-      this.fractalDraw.changeSeedPt(this.movePt, [this.mouseX,
-        this.mouseY,
-        this.anchor1[2],
-      ]);
+      this.fractalDraw.changeSeedPt(this.movePt,
+                                    [this.mouseX,
+                                    this.mouseY,
+                                    this.anchor1[2]]);
       this.fractalDraw.clear();
       this.fractalDraw.drawSeed(true);
       this.clearWork();
       this.setMode(SeedEditor.EDITMODE.DONE);
       this.movePt = -1;
       this.anchor1 = this.anchor2 = null;
+      globalClearedCanvas = false;
     }
   }
 };
@@ -1045,7 +1061,7 @@ SeedEditor.prototype.keyPress = function(evt) {
   if ((charCode == 46) || (charCode == 8)) {
     // Delete (or backspace)
     if ((this.editMode == SeedEditor.EDITMODE.MOVEPT) &&
-      (this.fractalDraw.seed.length > 2)) {
+                          (this.fractalDraw.seed.length > 2)) {
       this.fractalDraw.deleteFromSeed(this.movePt);
       this.fractalDraw.clear();
       this.fractalDraw.drawSeed(true);
@@ -1072,10 +1088,9 @@ SeedEditor.prototype.mouseDblClick = function(evt) {
     let seed = this.fractalDraw.seed;
     if ((closestPt == -1) && (closestLn >= 0)) {
       this.fractalDraw.insertInSeed([this.mouseX,
-          this.mouseY, seed[closestLn + 1][2],
-        ],
-        closestLn + 1);
-
+                                     this.mouseY,
+                                     seed[closestLn + 1][2]],
+                                     closestLn + 1);
       this.anchor1 = seed[closestLn].slice();
       this.anchor2 = seed[closestLn + 2].slice();
       this.anchor1[2] = this.anchor2[2];
@@ -1083,6 +1098,7 @@ SeedEditor.prototype.mouseDblClick = function(evt) {
       this.fractalDraw.drawSeed(false, this.movePt);
       this.gridhighlight = [this.mouseX, this.mouseY];
       this.drawWork();
+      seedEditorDoubleClick = true;
       this.setMode(SeedEditor.EDITMODE.MOVEPT);
     }
   }
@@ -1974,7 +1990,6 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
 MultiModeTool.prototype.addMode = function(title, modeObj) {
   let button = document.createElement('button');
   button.innerHTML = title;
-  button.id = title;
   button.className = 'btn btn-secondary btn-sm';
   button.style.marginLeft = '4px';
   button.onclick = function(modeNum) {
@@ -1998,7 +2013,6 @@ MultiModeTool.prototype.setMode = function(modeNum) {
     this.currentMode = modeNum;
   }
 };
-
 
 MultiModeTool.prototype.setupSaveMenu = function() {
   let drawer = this.drawDiv;
@@ -2046,55 +2060,15 @@ MultiModeTool.prototype.setupSaveMenu = function() {
 let fractaltoolInstances = null;
 
 /** Starts the fractal tool on load. */
-function fractalToolInit() {
+function fractaltoolInit() {
   let tools = document.getElementsByClassName('fractaltool');
   fractaltoolInstances = [];
   for (let i = 0; i < tools.length; i++) {
     fractaltoolInstances[i] = new MultiModeTool(tools[i], i + 1, 800, 600);
   }
+
 }
 
 window.addEventListener('load', function(evt) {
-  fractalToolInit();
+  fractaltoolInit();
 });
-
-CloudSaver.prototype.loginPopup = function(callBack, errorCallBack) {
-  this.getCSRFToken();
-  let dialogDiv = $('#loginDialog');
-  dialogDiv.dialog('destroy');
-  dialogDiv.dialog({
-  modal : true,
-  buttons : [
-    {
-        text : "Submit",
-        class : 'Green',
-        click : function() {
-          $( this ).dialog( "close" );
-          let username = document.getElementsByName('username')[0].value;
-          let password = document.getElementsByName('password')[0].value;
-          if (!username || !password) {
-            errorCallBack('Didn\'t log in');
-            return;
-          }
-          cloud.login(username, password, function(data) {
-            cloud.getUser(callBack, errorCallBack);
-          },
-            errorCallBack
-          );
-        }
-    },
-    {
-        text : "Cancel",
-        class : 'Red',
-        click : function() {
-          $( this ).dialog( "close" );
-          errorCallBack('Didn\'t log in');
-        }
-    } ]
-  });
-};
-
-// Local Variables:
-// mode: js
-// js-indent-level: 2
-// End:
