@@ -90,7 +90,6 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
   panelRow.appendChild(this.dimInfo);
 
   this.ctrlPanel.appendChild(panelRow);
-
   this.drawWidth = 1;
 }
 
@@ -2066,7 +2065,6 @@ function fractalToolInit() {
   for (let i = 0; i < tools.length; i++) {
     fractaltoolInstances[i] = new MultiModeTool(tools[i], i + 1, 800, 600);
   }
-
 }
 
 window.addEventListener('load', function(evt) {
