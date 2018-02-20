@@ -485,6 +485,7 @@ FractalDraw.prototype.disableMode = function() {
 };
 
 FractalDraw.prototype.drawSeed = function(drawBaseLine = false, without = -1) {
+  globalClearedCanvas = false;
   this.clear();
   if (this.seed.length > 1) {
     for (let i = 1; i < this.seed.length; i++) {
@@ -957,6 +958,9 @@ it is a single click after a double click (signaled by the this.mouseDblClick
 if (state == Done)'s statements triggering the 'seedEditorDoubleClick'
 flag to true), it sets the final this.mouseDblClick(Event()) to set
 the node in place */
+  if (this === document) {
+    return;
+  }
   if (!globalClearedCanvas) {
     if (!seedEditorMouseMoved) {
       if (seedEditorDoubleClick) {
@@ -971,10 +975,6 @@ the node in place */
           this.setMode(SeedEditor.EDITMODE.DONE);
         }
       }
-      let event0 = new Event("click");
-      event0.clientX = evt.clientX;
-      event0.clientY = evt.clientY;
-      this.mouseClick(event0);
       return;
     }
     seedEditorMouseMoved = false;
@@ -982,12 +982,15 @@ the node in place */
     document.removeEventListener ("mouseup" , this.onMouseUp , false);
     // Finalizes the node's placement after a drag and drop:
     this.setMode(SeedEditor.EDITMODE.MOVEPT);
+  } else {
+    globalClearedCanvas = false;
   }
 }
 
 
 
 SeedEditor.prototype.mouseClick = function(evt) {
+  globalClearedCanvas = false;
   let seed = this.fractalDraw.seed; // Better way to do this?
   this.getMousePos(evt);
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
@@ -1069,6 +1072,7 @@ SeedEditor.prototype.keyPress = function(evt) {
 };
 
 SeedEditor.prototype.mouseDblClick = function(evt) {
+  globalClearedCanvas = false;
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
     this.getMousePos(evt);
     this.fractalDraw.addToSeed([this.mouseX, this.mouseY, this.currentSegType]);
