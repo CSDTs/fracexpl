@@ -44,8 +44,8 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
   this.canvas.id = 'ft-drawing-canvas-' + toolNum;
   this.canvas.width = Math.max(640, askWidth);
   this.canvas.height = Math.max(320, askHeight);
-  this.canvas.style.cssText = 'border: 1px solid black; position:absolute;' +
-    'left: 0; top: 0; z-index: 1;';
+  this.canvas.style.cssText = 'border:1px solid black; position:absolute;' +
+    'left:0; top:0; z-index:1;';
   this.ctx = this.canvas.getContext('2d');
 
   this.ctrlPanel = document.createElement('div');
@@ -420,13 +420,13 @@ function ptlsdist2(pt, e1, e2) {
     return sqr(pt[0] - e1[0]) + (pt[1] - e1[1]); // shouldn't happen?
   }
   let seglen = sqr(e1[0] - e2[0]) + sqr(e1[1] - e2[1]);
-  let t = ((pt[0] - e1[0]) * (e2[0] - e1[0]) + 
+  let t = ((pt[0] - e1[0]) * (e2[0] - e1[0]) +
     (pt[1] - e1[1]) * (e2[1] - e1[1])) / seglen;
   t = Math.max(0, Math.min(1, t)); // constrain to 0<=t<=1 (on segment)
   let lx = e1[0] + t * (e2[0] - e1[0]);
   let ly = e1[1] + t * (e2[1] - e1[1]);
   return sqr(pt[0] - lx) + sqr(pt[1] - ly);
-}
+};
 
 FractalDraw.prototype.closestLn = function(pt) {
   if (this.seed.length < 1) return -1;
@@ -1016,14 +1016,12 @@ SeedEditor.prototype.mouseClick = function(evt) {
     let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
     if (closestPt >= 0) {
       if (closestPt == 0) {
+        this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
+      } else {
         this.anchor1 = [seed[closestPt - 1][0],
           seed[closestPt - 1][1],
           seed[closestPt][2],
         ];
-      } else {
-        this.anchor1 = [seed[closestPt - 1][0],
-        seed[closestPt - 1][1],
-        seed[closestPt][2]];
         if (closestPt < seed.length - 1) {
           this.anchor2 = [seed[closestPt + 1][0],
             seed[closestPt + 1][1],
@@ -1047,7 +1045,7 @@ SeedEditor.prototype.mouseClick = function(evt) {
     if (this.movePt >= 0) {
       this.fractalDraw.changeSeedPt(this.movePt, [this.mouseX,
         this.mouseY,
-        this.anchor1[2]
+        this.anchor1[2],
       ]);
       this.fractalDraw.clear();
       this.fractalDraw.drawSeed(true);
@@ -1065,7 +1063,7 @@ SeedEditor.prototype.keyPress = function(evt) {
   if ((charCode == 46) || (charCode == 8)) {
     // Delete (or backspace)
     if ((this.editMode == SeedEditor.EDITMODE.MOVEPT) &&
-        (this.fractalDraw.seed.length > 2)) {
+      (this.fractalDraw.seed.length > 2)) {
       this.fractalDraw.deleteFromSeed(this.movePt);
       this.fractalDraw.clear();
       this.fractalDraw.drawSeed(true);
