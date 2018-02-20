@@ -485,7 +485,6 @@ FractalDraw.prototype.disableMode = function() {
 };
 
 FractalDraw.prototype.drawSeed = function(drawBaseLine = false, without = -1) {
-  globalClearedCanvas = false;
   this.clear();
   if (this.seed.length > 1) {
     for (let i = 1; i < this.seed.length; i++) {
@@ -990,7 +989,6 @@ the node in place */
 
 
 SeedEditor.prototype.mouseClick = function(evt) {
-  globalClearedCanvas = false;
   let seed = this.fractalDraw.seed; // Better way to do this?
   this.getMousePos(evt);
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
@@ -1072,7 +1070,6 @@ SeedEditor.prototype.keyPress = function(evt) {
 };
 
 SeedEditor.prototype.mouseDblClick = function(evt) {
-  globalClearedCanvas = false;
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
     this.getMousePos(evt);
     this.fractalDraw.addToSeed([this.mouseX, this.mouseY, this.currentSegType]);
