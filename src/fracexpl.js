@@ -1744,7 +1744,6 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
     levels = mainDiv.dataset['levels'];
   }
   this.drawDiv = new FractalDraw(toolNum, [], this.width, this.height, levels);
-  this.setupSaveMenu();
 
   this.canvasDiv = document.createElement('div');
   this.canvasDiv.id = 'ft-canvases-' + toolNum;
