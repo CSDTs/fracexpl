@@ -45,7 +45,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
   this.canvas.width = Math.max(640, askWidth);
   this.canvas.height = Math.max(320, askHeight);
   this.canvas.style.cssText = 'border:1px solid black; position:absolute;' +
-    'left:0; top:0; z-index: 1;';
+    'left:0; top:0; z-index:1;';
   this.ctx = this.canvas.getContext('2d');
 
   this.ctrlPanel = document.createElement('div');
@@ -53,7 +53,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
   this.ctrlPanel.style.display = 'block';
 
   this.levelButtons = document.createElement('div');
-  for (i = 1; i <= 8; i++) {
+  for (let i = 1; i <= 8; i++) {
     let button = document.createElement('button');
     button.className = 'btn btn-secondary btn-sm';
     button.style.marginLeft = '4px';
@@ -430,7 +430,6 @@ function ptlsdist2(pt, e1, e2) {
 
 FractalDraw.prototype.closestLn = function(pt) {
   if (this.seed.length < 1) return -1;
-
   let clIdx = 0;
   let clDistSq = ptlsdist2(pt, this.seed[0], this.seed[1]);
   for (let i = 1; i < this.seed.length - 1; i++) {
@@ -736,7 +735,13 @@ SeedEditor.prototype.pickSeed = function() {
   this.fractalDraw.drawSeed(true);
 };
 
+// Global variable for clear and "Make Own..." new canvas
+// that prevents mouse actions that don't allow the placing
+// of an initial point on an empty canvas
+let globalClearedCanvas = false;
+
 SeedEditor.prototype.clearBtnClicked = function() {
+  globalClearedCanvas = true;
   if (this.editMode == SeedEditor.EDITMODE.LOCKED) {
     this.picker.selectedIndex = 0;
     this.setMode(SeedEditor.EDITMODE.DONE);
@@ -916,34 +921,35 @@ SeedEditor.prototype.onMouseDown = function(evt) {
   /* Clone of SeedEditor.prototype.mouseClick's
   this.editMode == SeedEditor.EDITMODE.DONE
   so clicking once and dragging activates getting anchor point  */
-  let seed = this.fractalDraw.seed;
-  this.getMousePos(evt);
-  let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
-  if (closestPt < 0) return;
-  if (closestPt >= 0) {
-    if (closestPt == 0) {
-      this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
-    } else {
-      this.anchor1 = [seed[closestPt - 1][0],
-      seed[closestPt - 1][1],
-      seed[closestPt][2]];
-      if (closestPt < seed.length - 1) {
-        this.anchor2 = [seed[closestPt + 1][0],
-                        seed[closestPt + 1][1],
-                        seed[closestPt + 1][2]];
+  if (!globalClearedCanvas) {
+    let seed = this.fractalDraw.seed;
+    this.getMousePos(evt);
+    let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
+    if (closestPt < 0) return;
+    if (closestPt >= 0) {
+      if (closestPt == 0) {
+        this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
+      } else {
+        this.anchor1 = [seed[closestPt - 1][0],
+        seed[closestPt - 1][1],
+        seed[closestPt][2]];
+        if (closestPt < seed.length - 1) {
+          this.anchor2 = [seed[closestPt + 1][0],
+                          seed[closestPt + 1][1],
+                          seed[closestPt + 1][2]];
+        }
       }
+      this.movePt = closestPt;
+      this.setMode(SeedEditor.EDITMODE.MOVEPT);
+      // Erases previous lines & node when dragging:
+      this.fractalDraw.drawSeed(false, this.movePt);
+      this.gridhighlight = [this.mouseX, this.mouseY];
+      this.drawWork();
     }
-    this.movePt = closestPt;
-    this.setMode(SeedEditor.EDITMODE.MOVEPT);
-    // Erases previous lines & node when dragging:
-    this.fractalDraw.drawSeed(false, this.movePt);
-    this.gridhighlight = [this.mouseX, this.mouseY];
-    this.drawWork();
+    document.addEventListener ("mousemove" , this.onMouseMove , false);
+    document.addEventListener ("mouseup" , this.onMouseUp , false);
   }
-  document.addEventListener ("mousemove" , this.onMouseMove , false);
-  document.addEventListener ("mouseup" , this.onMouseUp , false);
 }
-
 
 SeedEditor.prototype.onMouseMove = function(evt) {
   /* Triggers flag to verify that you are drag n' dropping, instead of just
@@ -951,28 +957,37 @@ SeedEditor.prototype.onMouseMove = function(evt) {
   seedEditorMouseMoved = true;
 }
 
-
 SeedEditor.prototype.onMouseUp = function(evt) {
 /* Checks if drag and drop event by the 'seedEditorMouseMoved' flag. If
 it is a single click after a double click (signaled by the this.mouseDblClick
 if (state == Done)'s statements triggering the 'seedEditorDoubleClick'
 flag to true), it sets the final this.mouseDblClick(Event()) to set
 the node in place */
-  if (!seedEditorMouseMoved) {
-    if (seedEditorDoubleClick) {
-      seedEditorDoubleClick = false;
-      this.mouseDblClick(new Event("click"));
-      return;
-    }
-    this.setMode(SeedEditor.EDITMODE.DONE);
-    this.mouseClick(new Event("click"));
+  if (this === document) {
     return;
   }
-  seedEditorMouseMoved = false;
-  document.removeEventListener ("mousemove" , this.onMouseMove , false);
-  document.removeEventListener ("mouseup" , this.onMouseUp , false);
-  // Finalizes the node's placement after a drag and drop:
-  this.setMode(SeedEditor.EDITMODE.MOVEPT);
+  if (!globalClearedCanvas) {
+    if (!seedEditorMouseMoved) {
+      if (seedEditorDoubleClick) {
+        seedEditorDoubleClick = false;
+        this.mouseDblClick(new Event("click"));
+        return;
+      }
+      if (this.fractalDraw.seed.length < 1) {
+        this.setMode(SeedEditor.EDITMODE.INIT);
+      } else {
+        if (this.editMode !== 1) {
+          this.setMode(SeedEditor.EDITMODE.DONE);
+        }
+      }
+      return;
+    }
+    seedEditorMouseMoved = false;
+    document.removeEventListener ("mousemove" , this.onMouseMove , false);
+    document.removeEventListener ("mouseup" , this.onMouseUp , false);
+    // Finalizes the node's placement after a drag and drop:
+    this.setMode(SeedEditor.EDITMODE.MOVEPT);
+  } 
 }
 
 SeedEditor.prototype.mouseClick = function(evt) {
@@ -1036,6 +1051,7 @@ SeedEditor.prototype.mouseClick = function(evt) {
       this.setMode(SeedEditor.EDITMODE.DONE);
       this.movePt = -1;
       this.anchor1 = this.anchor2 = null;
+      globalClearedCanvas = false;
     }
   }
 };
@@ -1058,6 +1074,7 @@ SeedEditor.prototype.keyPress = function(evt) {
 };
 
 SeedEditor.prototype.mouseDblClick = function(evt) {
+  globalClearedCanvas = false;
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
     this.getMousePos(evt);
     this.fractalDraw.addToSeed([this.mouseX, this.mouseY, this.currentSegType]);
@@ -1075,7 +1092,6 @@ SeedEditor.prototype.mouseDblClick = function(evt) {
           this.mouseY, seed[closestLn + 1][2],
         ],
         closestLn + 1);
-
       this.anchor1 = seed[closestLn].slice();
       this.anchor2 = seed[closestLn + 2].slice();
       this.anchor1[2] = this.anchor2[2];
@@ -1083,6 +1099,7 @@ SeedEditor.prototype.mouseDblClick = function(evt) {
       this.fractalDraw.drawSeed(false, this.movePt);
       this.gridhighlight = [this.mouseX, this.mouseY];
       this.drawWork();
+      seedEditorDoubleClick = true;
       this.setMode(SeedEditor.EDITMODE.MOVEPT);
     }
   }
@@ -1998,7 +2015,6 @@ MultiModeTool.prototype.setMode = function(modeNum) {
     this.currentMode = modeNum;
   }
 };
-
 
 MultiModeTool.prototype.setupSaveMenu = function() {
   let drawer = this.drawDiv;
