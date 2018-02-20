@@ -2057,7 +2057,7 @@ MultiModeTool.prototype.setupSaveMenu = function() {
 let fractaltoolInstances = null;
 
 /** Starts the fractal tool on load. */
-function fractaltoolInit() {
+function fractalToolInit() {
   let tools = document.getElementsByClassName('fractaltool');
   fractaltoolInstances = [];
   for (let i = 0; i < tools.length; i++) {
@@ -2067,5 +2067,46 @@ function fractaltoolInit() {
 }
 
 window.addEventListener('load', function(evt) {
-  fractaltoolInit();
+  fractalToolInit();
 });
+
+CloudSaver.prototype.loginPopup = function(callBack, errorCallBack) {
+  this.getCSRFToken();
+  let dialogDiv = $('#loginDialog');
+  dialogDiv.dialog('destroy');
+  dialogDiv.dialog({
+  modal : true,
+  buttons : [
+    {
+        text : "Submit",
+        class : 'Green',
+        click : function() {
+          $( this ).dialog( "close" );
+          let username = document.getElementsByName('username')[0].value;
+          let password = document.getElementsByName('password')[0].value;
+          if (!username || !password) {
+            errorCallBack('Didn\'t log in');
+            return;
+          }
+          cloud.login(username, password, function(data) {
+            cloud.getUser(callBack, errorCallBack);
+          },
+            errorCallBack
+          );
+        }
+    },
+    {
+        text : "Cancel",
+        class : 'Red',
+        click : function() {
+          $( this ).dialog( "close" );
+          errorCallBack('Didn\'t log in');
+        }
+    } ]
+  });
+};
+
+// Local Variables:
+// mode: js
+// js-indent-level: 2
+// End:
