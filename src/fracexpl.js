@@ -634,7 +634,6 @@ function SeedEditor(fractalDraw, enabled) {
     panelTD.appendChild(typeBtn);
   }
   panelRow.appendChild(panelTD);
-
   panelRow = document.createElement('tr');
   panelTbl.appendChild(panelRow);
   panelTD = document.createElement('td');
@@ -988,8 +987,6 @@ the node in place */
     globalClearedCanvas = false;
   }
 }
-
-
 
 SeedEditor.prototype.mouseClick = function(evt) {
   let seed = this.fractalDraw.seed; // Better way to do this?
@@ -1989,6 +1986,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
 MultiModeTool.prototype.addMode = function(title, modeObj) {
   let button = document.createElement('button');
   button.innerHTML = title;
+  button.id = title;
   button.className = 'btn btn-secondary btn-sm';
   button.style.marginLeft = '4px';
   button.onclick = function(modeNum) {
