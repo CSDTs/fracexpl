@@ -945,13 +945,11 @@ SeedEditor.prototype.onMouseDown = function(evt) {
   }
 }
 
-
 SeedEditor.prototype.onMouseMove = function(evt) {
   /* Triggers flag to verify that you are drag n' dropping, instead of just
   clicking the node to activate mode switch */
   seedEditorMouseMoved = true;
 }
-
 
 SeedEditor.prototype.onMouseUp = function(evt) {
 /* Checks if drag and drop event by the 'seedEditorMouseMoved' flag. If
