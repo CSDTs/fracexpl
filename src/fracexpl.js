@@ -726,6 +726,9 @@ SeedEditor.prototype.setSeedByName = function(seedName) {
 
 SeedEditor.prototype.pickSeed = function() {
   this.reset();
+  if (this.picker.selectedIndex === 0) {
+    globalClearedCanvas = true;
+  }
   if (this.picker.selectedIndex != 0) {
     this.fractalDraw.setSeed(this.stdSeeds[this.picker.selectedIndex]);
     this.fractalDraw.setDrawWidth(this.stdSeedWidth[this.picker.selectedIndex]);
