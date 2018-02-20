@@ -882,6 +882,7 @@ SeedEditor.prototype.clearWork = function() {
 };
 
 SeedEditor.prototype.getMousePos = function(evt) {
+  this.workrect = this.workcanvas.getBoundingClientRect();
   this.rawX = evt.clientX - this.workrect.left;
   this.rawY = evt.clientY - this.workrect.top;
   if (this.snapBox.checked) {
