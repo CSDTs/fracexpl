@@ -987,9 +987,7 @@ the node in place */
     document.removeEventListener ("mouseup" , this.onMouseUp , false);
     // Finalizes the node's placement after a drag and drop:
     this.setMode(SeedEditor.EDITMODE.MOVEPT);
-  } else {
-    globalClearedCanvas = false;
-  }
+  } 
 }
 
 SeedEditor.prototype.mouseClick = function(evt) {
@@ -1076,6 +1074,7 @@ SeedEditor.prototype.keyPress = function(evt) {
 };
 
 SeedEditor.prototype.mouseDblClick = function(evt) {
+  globalClearedCanvas = false;
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
     this.getMousePos(evt);
     this.fractalDraw.addToSeed([this.mouseX, this.mouseY, this.currentSegType]);
