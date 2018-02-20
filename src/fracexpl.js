@@ -18,6 +18,10 @@
  * section 4, provided you include this license notice and a URL
  * through which recipients can access the Corresponding Source.
  */
+//all instances need to use the same cloud
+window.cloud = new CloudSaver();
+window.applicationID = 69;
+
 /** Returns the square of a value
 @param {double} x - The value to be squared
 @return {double} - The square of x
@@ -25,9 +29,6 @@
 function sqr(x) {
   return x * x;
 }
-
-window.cloud = new CloudSaver();
-window.applicationID = 69;
 
 /** The main fractal drawing function
 @param {int} toolNum - The canvas number
@@ -732,6 +733,9 @@ SeedEditor.prototype.pickSeed = function() {
   this.fractalDraw.drawSeed(true);
 };
 
+// Global variable for clear and "Make Own..." new canvas
+// that prevents mouse actions that don't allow the placing
+// of an initial point on an empty canvas
 let globalClearedCanvas = false;
 
 SeedEditor.prototype.clearBtnClicked = function() {
@@ -882,7 +886,6 @@ SeedEditor.prototype.clearWork = function() {
 };
 
 SeedEditor.prototype.getMousePos = function(evt) {
-  this.workrect = this.workcanvas.getBoundingClientRect();
   this.rawX = evt.clientX - this.workrect.left;
   this.rawY = evt.clientY - this.workrect.top;
   if (this.snapBox.checked) {
@@ -946,13 +949,11 @@ SeedEditor.prototype.onMouseDown = function(evt) {
   }
 }
 
-
 SeedEditor.prototype.onMouseMove = function(evt) {
   /* Triggers flag to verify that you are drag n' dropping, instead of just
   clicking the node to activate mode switch */
   seedEditorMouseMoved = true;
 }
-
 
 SeedEditor.prototype.onMouseUp = function(evt) {
 /* Checks if drag and drop event by the 'seedEditorMouseMoved' flag. If
@@ -977,10 +978,6 @@ the node in place */
           this.setMode(SeedEditor.EDITMODE.DONE);
         }
       }
-      let event0 = new Event("click");
-      event0.clientX = evt.clientX;
-      event0.clientY = evt.clientY;
-      this.mouseClick(event0);
       return;
     }
     seedEditorMouseMoved = false;
@@ -988,6 +985,8 @@ the node in place */
     document.removeEventListener ("mouseup" , this.onMouseUp , false);
     // Finalizes the node's placement after a drag and drop:
     this.setMode(SeedEditor.EDITMODE.MOVEPT);
+  } else {
+    globalClearedCanvas = false;
   }
 }
 
@@ -2109,3 +2108,8 @@ CloudSaver.prototype.loginPopup = function(callBack, errorCallBack) {
     } ]
   });
 };
+
+// Local Variables:
+// mode: js
+// js-indent-level: 2
+// End:
