@@ -30,6 +30,9 @@ function sqr(x) {
   return x * x;
 }
 
+window.cloud = new CloudSaver();
+window.applicationID = 69;
+
 /** The main fractal drawing function
 @param {int} toolNum - The canvas number
 @param {int} seed - The starting shape
@@ -349,6 +352,195 @@ FractalDraw.prototype.getDim = function() {
 
   return (lo + hi) / 2;
 };
+
+FractalDraw.prototype.loadLocally = function(evt) {
+  let file = evt.target.files[0];
+  if (!file.type.match('application/json')) {
+    console.log('bad file type');
+    return;
+  }
+
+  let reader = new FileReader();
+  let myself = this;
+  reader.onload = function(e) {
+    let data = JSON.parse(e.target.result);
+    myself.setSeed(data.seed);
+    myself.drawSeed(true);
+    myself.disableMode();
+    document.getElementById('Edit Mode').click();
+  };
+  reader.readAsText(file);
+};
+
+FractalDraw.prototype.loadRemotely = function(evt) {
+  let myself = this;
+  cloud.getUser(isLoggedIn, failedLoggedIn);
+  let attemptedLogin = false;
+  function isLoggedIn(data) {
+    if (data.id) {
+      getProjectData(data);
+    }
+    else if(!attemptedLogin) {
+      attemptedLogin = true;
+      cloud.loginPopup(isLoggedIn,failedLoggedIn);
+    }
+    else {
+      alert('Bad Username or Password');
+    }
+  }
+  function failedLoggedIn(data) {
+    console.log(data);
+    alert('Error logging in');
+  }
+  function getProjectData(data) {
+    cloud.listProject(data.id,displayList,error)
+  }
+  function notLoggedIn() {
+    cloud.loginPopup(getProjectData,failedLoggedIn);
+  }
+  function failedLoggedIn(data) {
+    console.log(data);
+    alert('Failed To Log In');
+  }
+  function displayList(data) {
+    var dialogDiv = $('#projectListDialog');
+    dialogDiv.dialog('destroy');
+    projectList = document.getElementById('projectList');
+    while (projectList.firstChild) {
+        projectList.removeChild(projectList.firstChild);
+    }
+    for (var i = 0; i < data.length; i++) {
+      if(data[i].application == applicationID) {
+        let listItem = document.createElement('li');
+        listItem.class = 'ui-widget-content';
+        listItem.innerHTML = data[i].name;
+        listItem.option = data[i].id;
+        projectList.appendChild(listItem);
+      }
+    }
+    $('#projectList').selectable();
+    dialogDiv.dialog({
+    modal : true,
+    buttons : [
+            {
+                text : "Select",
+                class : 'Green',
+                click : function() {
+                  $( this ).dialog( "close" );
+                  selected = projectList.getElementsByClassName('ui-selected');
+                  if(selected[0]) {
+                    cloud.loadProject(selected[0].option,load,error);
+                  }
+                }
+            },
+            {
+                text : "Cancel",
+                class : 'Red',
+                click : function() {
+                  $( this ).dialog( "close" );
+                }
+            } ]
+    });
+  }
+  function error(data) {
+    console.log(data);
+    alert('Failed To Get Project');
+  }
+  function load(string) {
+    let data = JSON.parse(string);
+    myself.setSeed(data.seed);
+    myself.drawSeed(true);
+    myself.disableMode();
+    document.getElementById('Edit Mode').click();
+  }
+};
+
+FractalDraw.prototype.saveLocally = function() {
+  let name = prompt('Please enter the name of the pattern',
+    '<name goes here>');
+  let data = {
+    'fullname': name,
+    'seed': this.seed,
+    'itNumber': this.currLevels,
+    'thickness': this.drawWidth,
+    'thickness type': 0,
+  };
+  let blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: 'application/json',
+  });
+  saveAs(blob, name + '.json', false);
+};
+
+FractalDraw.prototype.saveRemotely = function() {
+  cloud.getUser(isLoggedIn, failedLoggedIn)
+  let myself = this;
+  let name = null;
+  let saveData = null;
+  let attemptedLogin = false;
+  function isLoggedIn(data) {
+    if (data.id) {
+      startSaving();
+    }
+    else if(!attemptedLogin) {
+      attemptedLogin = true;
+      cloud.loginPopup(isLoggedIn,failedLoggedIn);
+    }
+    else {
+      alert('Bad Username or Password');
+    }
+  }
+  function failedLoggedIn(data) {
+    console.log(data);
+    alert('Error logging in');
+  }
+  function startSaving() {
+    name = prompt('Please enter the name of the pattern',
+      '<name goes here>');
+    if (!name) return;
+    saveData = {
+      'fullname': name,
+      'seed': myself.seed,
+      'itNumber': myself.currLevels,
+      'thickness': myself.drawWidth,
+      'thickness type': 0,
+    };
+    myself.canvas.toBlob(saveImg)
+  }
+  function saveImg(blob) {
+    let formData = new FormData();
+    formData.append('file', blob);
+    cloud.saveFile(formData, savedImage, error);
+  }
+  function savedImage(data) {
+    myself.cloudImg = data.id
+    saveSeed();
+  }
+  function error(data) {
+    console.log(data);
+    alert('Failed Saving File To Cloud');
+  }
+  function saveSeed() {
+    let blob = new Blob([JSON.stringify(saveData, null, 2)], {
+      type: 'application/json',
+    });
+    let formData = new FormData();
+    formData.append('file', blob);
+    cloud.saveFile(formData, savedSeed, error);
+  }
+  function savedSeed(data) {
+    myself.cloudSeed = data.id
+    createProject();
+  }
+  function createProject(data) {
+    cloud.createProject(name, window.applicationID, myself.cloudSeed,
+        myself.cloudImg, createdProject, error);
+  }
+  function createdProject(data) {
+    myself.cloudproject = data.id
+    alert('Success');
+  }
+};
+
 
 FractalDraw.prototype.setSeed = function(newSeed) {
   this.seed = newSeed;
@@ -736,7 +928,10 @@ SeedEditor.prototype.pickSeed = function() {
   this.fractalDraw.drawSeed(true);
 };
 
+let globalClearedCanvas = false;
+
 SeedEditor.prototype.clearBtnClicked = function() {
+  globalClearedCanvas = true;
   if (this.editMode == SeedEditor.EDITMODE.LOCKED) {
     this.picker.selectedIndex = 0;
     this.setMode(SeedEditor.EDITMODE.DONE);
@@ -916,32 +1111,34 @@ SeedEditor.prototype.onMouseDown = function(evt) {
   /* Clone of SeedEditor.prototype.mouseClick's
   this.editMode == SeedEditor.EDITMODE.DONE
   so clicking once and dragging activates getting anchor point  */
-  let seed = this.fractalDraw.seed;
-  this.getMousePos(evt);
-  let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
-  if (closestPt < 0) return;
-  if (closestPt >= 0) {
-    if (closestPt == 0) {
-      this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
-    } else {
-      this.anchor1 = [seed[closestPt - 1][0],
-      seed[closestPt - 1][1],
-      seed[closestPt][2]];
-      if (closestPt < seed.length - 1) {
-        this.anchor2 = [seed[closestPt + 1][0],
-                        seed[closestPt + 1][1],
-                        seed[closestPt + 1][2]];
+  if (!globalClearedCanvas) {
+    let seed = this.fractalDraw.seed;
+    this.getMousePos(evt);
+    let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
+    if (closestPt < 0) return;
+    if (closestPt >= 0) {
+      if (closestPt == 0) {
+        this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
+      } else {
+        this.anchor1 = [seed[closestPt - 1][0],
+        seed[closestPt - 1][1],
+        seed[closestPt][2]];
+        if (closestPt < seed.length - 1) {
+          this.anchor2 = [seed[closestPt + 1][0],
+                          seed[closestPt + 1][1],
+                          seed[closestPt + 1][2]];
+        }
       }
+      this.movePt = closestPt;
+      this.setMode(SeedEditor.EDITMODE.MOVEPT);
+      // Erases previous lines & node when dragging:
+      this.fractalDraw.drawSeed(false, this.movePt);
+      this.gridhighlight = [this.mouseX, this.mouseY];
+      this.drawWork();
     }
-    this.movePt = closestPt;
-    this.setMode(SeedEditor.EDITMODE.MOVEPT);
-    // Erases previous lines & node when dragging:
-    this.fractalDraw.drawSeed(false, this.movePt);
-    this.gridhighlight = [this.mouseX, this.mouseY];
-    this.drawWork();
+    document.addEventListener ("mousemove" , this.onMouseMove , false);
+    document.addEventListener ("mouseup" , this.onMouseUp , false);
   }
-  document.addEventListener ("mousemove" , this.onMouseMove , false);
-  document.addEventListener ("mouseup" , this.onMouseUp , false);
 }
 
 
@@ -958,21 +1155,35 @@ it is a single click after a double click (signaled by the this.mouseDblClick
 if (state == Done)'s statements triggering the 'seedEditorDoubleClick'
 flag to true), it sets the final this.mouseDblClick(Event()) to set
 the node in place */
-  if (!seedEditorMouseMoved) {
-    if (seedEditorDoubleClick) {
-      seedEditorDoubleClick = false;
-      this.mouseDblClick(new Event("click"));
-      return;
-    }
-    this.setMode(SeedEditor.EDITMODE.DONE);
-    this.mouseClick(new Event("click"));
+  if (this === document) {
     return;
   }
-  seedEditorMouseMoved = false;
-  document.removeEventListener ("mousemove" , this.onMouseMove , false);
-  document.removeEventListener ("mouseup" , this.onMouseUp , false);
-  // Finalizes the node's placement after a drag and drop:
-  this.setMode(SeedEditor.EDITMODE.MOVEPT);
+  if (!globalClearedCanvas) {
+    if (!seedEditorMouseMoved) {
+      if (seedEditorDoubleClick) {
+        seedEditorDoubleClick = false;
+        this.mouseDblClick(new Event("click"));
+        return;
+      }
+      if (this.fractalDraw.seed.length < 1) {
+        this.setMode(SeedEditor.EDITMODE.INIT);
+      } else {
+        if (this.editMode !== 1) {
+          this.setMode(SeedEditor.EDITMODE.DONE);
+        }
+      }
+      let event0 = new Event("click");
+      event0.clientX = evt.clientX;
+      event0.clientY = evt.clientY;
+      this.mouseClick(event0);
+      return;
+    }
+    seedEditorMouseMoved = false;
+    document.removeEventListener ("mousemove" , this.onMouseMove , false);
+    document.removeEventListener ("mouseup" , this.onMouseUp , false);
+    // Finalizes the node's placement after a drag and drop:
+    this.setMode(SeedEditor.EDITMODE.MOVEPT);
+  }
 }
 
 SeedEditor.prototype.mouseClick = function(evt) {
@@ -1036,6 +1247,7 @@ SeedEditor.prototype.mouseClick = function(evt) {
       this.setMode(SeedEditor.EDITMODE.DONE);
       this.movePt = -1;
       this.anchor1 = this.anchor2 = null;
+      globalClearedCanvas = false;
     }
   }
 };
@@ -1998,7 +2210,6 @@ MultiModeTool.prototype.setMode = function(modeNum) {
     this.currentMode = modeNum;
   }
 };
-
 
 MultiModeTool.prototype.setupSaveMenu = function() {
   let drawer = this.drawDiv;
