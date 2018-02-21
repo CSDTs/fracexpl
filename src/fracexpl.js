@@ -20,7 +20,7 @@
  */
 //all instances need to use the same cloud
 window.cloud = new CloudSaver();
-window.applicationID = 69; 
+window.applicationID = 69;
 
 /** Returns the square of a value
 @param {double} x - The value to be squared
