@@ -126,7 +126,7 @@ FractalDraw.prototype.loadLocally = function(evt) {
     myself.setSeed(data.seed);
     myself.drawSeed(true);
     myself.disableMode();
-    document.getElementById('Edit Mode' + myself.instanceNum).click();
+    document.getElementById('EditMode' + myself.instanceNum).click();
   };
   reader.readAsText(file);
 };
@@ -210,7 +210,7 @@ FractalDraw.prototype.loadRemotely = function(evt) {
     myself.setSeed(data.seed);
     myself.drawSeed(true);
     myself.disableMode();
-    document.getElementById('Edit Mode' + myself.instanceNum).click();
+    document.getElementById('EditMode' + myself.instanceNum).click();
   }
 };
 
@@ -1995,7 +1995,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
 MultiModeTool.prototype.addMode = function(title, modeObj, globalId) {
   let button = document.createElement('button');
   button.innerHTML = title;
-  button.id = title + globalId;
+  button.id = title.replace(/ /g,'') + globalId;
   button.className = 'btn btn-secondary btn-sm';
   button.style.marginLeft = '4px';
   button.onclick = function(modeNum) {
