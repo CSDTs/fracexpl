@@ -631,6 +631,27 @@ function SeedEditor(fractalDraw, enabled) {
     typeBtn.innerHTML = '<img src=\"button' + (i + 1) + '.png\" />';
     typeBtn.className = 'btn btn-secondary btn-sm';
     typeBtn.style.marginLeft = '4px';
+    typeBtn.title = (function(i) { 
+      switch (i) {
+        case 0:
+          return 'Regular';
+          break;
+        case 1:
+          return 'Flip';
+          break;
+        case 2:
+          return 'Disabled';
+          break;
+        case 3:
+          return 'Disabled';
+          break;
+        case 4:
+          return 'No Recurse';
+          break;
+        case 5:
+          return 'No Line';
+          break;
+    }})(i);
     typeBtn.onclick = function(type) {
       this.setSegType(type);
     }.bind(this, i);
