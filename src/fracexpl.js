@@ -20,7 +20,7 @@
  */
 //all instances need to use the same cloud
 window.cloud = new CloudSaver();
-window.applicationID = 69;
+window.applicationID = 69; 
 
 /** Returns the square of a value
 @param {double} x - The value to be squared
@@ -37,9 +37,9 @@ function sqr(x) {
 @param {int} askHeight - Height of the div
 @param {int} levels - The # of levels of recursion
 */
-function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
+function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
   this.seed = seed;
-
+  this.instanceNum = instanceNum;
   this.canvas = document.createElement('canvas');
   this.canvas.id = 'ft-drawing-canvas-' + toolNum;
   this.canvas.width = Math.max(640, askWidth);
@@ -126,7 +126,7 @@ FractalDraw.prototype.loadLocally = function(evt) {
     myself.setSeed(data.seed);
     myself.drawSeed(true);
     myself.disableMode();
-    document.getElementById('Edit Mode').click();
+    document.getElementById('Edit Mode' + myself.instanceNum).click();
   };
   reader.readAsText(file);
 };
@@ -210,7 +210,7 @@ FractalDraw.prototype.loadRemotely = function(evt) {
     myself.setSeed(data.seed);
     myself.drawSeed(true);
     myself.disableMode();
-    document.getElementById('Edit Mode').click();
+    document.getElementById('Edit Mode' + myself.instanceNum).click();
   }
 };
 
@@ -1916,7 +1916,8 @@ SeedEditor.StdSeeds = {
 @param {int} askWidth - The div width requested
 @param {int} askHeight - The div height requested
 */
-function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
+function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
+  this.instanceNum = instanceNum;
   this.mainDiv = mainDiv;
   this.toolNum = toolNum;
   this.modes = [];
@@ -1938,7 +1939,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
   if (mainDiv.dataset['levels'] != undefined) {
     levels = mainDiv.dataset['levels'];
   }
-  this.drawDiv = new FractalDraw(toolNum, [], this.width, this.height, levels);
+  this.drawDiv = new FractalDraw(toolNum, [], this.width, this.height, levels, instanceNum);
   this.setupSaveMenu();
 
   this.canvasDiv = document.createElement('div');
@@ -1962,11 +1963,11 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
   mainDiv.appendChild(this.ctrlPanelDiv);
 
   this.canvasDiv.appendChild(this.drawDiv.getCanvas());
-  this.addMode('Iterate Mode', this.drawDiv);
+  this.addMode('Iterate Mode', this.drawDiv, instanceNum);
   this.drawDiv.disableMode();
 
   this.editorDiv = new SeedEditor(this.drawDiv, true);
-  this.addMode('Edit Mode', this.editorDiv);
+  this.addMode('Edit Mode', this.editorDiv, instanceNum);
   this.editorDiv.disableMode();
 
   let seedlist = 'koch,sprout,tree';
@@ -1991,10 +1992,10 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight) {
   this.setMode(mode);
 }
 
-MultiModeTool.prototype.addMode = function(title, modeObj) {
+MultiModeTool.prototype.addMode = function(title, modeObj, globalId) {
   let button = document.createElement('button');
   button.innerHTML = title;
-  button.id = title;
+  button.id = title + globalId;
   button.className = 'btn btn-secondary btn-sm';
   button.style.marginLeft = '4px';
   button.onclick = function(modeNum) {
@@ -2069,7 +2070,7 @@ function fractalToolInit() {
   let tools = document.getElementsByClassName('fractaltool');
   fractaltoolInstances = [];
   for (let i = 0; i < tools.length; i++) {
-    fractaltoolInstances[i] = new MultiModeTool(tools[i], i + 1, 800, 600);
+    fractaltoolInstances[i] = new MultiModeTool(tools[i], i + 1, 800, 600, i);
   }
 }
 
