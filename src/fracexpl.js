@@ -217,6 +217,9 @@ FractalDraw.prototype.loadRemotely = function(evt) {
 FractalDraw.prototype.saveLocally = function() {
   let name = prompt('Please enter the name of the pattern',
     '<name goes here>');
+  if (name === null) {
+    return;
+  }
   let data = {
     'fullname': name,
     'seed': this.seed,
