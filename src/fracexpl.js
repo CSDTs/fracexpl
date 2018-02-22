@@ -640,13 +640,13 @@ function SeedEditor(fractalDraw, enabled) {
           return 'Flip';
           break;
         case 2:
-          return 'Disabled';
+          return 'Invert';
           break;
         case 3:
-          return 'Disabled';
+          return 'Invert and Flip';
           break;
         case 4:
-          return 'No Recurse';
+          return 'No Recursion';
           break;
         case 5:
           return 'No Line';
