@@ -606,7 +606,6 @@ function SeedEditor(fractalDraw, enabled) {
   this.workcanvas.onmousedown = this.onMouseDown.bind(this);
 
   this.workcanvas.tabIndex = 1;
-  this.workcanvas.focus();
   this.workcanvas.onkeydown = this.keyPress.bind(this);
 
   this.editMode = SeedEditor.EDITMODE.INIT;
