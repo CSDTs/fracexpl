@@ -182,7 +182,7 @@ FractalDraw.prototype.loadRemotely = function(evt) {
     modal : true,
     buttons : [
             {
-                text : "Select",
+                text : "Open",
                 class : 'Green',
                 click : function() {
                   $( this ).dialog( "close" );
