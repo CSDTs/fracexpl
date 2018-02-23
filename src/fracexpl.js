@@ -735,27 +735,28 @@ SeedEditor.prototype.onMouseDown = function(evt) {
   if (!globalClearedCanvas) {
     let seed = this.fractalDraw.seed;
     this.getMousePos(evt);
-    let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
-    if (closestPt < 0) return;
-    if (closestPt >= 0) {
-      if (closestPt == 0) {
-        this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
-      } else {
-        this.anchor1 = [seed[closestPt - 1][0],
-        seed[closestPt - 1][1],
-        seed[closestPt][2]];
-        if (closestPt < seed.length - 1) {
-          this.anchor2 = [seed[closestPt + 1][0],
-                          seed[closestPt + 1][1],
-                          seed[closestPt + 1][2]];
+    if (this.editMode != SeedEditor.EDITMODE.MOVEPT) {
+      let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
+      if (closestPt < 0) return;
+      if (closestPt >= 0) {
+        if (closestPt == 0) {
+          this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
+        } else {
+          this.anchor1 = [seed[closestPt - 1][0],
+          seed[closestPt - 1][1],
+          seed[closestPt][2]];
+          if (closestPt < seed.length - 1) {
+            this.anchor2 = [seed[closestPt + 1][0],
+                            seed[closestPt + 1][1],
+                            seed[closestPt + 1][2]];
+          }
         }
+        this.movePt = closestPt;
+        this.fractalDraw.drawSeed(false, this.movePt);
+        this.gridhighlight = [this.mouseX, this.mouseY];
+        this.drawWork();
+        this.setMode(SeedEditor.EDITMODE.MOVEPT);
       }
-      this.movePt = closestPt;
-      this.setMode(SeedEditor.EDITMODE.MOVEPT);
-      // Erases previous lines & node when dragging:
-      this.fractalDraw.drawSeed(false, this.movePt);
-      this.gridhighlight = [this.mouseX, this.mouseY];
-      this.drawWork();
     }
     document.addEventListener ("mousemove" , this.onMouseMove , false);
     document.addEventListener ("mouseup" , this.onMouseUp , false);
