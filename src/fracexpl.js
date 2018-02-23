@@ -1086,7 +1086,8 @@ SeedEditor.prototype.keyPress = function(evt) {
   let charCode = evt.keyCode || evt.which;
   if ((charCode == 46) || (charCode == 8)) {
     // Delete (or backspace)
-    if (this.editMode == SeedEditor.EDITMODE.MOVEPT && this.fractalDraw.seed.length > 2) {
+    if (this.editMode == SeedEditor.EDITMODE.MOVEPT && 
+      (this.fractalDraw.seed.length > 2)) {
       seedEditorMouseMoved = false;
       document.removeEventListener ("mousemove" , this.onMouseMove , false);
       document.removeEventListener ("mouseup" , this.onMouseUp , false);
