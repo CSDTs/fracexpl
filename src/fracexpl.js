@@ -114,7 +114,7 @@ FractalDraw.prototype.checkDim = function(dim) {
 
 FractalDraw.prototype.loadLocally = function(evt) {
   let file = evt.target.files[0];
-  if (!file.type.match('application/json')) {
+  if (!file.name.toLowerCase().endsWith('.json')) {
     console.log('bad file type');
     return;
   }
