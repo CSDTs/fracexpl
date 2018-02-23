@@ -783,7 +783,6 @@ SeedEditor.prototype.getCtrls = function() {
 SeedEditor.prototype.setSegType = function(type) {
   seedEditorMouseMoved = false;
   document.removeEventListener ("mousemove" , this.onMouseMove , false);
-  document.removeEventListener ("mouseup" , this.onMouseUp , false);
   if (type != this.currentSegType) {
     if (this.currentSegType != -1) {
       this.segTypeBtn[this.currentSegType].disabled = false;
