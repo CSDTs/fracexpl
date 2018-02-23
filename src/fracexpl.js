@@ -566,6 +566,9 @@ SeedEditor.prototype.getCtrls = function() {
 };
 
 SeedEditor.prototype.setSegType = function(type) {
+  seedEditorMouseMoved = false;
+  document.removeEventListener ("mousemove" , this.onMouseMove , false);
+  document.removeEventListener ("mouseup" , this.onMouseUp , false);
   if (type != this.currentSegType) {
     if (this.currentSegType != -1) {
       this.segTypeBtn[this.currentSegType].disabled = false;
@@ -737,7 +740,12 @@ SeedEditor.prototype.onMouseDown = function(evt) {
     this.getMousePos(evt);
     if (this.editMode != SeedEditor.EDITMODE.MOVEPT) {
       let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
-      if (closestPt < 0) return;
+      if (closestPt < 0) {
+        seedEditorMouseMoved = false;
+        document.removeEventListener ("mousemove" , this.onMouseMove , false);
+        document.removeEventListener ("mouseup" , this.onMouseUp , false);
+        return;
+      }
       if (closestPt >= 0) {
         if (closestPt == 0) {
           this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
