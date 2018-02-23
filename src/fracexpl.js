@@ -1088,6 +1088,7 @@ SeedEditor.prototype.keyPress = function(evt) {
     // Delete (or backspace)
     seedEditorMouseMoved = false;
     document.removeEventListener ("mousemove" , this.onMouseMove , false);
+    document.removeEventListener ("mouseup" , this.onMouseUp , false);
     if ((this.editMode == SeedEditor.EDITMODE.MOVEPT) &&
       (this.fractalDraw.seed.length > 2)) {
       this.fractalDraw.deleteFromSeed(this.movePt);
