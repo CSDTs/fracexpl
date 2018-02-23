@@ -114,7 +114,7 @@ FractalDraw.prototype.checkDim = function(dim) {
 
 FractalDraw.prototype.loadLocally = function(evt) {
   let file = evt.target.files[0];
-  if (!file.name.toLowerCase().endsWith('.json')) {
+  if (!file.type.match('application/json')) {
     console.log('bad file type');
     return;
   }
@@ -950,27 +950,28 @@ SeedEditor.prototype.onMouseDown = function(evt) {
   if (!globalClearedCanvas) {
     let seed = this.fractalDraw.seed;
     this.getMousePos(evt);
-    let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
-    if (closestPt < 0) return;
-    if (closestPt >= 0) {
-      if (closestPt == 0) {
-        this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
-      } else {
-        this.anchor1 = [seed[closestPt - 1][0],
-        seed[closestPt - 1][1],
-        seed[closestPt][2]];
-        if (closestPt < seed.length - 1) {
-          this.anchor2 = [seed[closestPt + 1][0],
-                          seed[closestPt + 1][1],
-                          seed[closestPt + 1][2]];
+    if (this.editMode != SeedEditor.EDITMODE.MOVEPT) {
+      let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
+      if (closestPt < 0) return;
+      if (closestPt >= 0) {
+        if (closestPt == 0) {
+          this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
+        } else {
+          this.anchor1 = [seed[closestPt - 1][0],
+          seed[closestPt - 1][1],
+          seed[closestPt][2]];
+          if (closestPt < seed.length - 1) {
+            this.anchor2 = [seed[closestPt + 1][0],
+                            seed[closestPt + 1][1],
+                            seed[closestPt + 1][2]];
+          }
         }
+        this.movePt = closestPt;
+        this.fractalDraw.drawSeed(false, this.movePt);
+        this.gridhighlight = [this.mouseX, this.mouseY];
+        this.drawWork();
+        this.setMode(SeedEditor.EDITMODE.MOVEPT);
       }
-      this.movePt = closestPt;
-      this.setMode(SeedEditor.EDITMODE.MOVEPT);
-      // Erases previous lines & node when dragging:
-      this.fractalDraw.drawSeed(false, this.movePt);
-      this.gridhighlight = [this.mouseX, this.mouseY];
-      this.drawWork();
     }
     document.addEventListener ("mousemove" , this.onMouseMove , false);
     document.addEventListener ("mouseup" , this.onMouseUp , false);
@@ -1086,12 +1087,9 @@ SeedEditor.prototype.keyPress = function(evt) {
   let charCode = evt.keyCode || evt.which;
   if ((charCode == 46) || (charCode == 8)) {
     // Delete (or backspace)
-    if (this.editMode == SeedEditor.EDITMODE.MOVEPT && 
-      (this.fractalDraw.seed.length > 2)) {
-      seedEditorMouseMoved = false;
-      document.removeEventListener ("mousemove" , this.onMouseMove , false);
-      document.removeEventListener ("mouseup" , this.onMouseUp , false);
-    }
+    seedEditorMouseMoved = false;
+    document.removeEventListener ("mousemove" , this.onMouseMove , false);
+    document.removeEventListener ("mouseup" , this.onMouseUp , false);
     if ((this.editMode == SeedEditor.EDITMODE.MOVEPT) &&
       (this.fractalDraw.seed.length > 2)) {
       this.fractalDraw.deleteFromSeed(this.movePt);
