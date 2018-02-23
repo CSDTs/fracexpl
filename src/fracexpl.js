@@ -1086,9 +1086,11 @@ SeedEditor.prototype.keyPress = function(evt) {
   let charCode = evt.keyCode || evt.which;
   if ((charCode == 46) || (charCode == 8)) {
     // Delete (or backspace)
-    seedEditorMouseMoved = false;
-    document.removeEventListener ("mousemove" , this.onMouseMove , false);
-    document.removeEventListener ("mouseup" , this.onMouseUp , false);
+    if (this.editMode === 3 && this.fractalDraw.seed.length != 2) {
+      seedEditorMouseMoved = false;
+      document.removeEventListener ("mousemove" , this.onMouseMove , false);
+      document.removeEventListener ("mouseup" , this.onMouseUp , false);
+    }
     if ((this.editMode == SeedEditor.EDITMODE.MOVEPT) &&
       (this.fractalDraw.seed.length > 2)) {
       this.fractalDraw.deleteFromSeed(this.movePt);
