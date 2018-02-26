@@ -945,6 +945,7 @@ SeedEditor.prototype.mouseMove = function(evt) {
 // Global Variables for mouse handling, since click and mousedown conflict.
 let seedEditorMouseMoved = false;
 let seedEditorDoubleClick = false;
+let globalColorClock = function() {};
 
 SeedEditor.prototype.onMouseDown = function(evt) {
   /* Clone of SeedEditor.prototype.mouseClick's
@@ -1068,11 +1069,21 @@ SeedEditor.prototype.mouseClick = function(evt) {
       this.drawWork();
       this.setMode(SeedEditor.EDITMODE.MOVEPT);
     } else {
-      let closestLn = this.fractalDraw.closestLn([this.rawX, this.rawY]);
-      if (closestLn >= 0) {
-        seed[closestLn + 1][2] = this.currentSegType;
-        this.fractalDraw.drawSeed(true);
+      placeColor = () => {
+        let closestLn = this.fractalDraw.closestLn([this.rawX, this.rawY]);
+        if (closestLn >= 0) {
+          seed[closestLn + 1][2] = this.currentSegType;
+          this.fractalDraw.drawSeed(true); 
+        }
       }
+      this.placeColorCallback = () => {
+        this.colorTimer = setTimeout(() => { 
+          placeColor();
+        }, 500);
+      }
+      this.placeColorCallback();
+          
+      
     }
   } else if (this.editMode == SeedEditor.EDITMODE.MOVEPT) {
     if (this.movePt >= 0) {
@@ -1116,6 +1127,7 @@ SeedEditor.prototype.keyPress = function(evt) {
 
 SeedEditor.prototype.mouseDblClick = function(evt) {
   globalClearedCanvas = false;
+  clearTimeout(this.placeColorCallback);
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
     this.getMousePos(evt);
     this.fractalDraw.addToSeed([this.mouseX, this.mouseY, this.currentSegType]);
