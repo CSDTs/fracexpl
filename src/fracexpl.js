@@ -2076,6 +2076,7 @@ MultiModeTool.prototype.setupSaveMenu = function() {
   // load files from cloud
   let loadFromCloudItem = document.createElement('li');
   let loadFromCloud = document.createElement('button');
+  loadFromCloud.className = 'btn btn-secondary btn-sm';
   loadFromCloud.innerHTML = 'Load From Cloud';
   loadFromCloud.onclick = function(event) {
     drawer.loadRemotely(event);
@@ -2084,6 +2085,7 @@ MultiModeTool.prototype.setupSaveMenu = function() {
 
   // save files
   let save = document.createElement('button');
+  save.className = 'btn btn-secondary btn-sm';
   save.innerHTML = 'Save To File';
   save.onclick = function(event) {
     drawer.saveLocally(event);
@@ -2092,6 +2094,7 @@ MultiModeTool.prototype.setupSaveMenu = function() {
 
   // save to cloud
   let saveToCloud = document.createElement('button');
+  saveToCloud.className = 'btn btn-secondary btn-sm';
   saveToCloud.innerHTML = 'Save To Cloud';
   saveToCloud.onclick = function(event) {
     drawer.saveRemotely(event);
