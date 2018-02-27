@@ -945,7 +945,6 @@ SeedEditor.prototype.mouseMove = function(evt) {
 // Global Variables for mouse handling, since click and mousedown conflict.
 let seedEditorMouseMoved = false;
 let seedEditorDoubleClick = false;
-let globalColorClock = function() {};
 
 SeedEditor.prototype.onMouseDown = function(evt) {
   /* Clone of SeedEditor.prototype.mouseClick's
