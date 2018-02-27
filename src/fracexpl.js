@@ -786,7 +786,7 @@ SeedEditor.prototype.setSegType = function(type) {
   document.removeEventListener ("mouseup" , this.onMouseUp , false);
   if (type != this.currentSegType) {
     if (this.currentSegType != -1) {
-      this.segTypeBtn[this.currentSegType].style.border = '';
+      this.segTypeBtn[this.currentSegType].style.border = null;
       this.segTypeBtn[this.currentSegType].disabled = false;
     }
     this.segTypeBtn[type].style.border = '2px solid rgb(236, 65, 168)';
