@@ -1076,6 +1076,10 @@ SeedEditor.prototype.mouseClick = function(evt) {
           this.fractalDraw.drawSeed(true); 
         }
       }
+      if (this.colorTimer) {
+        clearTimeout(this.colorTimer);
+        this.colorTimer = null;
+      }
       this.placeColorCallback = () => {
         this.colorTimer = setTimeout(() => { 
           placeColor();
@@ -1127,7 +1131,8 @@ SeedEditor.prototype.keyPress = function(evt) {
 
 SeedEditor.prototype.mouseDblClick = function(evt) {
   globalClearedCanvas = false;
-  clearTimeout(this.placeColorCallback);
+  clearTimeout(this.colorTimer);
+  this.colorTimer = null;
   if (this.editMode == SeedEditor.EDITMODE.DEFINING) {
     this.getMousePos(evt);
     this.fractalDraw.addToSeed([this.mouseX, this.mouseY, this.currentSegType]);
