@@ -61,6 +61,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels) {
       this.drawIt(inum);
     }.bind(this, i));
     button.innerHTML = 'Iter ' + i;
+    button.id = button.innerHTML;
     this.levelButtons.appendChild(button);
   }
   this.currLevels = levels;
@@ -127,6 +128,8 @@ FractalDraw.prototype.loadLocally = function(evt) {
     myself.drawSeed(true);
     myself.disableMode();
     document.getElementById('Edit Mode').click();
+    document.getElementById('Draw Mode').click();
+    document.getElementById('Iter '+data.itNumber).click();
   };
   reader.readAsText(file);
 };
@@ -194,6 +197,8 @@ FractalDraw.prototype.loadRemotely = function(evt) {
     myself.drawSeed(true);
     myself.disableMode();
     document.getElementById('Edit Mode').click();
+    document.getElementById('Draw Mode').click();
+    document.getElementById('Iter '+data.itNumber).click();
   }
 };
 
