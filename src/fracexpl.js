@@ -61,6 +61,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
       this.drawIt(inum);
     }.bind(this, i));
     button.innerHTML = 'Iter ' + i;
+    button.id = instanceNum+button.innerHTML;
     this.levelButtons.appendChild(button);
   }
   this.currLevels = levels;
@@ -127,6 +128,8 @@ FractalDraw.prototype.loadLocally = function(evt) {
     myself.drawSeed(true);
     myself.disableMode();
     document.getElementById('EditMode' + myself.instanceNum).click();
+    document.getElementById('IterateMode'+myself.instanceNum).click();
+    document.getElementById(myself.instanceNum+ 'Iter '+data.itNumber).click();
   };
   reader.readAsText(file);
 };
@@ -211,6 +214,8 @@ FractalDraw.prototype.loadRemotely = function(evt) {
     myself.drawSeed(true);
     myself.disableMode();
     document.getElementById('EditMode' + myself.instanceNum).click();
+    document.getElementById('IterateMode'+myself.instanceNum).click();
+    document.getElementById(myself.instanceNum+ 'Iter '+data.itNumber).click();
   }
 };
 
@@ -633,7 +638,7 @@ function SeedEditor(fractalDraw, enabled) {
     typeBtn.innerHTML = '<img src=\"button' + (i + 1) + '.png\" />';
     typeBtn.className = 'btn btn-secondary btn-sm';
     typeBtn.style.marginLeft = '4px';
-    typeBtn.title = (function(i) { 
+    typeBtn.title = (function(i) {
       switch (i) {
         case 0:
           return 'Regular';
@@ -1024,7 +1029,7 @@ the node in place */
     document.removeEventListener ("mouseup" , this.onMouseUp , false);
     // Finalizes the node's placement after a drag and drop:
     this.setMode(SeedEditor.EDITMODE.MOVEPT);
-  } 
+  }
 }
 
 SeedEditor.prototype.mouseClick = function(evt) {
@@ -1074,7 +1079,7 @@ SeedEditor.prototype.mouseClick = function(evt) {
         let closestLn = this.fractalDraw.closestLn([this.rawX, this.rawY]);
         if (closestLn >= 0) {
           seed[closestLn + 1][2] = this.currentSegType;
-          this.fractalDraw.drawSeed(true); 
+          this.fractalDraw.drawSeed(true);
         }
       }
       if (this.colorTimer) {
@@ -1082,13 +1087,13 @@ SeedEditor.prototype.mouseClick = function(evt) {
         this.colorTimer = null;
       }
       this.placeColorCallback = () => {
-        this.colorTimer = setTimeout(() => { 
+        this.colorTimer = setTimeout(() => {
           placeColor();
         }, 500);
       }
       this.placeColorCallback();
-          
-      
+
+
     }
   } else if (this.editMode == SeedEditor.EDITMODE.MOVEPT) {
     if (this.movePt >= 0) {
@@ -1111,7 +1116,7 @@ SeedEditor.prototype.keyPress = function(evt) {
   let charCode = evt.keyCode || evt.which;
   if ((charCode == 46) || (charCode == 8)) {
     // Delete (or backspace)
-    if (this.editMode == SeedEditor.EDITMODE.MOVEPT && 
+    if (this.editMode == SeedEditor.EDITMODE.MOVEPT &&
       (this.fractalDraw.seed.length > 2)) {
       seedEditorMouseMoved = false;
       document.removeEventListener ("mousemove" , this.onMouseMove , false);
