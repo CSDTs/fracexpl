@@ -64,6 +64,16 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
     button.id = instanceNum+button.innerHTML;
     this.levelButtons.appendChild(button);
   }
+  button = document.createElement('button');
+  button.className = 'btn btn-default btn-sm';
+  button.style.marginLeft = '4px';
+  button.addEventListener('click', function(inum) {
+    this.drawIt(inum);
+  }.bind(this, 999));
+  button.innerHTML = '~Inf';
+  button.id = instanceNum+button.innerHTML;
+  this.levelButtons.appendChild(button);
+
   this.currLevels = levels;
   this.ctrlPanel.appendChild(this.levelButtons);
 
@@ -129,7 +139,12 @@ FractalDraw.prototype.loadLocally = function(evt) {
     myself.disableMode();
     document.getElementById('EditMode' + myself.instanceNum).click();
     document.getElementById('IterateMode'+myself.instanceNum).click();
-    document.getElementById(myself.instanceNum+ 'Iter '+data.itNumber).click();
+    if(data.itNumber<99) {
+      document.getElementById(myself.instanceNum+ 'Iter '+data.itNumber).click();
+    }
+    else {
+      document.getElementById(myself.instanceNum+ '~Inf ').click();
+    }
   };
   reader.readAsText(file);
 };
@@ -215,7 +230,12 @@ FractalDraw.prototype.loadRemotely = function(evt) {
     myself.disableMode();
     document.getElementById('EditMode' + myself.instanceNum).click();
     document.getElementById('IterateMode'+myself.instanceNum).click();
-    document.getElementById(myself.instanceNum+ 'Iter '+data.itNumber).click();
+    if(data.itNumber<99) {
+      document.getElementById(myself.instanceNum+ 'Iter '+data.itNumber).click();
+    }
+    else {
+      document.getElementById(myself.instanceNum+ '~Inf ').click();
+    }
   }
 };
 
@@ -461,11 +481,13 @@ FractalDraw.prototype.clear = function() {
 };
 
 FractalDraw.prototype.drawIt = function(levels) {
+  let currentLevelBtn = this.currLevels < this.levelButtons.children.length ? this.currLevels - 1 : this.levelButtons.children.length - 1;
   if (this.currLevels != -1) {
-    this.levelButtons.children[this.currLevels - 1].disabled = false;
+    this.levelButtons.children[currentLevelBtn].disabled = false;
   }
+  currentLevelBtn = levels < this.levelButtons.children.length ? levels - 1 : this.levelButtons.children.length - 1;
   this.currLevels = levels;
-  this.levelButtons.children[levels - 1].disabled = true;
+  this.levelButtons.children[currentLevelBtn].disabled = true;
   this.clear();
   this.ctx.lineWidth = this.drawThickness.value;
   this.ctx.strokeStyle = 'black';
@@ -531,12 +553,17 @@ FractalDraw.prototype.basedraw = function(start, end, hflip, level) {
   let blLen = dx * dx + dy * dy;
   let dx1 = end[0] - start[0];
   let dy1 = end[1] - start[1];
-  if (dx1 * dx1 + dy1 * dy1 < 1.0) {
+  let lineLength = (dx1 * dx1 + dy1 * dy1);
+  let baseLength = blLen;
+  if (lineLength < 1.0) {
     this.ctx.beginPath();
     this.ctx.moveTo(start[0], start[1]);
     this.ctx.lineTo(end[0], end[1]);
     this.ctx.stroke();
     return;
+  }
+  if (lineLength >= baseLength && level > 8) {
+    level = 8;
   }
   let a = (dx * dx1 + hflip * dy * dy1) / blLen;
   let b = (dx1 * dy - hflip * dx * dy1) / blLen;
