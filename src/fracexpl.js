@@ -469,6 +469,7 @@ FractalDraw.prototype.drawIt = function(levels) {
   this.clear();
   this.ctx.lineWidth = this.drawThickness.value;
   this.ctx.strokeStyle = 'black';
+  this.ctx.lineCap = 'round';
   this.basedraw(this.seed[0], this.seed[this.seed.length - 1], 1, levels);
   this.ctx.closePath();
 };
