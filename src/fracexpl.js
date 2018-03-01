@@ -55,7 +55,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
   this.levelButtons = document.createElement('div');
   for (let i = 1; i <= 8; i++) {
     let button = document.createElement('button');
-    button.className = 'btn btn-secondary btn-sm';
+    button.className = 'btn btn-default btn-sm';
     button.style.marginLeft = '4px';
     button.addEventListener('click', function(inum) {
       this.drawIt(inum);
@@ -636,7 +636,7 @@ function SeedEditor(fractalDraw, enabled) {
     let typeBtn = document.createElement('button');
     // typeBtn.innerHTML = SeedEditor.SegType[i].name;
     typeBtn.innerHTML = '<img src=\"button' + (i + 1) + '.png\" />';
-    typeBtn.className = 'btn btn-secondary btn-sm';
+    typeBtn.className = 'btn btn-default btn-sm';
     typeBtn.style.marginLeft = '4px';
     typeBtn.title = (function(i) {
       switch (i) {
@@ -687,7 +687,7 @@ function SeedEditor(fractalDraw, enabled) {
 
   this.clearBtn = document.createElement('button');
   this.clearBtn.innerHTML = 'Clear';
-  this.clearBtn.className = 'btn btn-secondary btn-sm';
+  this.clearBtn.className = 'btn btn-default btn-sm';
   this.clearBtn.style.marginLeft = '4px';
   this.clearBtn.style.marginRight = '4px';
   this.clearBtn.style.width = '80px';
@@ -2057,7 +2057,7 @@ MultiModeTool.prototype.addMode = function(title, modeObj, globalId) {
   let button = document.createElement('button');
   button.innerHTML = title;
   button.id = title.replace(/ /g,'') + globalId;
-  button.className = 'btn btn-secondary btn-sm';
+  button.className = 'btn btn-default btn-sm';
   button.style.marginLeft = '4px';
   button.onclick = function(modeNum) {
     this.setMode(modeNum);
@@ -2099,30 +2099,36 @@ MultiModeTool.prototype.setupSaveMenu = function() {
   // load files from cloud
   let loadFromCloudItem = document.createElement('li');
   let loadFromCloud = document.createElement('button');
-  loadFromCloud.className = 'btn btn-secondary btn-sm';
+  loadFromCloud.className = 'btn btn-default btn-xs';
+  loadFromCloud.style.marginLeft = '4px';
+  loadFromCloud.style.marginBottom = '2px';
   loadFromCloud.innerHTML = 'Load From Cloud';
   loadFromCloud.onclick = function(event) {
     drawer.loadRemotely(event);
   };
   loadAndSave.appendChild(loadFromCloud);
 
-  // save files
-  let save = document.createElement('button');
-  save.className = 'btn btn-secondary btn-sm';
-  save.innerHTML = 'Save To File';
-  save.onclick = function(event) {
-    drawer.saveLocally(event);
-  };
-  loadAndSave.appendChild(save);
-
   // save to cloud
   let saveToCloud = document.createElement('button');
-  saveToCloud.className = 'btn btn-secondary btn-sm';
+  saveToCloud.className = 'btn btn-default btn-xs';
+  saveToCloud.style.marginLeft = '4px';
+  saveToCloud.style.marginBottom = '2px';
   saveToCloud.innerHTML = 'Save To Cloud';
   saveToCloud.onclick = function(event) {
     drawer.saveRemotely(event);
   };
   loadAndSave.appendChild(saveToCloud);
+
+  // save files
+  let save = document.createElement('button');
+  save.className = 'btn btn-default btn-xs';
+  save.style.marginLeft = '4px';
+  save.style.marginBottom = '2px';
+  save.innerHTML = 'Save To File';
+  save.onclick = function(event) {
+    drawer.saveLocally(event);
+  };
+  loadAndSave.appendChild(save);
 
   this.mainDiv.appendChild(loadAndSave);
 };
