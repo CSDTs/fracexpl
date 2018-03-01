@@ -653,10 +653,10 @@ function SeedEditor(fractalDraw, enabled) {
           return 'Invert and Flip';
           break;
         case 4:
-          return 'No Recursion';
+          return 'Passive Replication';
           break;
         case 5:
-          return 'No Line';
+          return 'Invisible';
           break;
     }})(i);
     typeBtn.onclick = function(type) {
