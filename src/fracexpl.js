@@ -790,7 +790,6 @@ the node in place */
     if (!seedEditorMouseMoved) {
       if (seedEditorDoubleClick) {
         seedEditorDoubleClick = false;
-        this.mouseDblClick(new Event("click"));
         return;
       }
       if (this.fractalDraw.seed.length < 1) {
