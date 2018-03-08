@@ -751,7 +751,7 @@ function SeedEditor(fractalDraw, enabled) {
   panelTD.appendChild(this.thicknessBox);
 
   let thicknessBoxLabel = document.createElement('span');
-  thicknessBoxLabel.innerHTML = ' Width decreases with recursion';
+  thicknessBoxLabel.innerHTML = ' Thin with recursion';
   panelTD.appendChild(thicknessBoxLabel);
 
 
