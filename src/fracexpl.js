@@ -138,6 +138,13 @@ FractalDraw.prototype.loadLocally = function(evt) {
     myself.setSeed(data.seed);
     myself.drawSeed(true);
     myself.disableMode();
+    myself.setDrawWidth(data.thickness);
+    myself.thicknessType = data.thicknessType;
+    if (myself.thicknessType == 1) {
+      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
+    } else {
+      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
+    }
     document.getElementById('EditMode' + myself.instanceNum).click();
     document.getElementById('IterateMode'+myself.instanceNum).click();
     if(data.itNumber<99) {
@@ -228,7 +235,14 @@ FractalDraw.prototype.loadRemotely = function(evt) {
     let data = JSON.parse(string);
     myself.setSeed(data.seed);
     myself.drawSeed(true);
+    myself.setDrawWidth(data.thickness);
     myself.disableMode();
+    myself.thicknessType = data.thicknessType;
+    if (myself.thicknessType == 1) {
+      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
+    } else {
+      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
+    }
     document.getElementById('EditMode' + myself.instanceNum).click();
     document.getElementById('IterateMode'+myself.instanceNum).click();
     if(data.itNumber<99) {
@@ -250,8 +264,8 @@ FractalDraw.prototype.saveLocally = function() {
     'fullname': name,
     'seed': this.seed,
     'itNumber': this.currLevels,
-    'thickness': this.drawWidth,
-    'thickness type': 0,
+    'thickness': Number(this.drawThickness.value),
+    'thicknessType': this.thicknessType,
   };
   let blob = new Blob([JSON.stringify(data, null, 2)], {
     type: 'application/json',
@@ -289,8 +303,8 @@ FractalDraw.prototype.saveRemotely = function() {
       'fullname': name,
       'seed': myself.seed,
       'itNumber': myself.currLevels,
-      'thickness': myself.drawWidth,
-      'thickness type': 0,
+      'thickness': Number(myself.drawThickness.value),
+      'thicknessType': myself.thicknessType,
     };
     myself.canvas.toBlob(saveImg)
   }
@@ -742,6 +756,7 @@ function SeedEditor(fractalDraw, enabled) {
   panelTD.appendChild(snapBoxLabel);
 
   this.thicknessBox = document.createElement('input');
+  this.thicknessBox.id = 'thicknessBox' + this.fractalDraw.instanceNum;
   this.thicknessBox.type = 'checkbox';
   this.thicknessBox.checked = this.fractalDraw.seed.thicknessType;
   this.thicknessBox.style.marginLeft = '8px';
@@ -1354,7 +1369,7 @@ SeedEditor.StdSeeds = {
     ],
   },
   'cantorpaper': {
-    fullname: 'cantorpaper',
+    fullname: 'Cantor Paper',
     thickness: 2.0,
     thicknessType: 0,
     itNumber: 3,
