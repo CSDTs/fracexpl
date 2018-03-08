@@ -102,6 +102,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
 
   this.ctrlPanel.appendChild(panelRow);
   this.drawWidth = 1;
+  this.thicknessType = 0;
 }
 
 FractalDraw.prototype.checkDim = function(dim) {
@@ -546,8 +547,12 @@ FractalDraw.prototype.drawSeed = function(drawBaseLine = false, without = -1) {
   }
 };
 
-FractalDraw.prototype.basedraw = function(start, end, hflip, level) {
+FractalDraw.prototype.basedraw = function(start, end, hflip, level, thickness=this.ctx.lineWidth) {
   if (this.seed.length < 2) return;
+  if (this.thicknessType == 1) {
+    this.ctx.lineWidth = thickness;
+    --thickness;
+  }
   let dx = this.seed[this.seed.length - 1][0] - this.seed[0][0];
   let dy = this.seed[this.seed.length - 1][1] - this.seed[0][1];
   let blLen = dx * dx + dy * dy;
@@ -584,13 +589,13 @@ FractalDraw.prototype.basedraw = function(start, end, hflip, level) {
         this.ctx.lineTo(xn, yn);
         this.ctx.stroke();
       } else if (this.seed[i][2] == 1) {
-        this.basedraw([xx, yy], [xn, yn], -hflip, level - 1);
+        this.basedraw([xx, yy], [xn, yn], -hflip, level - 1, thickness);
       } else if (this.seed[i][2] == 2) {
-        this.basedraw([xn, yn], [xx, yy], -hflip, level - 1);
+        this.basedraw([xn, yn], [xx, yy], -hflip, level - 1, thickness);
       } else if (this.seed[i][2] == 3) {
-        this.basedraw([xn, yn], [xx, yy], hflip, level - 1);
+        this.basedraw([xn, yn], [xx, yy], hflip, level - 1, thickness);
       } else {
-        this.basedraw([xx, yy], [xn, yn], hflip, level - 1);
+        this.basedraw([xx, yy], [xn, yn], hflip, level - 1, thickness);
       }
     }
     xx = xn;
@@ -701,6 +706,7 @@ function SeedEditor(fractalDraw, enabled) {
 
   this.stdSeeds = [];
   this.stdSeedWidth = [];
+  this.stdSeedThicknessType = [];
   let pickerLabel = document.createElement('span');
   pickerLabel.innerHTML = 'Seed: ';
   panelTD.appendChild(pickerLabel);
@@ -732,8 +738,23 @@ function SeedEditor(fractalDraw, enabled) {
   panelTD.appendChild(this.snapBox);
 
   let snapBoxLabel = document.createElement('span');
-  snapBoxLabel.innerHTML = 'Snap to grid';
+  snapBoxLabel.innerHTML = ' Snap to grid';
   panelTD.appendChild(snapBoxLabel);
+
+  this.thicknessBox = document.createElement('input');
+  this.thicknessBox.type = 'checkbox';
+  this.thicknessBox.checked = this.fractalDraw.seed.thicknessType;
+  this.thicknessBox.style.marginLeft = '8px';
+  this.thicknessBox.onchange = function() {
+    this.thicknessBoxClicked();
+  }.bind(this);
+  panelTD.appendChild(this.thicknessBox);
+
+  let thicknessBoxLabel = document.createElement('span');
+  thicknessBoxLabel.innerHTML = ' Width decreases with recursion';
+  panelTD.appendChild(thicknessBoxLabel);
+
+
 
   panelRow.appendChild(panelTD);
 
@@ -742,13 +763,14 @@ function SeedEditor(fractalDraw, enabled) {
   this.setSegType(0);
 }
 
-SeedEditor.prototype.addSeed = function(name, longname, seed, width) {
+SeedEditor.prototype.addSeed = function(name, longname, seed, width, thicknessType) {
   let option = document.createElement('option');
   option.value = name;
   option.dataset['name'] = name;
   option.innerHTML = longname;
   this.stdSeeds.push(seed);
   this.stdSeedWidth.push(width);
+  this.stdSeedThicknessType.push(thicknessType);
   this.picker.appendChild(option);
 };
 
@@ -764,7 +786,8 @@ SeedEditor.prototype.addStdSeed = function(name) {
     }
     // Nudging thickness here, because I like the narrower lines...
     let thickness = Math.max(seedInfo.thickness - 1, 1);
-    this.addSeed(name, seedInfo.fullname, adjSeed, thickness);
+    let thicknessType = seedInfo.thicknessType;
+    this.addSeed(name, seedInfo.fullname, adjSeed, thickness, thicknessType);
   }
 };
 
@@ -788,8 +811,10 @@ SeedEditor.prototype.pickSeed = function() {
   if (this.picker.selectedIndex != 0) {
     this.fractalDraw.setSeed(this.stdSeeds[this.picker.selectedIndex]);
     this.fractalDraw.setDrawWidth(this.stdSeedWidth[this.picker.selectedIndex]);
+    this.fractalDraw.thicknessType = this.stdSeedThicknessType[this.picker.selectedIndex];
     this.clearWork();
     this.setMode(SeedEditor.EDITMODE.LOCKED);
+    this.thicknessBox.checked = (this.fractalDraw.thicknessType == 1) ? true : false;
   }
   this.fractalDraw.drawSeed(true);
 };
@@ -944,6 +969,10 @@ SeedEditor.prototype.editCopy = function() {
 
 SeedEditor.prototype.setMode = function(mode) {
   this.editMode = mode;
+};
+
+SeedEditor.prototype.thicknessBoxClicked = function() {
+  this.fractalDraw.thicknessType = this.thicknessBox.checked ? 1 : 0;
 };
 
 SeedEditor.prototype.clearWork = function() {
