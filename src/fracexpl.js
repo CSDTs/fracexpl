@@ -61,7 +61,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
       this.drawIt(inum);
     }.bind(this, i));
     button.innerHTML = 'Iter ' + i;
-    button.id = instanceNum+button.innerHTML;
+    button.id = instanceNum + button.innerHTML;
     this.levelButtons.appendChild(button);
   }
   button = document.createElement('button');
@@ -69,9 +69,9 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
   button.style.marginLeft = '4px';
   button.addEventListener('click', function(inum) {
     this.drawIt(inum);
-  }.bind(this, 999));
+  }.bind(this, 40));
   button.innerHTML = '~Inf';
-  button.id = instanceNum+button.innerHTML;
+  button.id = instanceNum + button.innerHTML;
   this.levelButtons.appendChild(button);
 
   this.currLevels = levels;
@@ -146,12 +146,11 @@ FractalDraw.prototype.loadLocally = function(evt) {
       document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
     }
     document.getElementById('EditMode' + myself.instanceNum).click();
-    document.getElementById('IterateMode'+myself.instanceNum).click();
-    if(data.itNumber<99) {
-      document.getElementById(myself.instanceNum+ 'Iter '+data.itNumber).click();
-    }
-    else {
-      document.getElementById(myself.instanceNum+ '~Inf ').click();
+    document.getElementById('IterateMode' + myself.instanceNum).click();
+    if (data.itNumber < 99) {
+      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
+    } else {
+      document.getElementById(myself.instanceNum + '~Inf ').click();
     }
   };
   reader.readAsText(file);
@@ -161,41 +160,45 @@ FractalDraw.prototype.loadRemotely = function(evt) {
   let myself = this;
   cloud.getUser(isLoggedIn, failedLoggedIn);
   let attemptedLogin = false;
+
   function isLoggedIn(data) {
     if (data.id) {
       getProjectData(data);
-    }
-    else if(!attemptedLogin) {
+    } else if (!attemptedLogin) {
       attemptedLogin = true;
-      cloud.loginPopup(isLoggedIn,failedLoggedIn);
-    }
-    else {
+      cloud.loginPopup(isLoggedIn, failedLoggedIn);
+    } else {
       alert('Bad Username or Password');
     }
   }
+
   function failedLoggedIn(data) {
     console.log(data);
     alert('Error logging in');
   }
+
   function getProjectData(data) {
-    cloud.listProject(data.id,displayList,error)
+    cloud.listProject(data.id, displayList, error)
   }
+
   function notLoggedIn() {
-    cloud.loginPopup(getProjectData,failedLoggedIn);
+    cloud.loginPopup(getProjectData, failedLoggedIn);
   }
+
   function failedLoggedIn(data) {
     console.log(data);
     alert('Failed To Log In');
   }
+
   function displayList(data) {
     var dialogDiv = $('#projectListDialog');
     dialogDiv.dialog('destroy');
     projectList = document.getElementById('projectList');
     while (projectList.firstChild) {
-        projectList.removeChild(projectList.firstChild);
+      projectList.removeChild(projectList.firstChild);
     }
     for (var i = 0; i < data.length; i++) {
-      if(data[i].application == applicationID) {
+      if (data[i].application == applicationID) {
         let listItem = document.createElement('li');
         listItem.class = 'ui-widget-content';
         listItem.innerHTML = data[i].name;
@@ -205,32 +208,34 @@ FractalDraw.prototype.loadRemotely = function(evt) {
     }
     $('#projectList').selectable();
     dialogDiv.dialog({
-    modal : true,
-    buttons : [
-            {
-                text : "Open",
-                class : 'Green',
-                click : function() {
-                  $( this ).dialog( "close" );
-                  selected = projectList.getElementsByClassName('ui-selected');
-                  if(selected[0]) {
-                    cloud.loadProject(selected[0].option,load,error);
-                  }
-                }
-            },
-            {
-                text : "Cancel",
-                class : 'Red',
-                click : function() {
-                  $( this ).dialog( "close" );
-                }
-            } ]
+      modal: true,
+      buttons: [{
+          text: "Open",
+          class: 'Green',
+          click: function() {
+            $(this).dialog("close");
+            selected = projectList.getElementsByClassName('ui-selected');
+            if (selected[0]) {
+              cloud.loadProject(selected[0].option, load, error);
+            }
+          }
+        },
+        {
+          text: "Cancel",
+          class: 'Red',
+          click: function() {
+            $(this).dialog("close");
+          }
+        }
+      ]
     });
   }
+
   function error(data) {
     console.log(data);
     alert('Failed To Get Project');
   }
+
   function load(string) {
     let data = JSON.parse(string);
     myself.setSeed(data.seed);
@@ -244,12 +249,11 @@ FractalDraw.prototype.loadRemotely = function(evt) {
       document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
     }
     document.getElementById('EditMode' + myself.instanceNum).click();
-    document.getElementById('IterateMode'+myself.instanceNum).click();
-    if(data.itNumber<99) {
-      document.getElementById(myself.instanceNum+ 'Iter '+data.itNumber).click();
-    }
-    else {
-      document.getElementById(myself.instanceNum+ '~Inf ').click();
+    document.getElementById('IterateMode' + myself.instanceNum).click();
+    if (data.itNumber < 99) {
+      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
+    } else {
+      document.getElementById(myself.instanceNum + '~Inf ').click();
     }
   }
 };
@@ -279,22 +283,23 @@ FractalDraw.prototype.saveRemotely = function() {
   let name = null;
   let saveData = null;
   let attemptedLogin = false;
+
   function isLoggedIn(data) {
     if (data.id) {
       startSaving();
-    }
-    else if(!attemptedLogin) {
+    } else if (!attemptedLogin) {
       attemptedLogin = true;
-      cloud.loginPopup(isLoggedIn,failedLoggedIn);
-    }
-    else {
+      cloud.loginPopup(isLoggedIn, failedLoggedIn);
+    } else {
       alert('Bad Username or Password');
     }
   }
+
   function failedLoggedIn(data) {
     console.log(data);
     alert('Error logging in');
   }
+
   function startSaving() {
     name = prompt('Please enter the name of the pattern',
       '<name goes here>');
@@ -308,19 +313,23 @@ FractalDraw.prototype.saveRemotely = function() {
     };
     myself.canvas.toBlob(saveImg)
   }
+
   function saveImg(blob) {
     let formData = new FormData();
     formData.append('file', blob);
     cloud.saveFile(formData, savedImage, error);
   }
+
   function savedImage(data) {
     myself.cloudImg = data.id
     saveSeed();
   }
+
   function error(data) {
     console.log(data);
     alert('Failed Saving File To Cloud');
   }
+
   function saveSeed() {
     let blob = new Blob([JSON.stringify(saveData, null, 2)], {
       type: 'application/json',
@@ -329,14 +338,17 @@ FractalDraw.prototype.saveRemotely = function() {
     formData.append('file', blob);
     cloud.saveFile(formData, savedSeed, error);
   }
+
   function savedSeed(data) {
     myself.cloudSeed = data.id
     createProject();
   }
+
   function createProject(data) {
     cloud.createProject(name, window.applicationID, myself.cloudSeed,
-        myself.cloudImg, createdProject, error);
+      myself.cloudImg, createdProject, error);
   }
+
   function createdProject(data) {
     myself.cloudproject = data.id
     alert('Success');
@@ -561,59 +573,66 @@ FractalDraw.prototype.drawSeed = function(drawBaseLine = false, without = -1) {
   }
 };
 
-FractalDraw.prototype.basedraw = function(start, end, hflip, level, thickness=this.ctx.lineWidth) {
+FractalDraw.prototype.basedraw = function(start, end, hflip, level, thickness = this.ctx.lineWidth) {
   if (this.seed.length < 2) return;
   if (this.thicknessType == 1) {
     this.ctx.lineWidth = thickness;
     --thickness;
   }
-  let dx = this.seed[this.seed.length - 1][0] - this.seed[0][0];
-  let dy = this.seed[this.seed.length - 1][1] - this.seed[0][1];
-  let blLen = dx * dx + dy * dy;
-  let dx1 = end[0] - start[0];
-  let dy1 = end[1] - start[1];
-  let lineLength = (dx1 * dx1 + dy1 * dy1);
-  let baseLength = blLen;
-  if (lineLength < 1.0) {
+
+  let baseDeltaX = this.seed[this.seed.length - 1][0] - this.seed[0][0];
+  let baseDeltaY = this.seed[this.seed.length - 1][1] - this.seed[0][1];
+  let baseLength = (baseDeltaX ** 2 + baseDeltaY ** 2) ** 0.5;
+  let segmentDeltaX = end[0] - start[0];
+  let segmentDeltaY = end[1] - start[1];
+  let segmentLength = (segmentDeltaX ** 2 + segmentDeltaY ** 2) ** 0.5;
+
+  if (segmentLength < 2.0) {
     this.ctx.beginPath();
     this.ctx.moveTo(start[0], start[1]);
     this.ctx.lineTo(end[0], end[1]);
     this.ctx.stroke();
     return;
   }
-  if (lineLength >= baseLength && level > 8) {
-    level = 8;
-  }
-  let a = (dx * dx1 + hflip * dy * dy1) / blLen;
-  let b = (dx1 * dy - hflip * dx * dy1) / blLen;
+
+  // TODO: This needs to be more comprehensible
+  let a = (baseDeltaX * segmentDeltaX + hflip * baseDeltaY * segmentDeltaY) / baseLength ** 2;
+  let b = (segmentDeltaX * baseDeltaY - hflip * baseDeltaX * segmentDeltaY) / baseLength ** 2;
   let tx = start[0] - a * this.seed[0][0] - b * this.seed[0][1];
-  let c = (dx * dy1 - hflip * dy * dx1) / blLen;
-  let d = (dy1 * dy + hflip * dx * dx1) / blLen;
+  let c = (baseDeltaX * segmentDeltaY - hflip * baseDeltaY * segmentDeltaX) / baseLength ** 2;
+  let d = (segmentDeltaY * baseDeltaY + hflip * baseDeltaX * segmentDeltaX) / baseLength ** 2;
   let ty = start[1] - c * this.seed[0][0] - d * this.seed[0][1];
-  let xx = a * this.seed[0][0] + b * this.seed[0][1] + tx;
-  let yy = c * this.seed[0][0] + d * this.seed[0][1] + ty;
+99
+  let startDrawX = a * this.seed[0][0] + b * this.seed[0][1] + tx;
+  let startDrawY = c * this.seed[0][0] + d * this.seed[0][1] + ty;
 
   for (let i = 1; i < this.seed.length; i++) {
-    let xn = a * this.seed[i][0] + b * this.seed[i][1] + tx;
-    let yn = c * this.seed[i][0] + d * this.seed[i][1] + ty;
+    let endDrawX = a * this.seed[i][0] + b * this.seed[i][1] + tx;
+    let endDrawY = c * this.seed[i][0] + d * this.seed[i][1] + ty;
+    let newSegmentLength = ((endDrawX - startDrawX) ** 2 + (endDrawY - startDrawY) ** 2) ** 0.5;
+    if (newSegmentLength > segmentLength && level > 10) {
+      level = 10;
+    } if (newSegmentLength > segmentLength*0.9 && level > 20) {
+      level = 20;
+    }
     if (this.seed[i][2] != 5) {
       if ((level == 1) || (this.seed[i][2] == 4)) {
         this.ctx.beginPath();
-        this.ctx.moveTo(xx, yy);
-        this.ctx.lineTo(xn, yn);
+        this.ctx.moveTo(startDrawX, startDrawY);
+        this.ctx.lineTo(endDrawX, endDrawY);
         this.ctx.stroke();
       } else if (this.seed[i][2] == 1) {
-        this.basedraw([xx, yy], [xn, yn], -hflip, level - 1, thickness);
+        this.basedraw([startDrawX, startDrawY], [endDrawX, endDrawY], -hflip, level - 1, thickness);
       } else if (this.seed[i][2] == 2) {
-        this.basedraw([xn, yn], [xx, yy], -hflip, level - 1, thickness);
+        this.basedraw([endDrawX, endDrawY], [startDrawX, startDrawY], -hflip, level - 1, thickness);
       } else if (this.seed[i][2] == 3) {
-        this.basedraw([xn, yn], [xx, yy], hflip, level - 1, thickness);
+        this.basedraw([endDrawX, endDrawY], [startDrawX, startDrawY], hflip, level - 1, thickness);
       } else {
-        this.basedraw([xx, yy], [xn, yn], hflip, level - 1, thickness);
+        this.basedraw([startDrawX, startDrawY], [endDrawX, endDrawY], hflip, level - 1, thickness);
       }
     }
-    xx = xn;
-    yy = yn;
+    startDrawX = endDrawX;
+    startDrawY = endDrawY;
   }
 };
 
@@ -705,7 +724,8 @@ function SeedEditor(fractalDraw, enabled) {
         case 5:
           return 'Invisible';
           break;
-    }})(i);
+      }
+    })(i);
     typeBtn.onclick = function(type) {
       this.setSegType(type);
     }.bind(this, i);
@@ -855,8 +875,8 @@ SeedEditor.prototype.getCtrls = function() {
 
 SeedEditor.prototype.setSegType = function(type) {
   seedEditorMouseMoved = false;
-  document.removeEventListener ("mousemove" , this.onMouseMove , false);
-  document.removeEventListener ("mouseup" , this.onMouseUp , false);
+  document.removeEventListener("mousemove", this.onMouseMove, false);
+  document.removeEventListener("mouseup", this.onMouseUp, false);
   if (type != this.currentSegType) {
     if (this.currentSegType != -1) {
       this.segTypeBtn[this.currentSegType].style.border = null;
@@ -1036,8 +1056,8 @@ SeedEditor.prototype.onMouseDown = function(evt) {
       let closestPt = this.fractalDraw.closestPt([this.rawX, this.rawY]);
       if (closestPt < 0) {
         seedEditorMouseMoved = false;
-        document.removeEventListener ("mousemove" , this.onMouseMove , false);
-        document.removeEventListener ("mouseup" , this.onMouseUp , false);
+        document.removeEventListener("mousemove", this.onMouseMove, false);
+        document.removeEventListener("mouseup", this.onMouseUp, false);
         return;
       }
       if (closestPt >= 0) {
@@ -1045,12 +1065,14 @@ SeedEditor.prototype.onMouseDown = function(evt) {
           this.anchor1 = [seed[1][0], seed[1][1], seed[1][2]];
         } else {
           this.anchor1 = [seed[closestPt - 1][0],
-          seed[closestPt - 1][1],
-          seed[closestPt][2]];
+            seed[closestPt - 1][1],
+            seed[closestPt][2]
+          ];
           if (closestPt < seed.length - 1) {
             this.anchor2 = [seed[closestPt + 1][0],
-                            seed[closestPt + 1][1],
-                            seed[closestPt + 1][2]];
+              seed[closestPt + 1][1],
+              seed[closestPt + 1][2]
+            ];
           }
         }
         this.movePt = closestPt;
@@ -1060,8 +1082,8 @@ SeedEditor.prototype.onMouseDown = function(evt) {
         this.setMode(SeedEditor.EDITMODE.MOVEPT);
       }
     }
-    document.addEventListener ("mousemove" , this.onMouseMove , false);
-    document.addEventListener ("mouseup" , this.onMouseUp , false);
+    document.addEventListener("mousemove", this.onMouseMove, false);
+    document.addEventListener("mouseup", this.onMouseUp, false);
   }
 }
 
@@ -1072,11 +1094,11 @@ SeedEditor.prototype.onMouseMove = function(evt) {
 }
 
 SeedEditor.prototype.onMouseUp = function(evt) {
-/* Checks if drag and drop event by the 'seedEditorMouseMoved' flag. If
-it is a single click after a double click (signaled by the this.mouseDblClick
-if (state == Done)'s statements triggering the 'seedEditorDoubleClick'
-flag to true), it sets the final this.mouseDblClick(Event()) to set
-the node in place */
+  /* Checks if drag and drop event by the 'seedEditorMouseMoved' flag. If
+  it is a single click after a double click (signaled by the this.mouseDblClick
+  if (state == Done)'s statements triggering the 'seedEditorDoubleClick'
+  flag to true), it sets the final this.mouseDblClick(Event()) to set
+  the node in place */
   if (this === document) {
     return;
   }
@@ -1096,8 +1118,8 @@ the node in place */
       return;
     }
     seedEditorMouseMoved = false;
-    document.removeEventListener ("mousemove" , this.onMouseMove , false);
-    document.removeEventListener ("mouseup" , this.onMouseUp , false);
+    document.removeEventListener("mousemove", this.onMouseMove, false);
+    document.removeEventListener("mouseup", this.onMouseUp, false);
     // Finalizes the node's placement after a drag and drop:
     this.setMode(SeedEditor.EDITMODE.MOVEPT);
   }
@@ -1190,8 +1212,8 @@ SeedEditor.prototype.keyPress = function(evt) {
     if (this.editMode == SeedEditor.EDITMODE.MOVEPT &&
       (this.fractalDraw.seed.length > 2)) {
       seedEditorMouseMoved = false;
-      document.removeEventListener ("mousemove" , this.onMouseMove , false);
-      document.removeEventListener ("mouseup" , this.onMouseUp , false);
+      document.removeEventListener("mousemove", this.onMouseMove, false);
+      document.removeEventListener("mouseup", this.onMouseUp, false);
     }
     if ((this.editMode == SeedEditor.EDITMODE.MOVEPT) &&
       (this.fractalDraw.seed.length > 2)) {
@@ -2099,7 +2121,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
 MultiModeTool.prototype.addMode = function(title, modeObj, globalId) {
   let button = document.createElement('button');
   button.innerHTML = title;
-  button.id = title.replace(/ /g,'') + globalId;
+  button.id = title.replace(/ /g, '') + globalId;
   button.className = 'btn btn-default btn-sm';
   button.style.marginLeft = '4px';
   button.onclick = function(modeNum) {
@@ -2196,13 +2218,12 @@ CloudSaver.prototype.loginPopup = function(callBack, errorCallBack) {
   let dialogDiv = $('#loginDialog');
   dialogDiv.dialog('destroy');
   dialogDiv.dialog({
-  modal : true,
-  buttons : [
-    {
-        text : "Submit",
-        class : 'Green',
-        click : function() {
-          $( this ).dialog( "close" );
+    modal: true,
+    buttons: [{
+        text: "Submit",
+        class: 'Green',
+        click: function() {
+          $(this).dialog("close");
           let username = document.getElementsByName('username')[0].value;
           let password = document.getElementsByName('password')[0].value;
           if (!username || !password) {
@@ -2210,20 +2231,21 @@ CloudSaver.prototype.loginPopup = function(callBack, errorCallBack) {
             return;
           }
           cloud.login(username, password, function(data) {
-            cloud.getUser(callBack, errorCallBack);
-          },
+              cloud.getUser(callBack, errorCallBack);
+            },
             errorCallBack
           );
         }
-    },
-    {
-        text : "Cancel",
-        class : 'Red',
-        click : function() {
-          $( this ).dialog( "close" );
+      },
+      {
+        text: "Cancel",
+        class: 'Red',
+        click: function() {
+          $(this).dialog("close");
           errorCallBack('Didn\'t log in');
         }
-    } ]
+      }
+    ]
   });
 };
 
