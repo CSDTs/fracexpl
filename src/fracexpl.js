@@ -733,6 +733,65 @@ function SeedEditor(fractalDraw, enabled) {
     panelTD.appendChild(typeBtn);
   }
   panelRow.appendChild(panelTD);
+
+  let panelTDcompass = document.createElement('td');
+
+  let compassButtonLeft = document.createElement('button');
+  compassButtonLeft.innerHTML = '←';
+  compassButtonLeft.className = 'btn btn-default btn-xs';
+  compassButtonLeft.style.marginLeft = '4px';
+  compassButtonLeft.title = 'Move Left'
+  compassButtonLeft.onclick = function() {
+    this.compass('left');
+  }.bind(this);
+  panelTDcompass.appendChild(compassButtonLeft);
+
+  let compassTable = document.createElement('table');
+  compassTable.style.display = "inline";
+  let compassTR1 = document.createElement('tr');
+  let compassTR2 = document.createElement('tr');
+
+  let compassButtonUp = document.createElement('button');
+  compassButtonUp.className = 'btn btn-default btn-xs';
+  compassButtonUp.style.marginLeft = '4px';
+  compassButtonUp.innerHTML = '↑';
+  compassButtonUp.title = 'Move Up'
+  compassButtonUp.onclick = function() {
+    this.compass('up');
+  }.bind(this);
+  let compassTR1TD = document.createElement('td');
+
+  compassTR1TD.appendChild(compassButtonUp);
+  compassTR1.appendChild(compassTR1TD);
+    
+  let compassButtonDown = document.createElement('button');
+  compassButtonDown.className = 'btn btn-default btn-xs';
+  compassButtonDown.style.marginLeft = '4px';
+  compassButtonDown.innerHTML = '↓';
+  compassButtonDown.title = 'Move Down'
+  compassButtonDown.onclick = function() {
+    this.compass('down');
+  }.bind(this);
+  let compassTR2TD = document.createElement('td');
+  compassTR2TD.appendChild(compassButtonDown);
+  compassTR2.appendChild(compassTR2TD);
+
+  compassTable.appendChild(compassTR1);
+  compassTable.appendChild(compassTR2);
+
+  panelTDcompass.appendChild(compassTable);
+  
+  let compassButtonRight = document.createElement('button');
+  compassButtonRight.className = 'btn btn-default btn-xs';
+  compassButtonRight.style.marginLeft = '4px';
+  compassButtonRight.innerHTML = '→';
+  compassButtonRight.title = 'Move Right'
+  compassButtonRight.onclick = function() {
+    this.compass('right');
+  }.bind(this);
+  panelTDcompass.appendChild(compassButtonRight);
+  panelRow.appendChild(panelTDcompass);
+
   panelRow = document.createElement('tr');
   panelTbl.appendChild(panelRow);
   panelTD = document.createElement('td');
@@ -968,6 +1027,69 @@ SeedEditor.prototype.reset = function() {
   this.anchor2 = null;
   this.fractalDraw.setSeed([]);
   this.fractalDraw.setDrawWidth(1);
+};
+
+SeedEditor.prototype.compass = function(movement) {
+  let x, y;
+  switch (movement) {
+    case 'right':
+      x = 20;
+      y = 0;
+      break;
+    case 'left':
+      x = -20;
+      y = 0;
+      break;
+    case 'down':
+      x = 0;
+      y = 20;
+      break;
+    case 'up':
+      x = 0;
+      y = -20;
+      break;
+    default:
+      x = 0;
+      y = 0;
+      break;
+  }
+  let topCount = 0;
+  let bottomCount = 0;
+  let leftCount = 0;
+  let rightCount = 0;
+  for (i = 0; i < this.fractalDraw.seed.length; i++) {
+    if (this.fractalDraw.seed[i][0] > (this.fractalDraw.canvas.width - 20)) {
+      rightCount++;
+    }
+    if (this.fractalDraw.seed[i][1] > (this.fractalDraw.canvas.height - 20)) {
+      bottomCount++;
+    }
+    if (this.fractalDraw.seed[i][0] < 40) {
+      leftCount++;
+    }
+    if (this.fractalDraw.seed[i][1] < 40) {
+      topCount++;
+    }
+  }
+  console.log("top", topCount, "bottom", bottomCount, "left", leftCount, "right", rightCount);
+  if (rightCount >= this.fractalDraw.seed.length && movement == 'right') {
+    x = 0;
+  }
+  if (bottomCount >= this.fractalDraw.seed.length && movement == 'down') {
+    y = 0;
+  }
+  if (leftCount >= this.fractalDraw.seed.length && movement == 'left') {
+    x = 0;
+  }
+  if (topCount >= this.fractalDraw.seed.length && movement == 'up') {
+    y = 0;
+  }
+
+  for (i = 0; i < this.fractalDraw.seed.length; i++) {
+    this.fractalDraw.seed[i][0] += x;
+    this.fractalDraw.seed[i][1] += y;
+  }
+  this.fractalDraw.drawSeed(true);
 };
 
 SeedEditor.prototype.drawWork = function() {
