@@ -1057,39 +1057,68 @@ SeedEditor.prototype.compass = function(movement) {
   let bottomCount = 0;
   let leftCount = 0;
   let rightCount = 0;
+  let offCanvasCount = 0;
+  let margin1 = 20;
+  let margin2 = 40;
   for (i = 0; i < this.fractalDraw.seed.length; i++) {
-    if (this.fractalDraw.seed[i][0] > (this.fractalDraw.canvas.width - 20)) {
+    if (this.fractalDraw.seed[i][0] >= (this.fractalDraw.canvas.width - margin1)) {
       rightCount++;
-    }
-    if (this.fractalDraw.seed[i][1] > (this.fractalDraw.canvas.height - 20)) {
-      bottomCount++;
-    }
-    if (this.fractalDraw.seed[i][0] < 40) {
+      if (this.fractalDraw.seed[i][1] >= (this.fractalDraw.canvas.height - margin1)) {
+        bottomCount++;
+        offCanvasCount++;
+        continue;
+      }
+      if (this.fractalDraw.seed[i][1] <= margin1) {
+        topCount++;
+        offCanvasCount++;
+        continue;
+      }
+      offCanvasCount++;
+      continue;
+    } else if (this.fractalDraw.seed[i][0] <= margin2) {
       leftCount++;
+      if (this.fractalDraw.seed[i][1] >= (this.fractalDraw.canvas.height - margin1)) {
+        bottomCount++;
+        offCanvasCount++;
+        continue;
+      }
+      if (this.fractalDraw.seed[i][1] <= margin1) {
+        topCount++;
+        offCanvasCount++;
+        continue;
+      }
+      offCanvasCount++;
+      continue;
     }
-    if (this.fractalDraw.seed[i][1] < 40) {
+    if (this.fractalDraw.seed[i][1] >= (this.fractalDraw.canvas.height - margin1)) {
+      bottomCount++;
+      offCanvasCount++;
+      continue;
+    } else if (this.fractalDraw.seed[i][1] <= margin1) {
       topCount++;
+      offCanvasCount++;
+      continue;
     }
   }
-  console.log("top", topCount, "bottom", bottomCount, "left", leftCount, "right", rightCount);
-  if (rightCount >= this.fractalDraw.seed.length && movement == 'right') {
+  if (movement == 'right' && rightCount >= this.fractalDraw.seed.length) {
     x = 0;
   }
-  if (bottomCount >= this.fractalDraw.seed.length && movement == 'down') {
+  else if (movement == 'down' && bottomCount >= this.fractalDraw.seed.length) {
     y = 0;
   }
-  if (leftCount >= this.fractalDraw.seed.length && movement == 'left') {
+  else if (movement == 'left' && leftCount >= this.fractalDraw.seed.length) {
     x = 0;
   }
-  if (topCount >= this.fractalDraw.seed.length && movement == 'up') {
+  else if (movement == 'up' && topCount >= this.fractalDraw.seed.length) {
     y = 0;
   }
-
-  for (i = 0; i < this.fractalDraw.seed.length; i++) {
-    this.fractalDraw.seed[i][0] += x;
-    this.fractalDraw.seed[i][1] += y;
+  if (y != 0 || x != 0) {
+    for (i = 0; i < this.fractalDraw.seed.length; i++) {
+      this.fractalDraw.seed[i][0] += x;
+      this.fractalDraw.seed[i][1] += y;
+    }
+    this.fractalDraw.drawSeed(true);
   }
-  this.fractalDraw.drawSeed(true);
 };
 
 SeedEditor.prototype.drawWork = function() {
