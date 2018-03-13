@@ -732,7 +732,72 @@ function SeedEditor(fractalDraw, enabled) {
     this.segTypeBtn.push(typeBtn);
     panelTD.appendChild(typeBtn);
   }
+  
+
+  
+  let panelTDcompass = document.createElement('td');
+
+  let compassButtonLeft = document.createElement('a');
+  compassButtonLeft.innerHTML = '←';
+  compassButtonLeft.className = 'btn btn-default btn-xs';
+  compassButtonLeft.style.marginLeft = '4px';
+  compassButtonLeft.style.verticalAlign = '-25%';
+  compassButtonLeft.title = 'Move Left'
+  compassButtonLeft.onclick = function() {
+    this.compass('left');
+  }.bind(this);
+  panelTDcompass.appendChild(compassButtonLeft);
+
+  let compassTable = document.createElement('table');
+  compassTable.style.display = "inline";
+  let compassTR1 = document.createElement('tr');
+  let compassTR2 = document.createElement('tr');
+
+  let compassButtonUp = document.createElement('a');
+  compassButtonUp.className = 'btn btn-default btn-xs';
+  compassButtonUp.style.marginLeft = '4px';
+  compassButtonUp.innerHTML = '↑';
+  compassButtonUp.title = 'Move Up'
+  compassButtonUp.onclick = function() {
+    this.compass('up');
+  }.bind(this);
+  let compassTR1TD = document.createElement('td');
+
+  compassTR1TD.appendChild(compassButtonUp);
+  compassTR1.appendChild(compassTR1TD);
+    
+  let compassButtonDown = document.createElement('a');
+  compassButtonDown.className = 'btn btn-default btn-xs';
+  compassButtonDown.style.marginLeft = '4px';
+  compassButtonDown.innerHTML = '↓';
+  compassButtonDown.title = 'Move Down'
+  compassButtonDown.onclick = function() {
+    this.compass('down');
+  }.bind(this);
+  let compassTR2TD = document.createElement('td');
+  compassTR2TD.appendChild(compassButtonDown);
+  compassTR2.appendChild(compassTR2TD);
+
+  compassTable.appendChild(compassTR1);
+  compassTable.appendChild(compassTR2);
+
+  panelTDcompass.appendChild(compassTable);
+  
+  let compassButtonRight = document.createElement('a');
+  compassButtonRight.className = 'btn btn-default btn-xs';
+  compassButtonRight.style.marginLeft = '4px';
+  compassButtonRight.style.verticalAlign = '-25%';
+  compassButtonRight.innerHTML = '→';
+  compassButtonRight.title = 'Move Right'
+  compassButtonRight.onclick = function() {
+    this.compass('right');
+  }.bind(this);
+  panelTDcompass.appendChild(compassButtonRight);
+  panelTDcompass.style.display = "inline";
+  panelTDcompass.className = "pull-right";
+  panelTD.appendChild(panelTDcompass);
   panelRow.appendChild(panelTD);
+
   panelRow = document.createElement('tr');
   panelTbl.appendChild(panelRow);
   panelTD = document.createElement('td');
@@ -968,6 +1033,61 @@ SeedEditor.prototype.reset = function() {
   this.anchor2 = null;
   this.fractalDraw.setSeed([]);
   this.fractalDraw.setDrawWidth(1);
+};
+
+SeedEditor.prototype.compass = function(movement) {
+  let x, y;
+  switch (movement) {
+    case 'right':
+      x = 20;
+      y = 0;
+      break;
+    case 'left':
+      x = -20;
+      y = 0;
+      break;
+    case 'down':
+      x = 0;
+      y = 20;
+      break;
+    case 'up':
+      x = 0;
+      y = -20;
+      break;
+    default:
+      x = 0;
+      y = 0;
+      break;
+  }
+  let oobCount = 0;
+  let margin1 = 20;
+  let p0 = margin1;
+  let p1 = margin1;
+  let p2 = this.fractalDraw.canvas.width;
+  let p3 = this.fractalDraw.canvas.height;
+  function Create2DArray(rows) {
+    var arr = [];
+    for (var i=0;i<rows;i++) {
+       arr[i] = [3];
+    }
+    return arr;
+  }
+  let seedCopy = Create2DArray(this.fractalDraw.seed.length);
+  for (let i = 0; i < this.fractalDraw.seed.length; i++) {
+    if (!(p0 <= this.fractalDraw.seed[i][0] + x 
+      && this.fractalDraw.seed[i][0] + x <= p2 
+      && p1 <= this.fractalDraw.seed[i][1] + y 
+      && this.fractalDraw.seed[i][1] + y <= p3)) {
+      oobCount++;
+    }
+    seedCopy[i][0] = this.fractalDraw.seed[i][0] + x;
+    seedCopy[i][1] = this.fractalDraw.seed[i][1] + y;
+    seedCopy[i][2] = this.fractalDraw.seed[i][2];
+  }
+  if (oobCount < this.fractalDraw.seed.length) {
+    this.fractalDraw.seed = seedCopy;
+    this.fractalDraw.drawSeed(true);
+  }
 };
 
 SeedEditor.prototype.drawWork = function() {
