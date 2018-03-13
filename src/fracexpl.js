@@ -732,14 +732,16 @@ function SeedEditor(fractalDraw, enabled) {
     this.segTypeBtn.push(typeBtn);
     panelTD.appendChild(typeBtn);
   }
-  panelRow.appendChild(panelTD);
+  
 
+  
   let panelTDcompass = document.createElement('td');
 
-  let compassButtonLeft = document.createElement('button');
+  let compassButtonLeft = document.createElement('a');
   compassButtonLeft.innerHTML = '←';
   compassButtonLeft.className = 'btn btn-default btn-xs';
   compassButtonLeft.style.marginLeft = '4px';
+  compassButtonLeft.style.verticalAlign = '-25%';
   compassButtonLeft.title = 'Move Left'
   compassButtonLeft.onclick = function() {
     this.compass('left');
@@ -751,7 +753,7 @@ function SeedEditor(fractalDraw, enabled) {
   let compassTR1 = document.createElement('tr');
   let compassTR2 = document.createElement('tr');
 
-  let compassButtonUp = document.createElement('button');
+  let compassButtonUp = document.createElement('a');
   compassButtonUp.className = 'btn btn-default btn-xs';
   compassButtonUp.style.marginLeft = '4px';
   compassButtonUp.innerHTML = '↑';
@@ -764,7 +766,7 @@ function SeedEditor(fractalDraw, enabled) {
   compassTR1TD.appendChild(compassButtonUp);
   compassTR1.appendChild(compassTR1TD);
     
-  let compassButtonDown = document.createElement('button');
+  let compassButtonDown = document.createElement('a');
   compassButtonDown.className = 'btn btn-default btn-xs';
   compassButtonDown.style.marginLeft = '4px';
   compassButtonDown.innerHTML = '↓';
@@ -781,16 +783,20 @@ function SeedEditor(fractalDraw, enabled) {
 
   panelTDcompass.appendChild(compassTable);
   
-  let compassButtonRight = document.createElement('button');
+  let compassButtonRight = document.createElement('a');
   compassButtonRight.className = 'btn btn-default btn-xs';
   compassButtonRight.style.marginLeft = '4px';
+  compassButtonRight.style.verticalAlign = '-25%';
   compassButtonRight.innerHTML = '→';
   compassButtonRight.title = 'Move Right'
   compassButtonRight.onclick = function() {
     this.compass('right');
   }.bind(this);
   panelTDcompass.appendChild(compassButtonRight);
-  panelRow.appendChild(panelTDcompass);
+  panelTDcompass.style.display = "inline";
+  panelTDcompass.className = "pull-right";
+  panelTD.appendChild(panelTDcompass);
+  panelRow.appendChild(panelTD);
 
   panelRow = document.createElement('tr');
   panelTbl.appendChild(panelRow);
@@ -1053,70 +1059,32 @@ SeedEditor.prototype.compass = function(movement) {
       y = 0;
       break;
   }
-  let topCount = 0;
-  let bottomCount = 0;
-  let leftCount = 0;
-  let rightCount = 0;
-  let offCanvasCount = 0;
+  let oobCount = 0;
   let margin1 = 20;
-  let margin2 = 40;
-  for (i = 0; i < this.fractalDraw.seed.length; i++) {
-    if (this.fractalDraw.seed[i][0] >= (this.fractalDraw.canvas.width - margin1)) {
-      rightCount++;
-      if (this.fractalDraw.seed[i][1] >= (this.fractalDraw.canvas.height - margin1)) {
-        bottomCount++;
-        offCanvasCount++;
-        continue;
-      }
-      if (this.fractalDraw.seed[i][1] <= margin1) {
-        topCount++;
-        offCanvasCount++;
-        continue;
-      }
-      offCanvasCount++;
-      continue;
-    } else if (this.fractalDraw.seed[i][0] <= margin2) {
-      leftCount++;
-      if (this.fractalDraw.seed[i][1] >= (this.fractalDraw.canvas.height - margin1)) {
-        bottomCount++;
-        offCanvasCount++;
-        continue;
-      }
-      if (this.fractalDraw.seed[i][1] <= margin1) {
-        topCount++;
-        offCanvasCount++;
-        continue;
-      }
-      offCanvasCount++;
-      continue;
+  let p0 = margin1;
+  let p1 = margin1;
+  let p2 = this.fractalDraw.canvas.width;
+  let p3 = this.fractalDraw.canvas.height;
+  function Create2DArray(rows) {
+    var arr = [];
+    for (var i=0;i<rows;i++) {
+       arr[i] = [3];
     }
-    if (this.fractalDraw.seed[i][1] >= (this.fractalDraw.canvas.height - margin1)) {
-      bottomCount++;
-      offCanvasCount++;
-      continue;
-    } else if (this.fractalDraw.seed[i][1] <= margin1) {
-      topCount++;
-      offCanvasCount++;
-      continue;
+    return arr;
+  }
+  let seedCopy = Create2DArray(this.fractalDraw.seed.length);
+
+  
+  for (let i = 0; i < this.fractalDraw.seed.length; i++) {
+    if (!(p0 <= this.fractalDraw.seed[i][0] + x && this.fractalDraw.seed[i][0] + x <= p2 && p1 <= this.fractalDraw.seed[i][1] + y && this.fractalDraw.seed[i][1] + y <= p3)) {
+      oobCount++;
     }
+    seedCopy[i][0] = this.fractalDraw.seed[i][0] + x;
+    seedCopy[i][1] = this.fractalDraw.seed[i][1] + y;
+    seedCopy[i][2] = this.fractalDraw.seed[i][2];
   }
-  if (movement == 'right' && rightCount >= this.fractalDraw.seed.length) {
-    x = 0;
-  }
-  else if (movement == 'down' && bottomCount >= this.fractalDraw.seed.length) {
-    y = 0;
-  }
-  else if (movement == 'left' && leftCount >= this.fractalDraw.seed.length) {
-    x = 0;
-  }
-  else if (movement == 'up' && topCount >= this.fractalDraw.seed.length) {
-    y = 0;
-  }
-  if (y != 0 || x != 0) {
-    for (i = 0; i < this.fractalDraw.seed.length; i++) {
-      this.fractalDraw.seed[i][0] += x;
-      this.fractalDraw.seed[i][1] += y;
-    }
+  if (oobCount == 0) {
+    this.fractalDraw.seed = seedCopy;
     this.fractalDraw.drawSeed(true);
   }
 };
