@@ -135,23 +135,7 @@ FractalDraw.prototype.loadLocally = function(evt) {
   let myself = this;
   reader.onload = function(e) {
     let data = JSON.parse(e.target.result);
-    myself.setSeed(data.seed);
-    myself.drawSeed(true);
-    myself.disableMode();
-    myself.setDrawWidth(data.thickness);
-    myself.thicknessType = data.thicknessType;
-    if (myself.thicknessType == 1) {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
-    } else {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
-    }
-    document.getElementById('EditMode' + myself.instanceNum).click();
-    document.getElementById('IterateMode' + myself.instanceNum).click();
-    if (data.itNumber < 99) {
-      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
-    } else {
-      document.getElementById(myself.instanceNum + '~Inf ').click();
-    }
+    myself.load(data);
   };
   reader.readAsText(file);
 };
