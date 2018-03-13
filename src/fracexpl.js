@@ -124,6 +124,28 @@ FractalDraw.prototype.checkDim = function(dim) {
   return lenSum;
 };
 
+FractalDraw.prototype.load = function(string) {
+  let myself = this;
+  let data = JSON.parse(string);
+  myself.setSeed(data.seed);
+  myself.drawSeed(true);
+  myself.setDrawWidth(data.thickness);
+  myself.disableMode();
+  myself.thicknessType = data.thicknessType;
+  if (myself.thicknessType == 1) {
+    document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
+  } else {
+    document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
+  }
+  document.getElementById('EditMode' + myself.instanceNum).click();
+  document.getElementById('IterateMode' + myself.instanceNum).click();
+  if (data.itNumber < 99) {
+    document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
+  } else {
+    document.getElementById(myself.instanceNum + '~Inf ').click();
+  }
+};
+
 FractalDraw.prototype.loadLocally = function(evt) {
   let file = evt.target.files[0];
   if (!file.name.toLowerCase().endsWith('.json')) {
@@ -134,8 +156,7 @@ FractalDraw.prototype.loadLocally = function(evt) {
   let reader = new FileReader();
   let myself = this;
   reader.onload = function(e) {
-    let data = JSON.parse(e.target.result);
-    myself.load(data);
+    myself.load(e.target.result);
   };
   reader.readAsText(file);
 };
@@ -316,28 +337,6 @@ FractalDraw.prototype.saveRemotely = function() {
   function createdProject(data) {
     myself.cloudproject = data.id
     alert('Success');
-  }
-};
-
-FractalDraw.prototype.load = function(string) {
-  let myself = this;
-  let data = JSON.parse(string);
-  myself.setSeed(data.seed);
-  myself.drawSeed(true);
-  myself.setDrawWidth(data.thickness);
-  myself.disableMode();
-  myself.thicknessType = data.thicknessType;
-  if (myself.thicknessType == 1) {
-    document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
-  } else {
-    document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
-  }
-  document.getElementById('EditMode' + myself.instanceNum).click();
-  document.getElementById('IterateMode' + myself.instanceNum).click();
-  if (data.itNumber < 99) {
-    document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
-  } else {
-    document.getElementById(myself.instanceNum + '~Inf ').click();
   }
 };
 
