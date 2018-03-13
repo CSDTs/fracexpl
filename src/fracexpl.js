@@ -216,7 +216,7 @@ FractalDraw.prototype.loadRemotely = function(evt) {
             $(this).dialog("close");
             selected = projectList.getElementsByClassName('ui-selected');
             if (selected[0]) {
-              cloud.loadProject(selected[0].option, load, error);
+              cloud.loadProject(selected[0].option, myself.load, error);
             }
           }
         },
@@ -236,26 +236,6 @@ FractalDraw.prototype.loadRemotely = function(evt) {
     alert('Failed To Get Project');
   }
 
-  function load(string) {
-    let data = JSON.parse(string);
-    myself.setSeed(data.seed);
-    myself.drawSeed(true);
-    myself.setDrawWidth(data.thickness);
-    myself.disableMode();
-    myself.thicknessType = data.thicknessType;
-    if (myself.thicknessType == 1) {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
-    } else {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
-    }
-    document.getElementById('EditMode' + myself.instanceNum).click();
-    document.getElementById('IterateMode' + myself.instanceNum).click();
-    if (data.itNumber < 99) {
-      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
-    } else {
-      document.getElementById(myself.instanceNum + '~Inf ').click();
-    }
-  }
 };
 
 FractalDraw.prototype.saveLocally = function() {
@@ -352,6 +332,28 @@ FractalDraw.prototype.saveRemotely = function() {
   function createdProject(data) {
     myself.cloudproject = data.id
     alert('Success');
+  }
+};
+
+FractalDraw.prototype.load = function(string) {
+  let myself = this;
+  let data = JSON.parse(string);
+  myself.setSeed(data.seed);
+  myself.drawSeed(true);
+  myself.setDrawWidth(data.thickness);
+  myself.disableMode();
+  myself.thicknessType = data.thicknessType;
+  if (myself.thicknessType == 1) {
+    document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
+  } else {
+    document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
+  }
+  document.getElementById('EditMode' + myself.instanceNum).click();
+  document.getElementById('IterateMode' + myself.instanceNum).click();
+  if (data.itNumber < 99) {
+    document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
+  } else {
+    document.getElementById(myself.instanceNum + '~Inf ').click();
   }
 };
 
