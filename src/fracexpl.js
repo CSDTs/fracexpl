@@ -1073,17 +1073,18 @@ SeedEditor.prototype.compass = function(movement) {
     return arr;
   }
   let seedCopy = Create2DArray(this.fractalDraw.seed.length);
-
-  
   for (let i = 0; i < this.fractalDraw.seed.length; i++) {
-    if (!(p0 <= this.fractalDraw.seed[i][0] + x && this.fractalDraw.seed[i][0] + x <= p2 && p1 <= this.fractalDraw.seed[i][1] + y && this.fractalDraw.seed[i][1] + y <= p3)) {
+    if (!(p0 <= this.fractalDraw.seed[i][0] + x 
+      && this.fractalDraw.seed[i][0] + x <= p2 
+      && p1 <= this.fractalDraw.seed[i][1] + y 
+      && this.fractalDraw.seed[i][1] + y <= p3)) {
       oobCount++;
     }
     seedCopy[i][0] = this.fractalDraw.seed[i][0] + x;
     seedCopy[i][1] = this.fractalDraw.seed[i][1] + y;
     seedCopy[i][2] = this.fractalDraw.seed[i][2];
   }
-  if (oobCount == 0) {
+  if (oobCount < this.fractalDraw.seed.length) {
     this.fractalDraw.seed = seedCopy;
     this.fractalDraw.drawSeed(true);
   }
