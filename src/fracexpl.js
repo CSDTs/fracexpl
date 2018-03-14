@@ -196,7 +196,6 @@ FractalDraw.prototype.loadRemotely = function(evt) {
   }
 
   function displayList(data) {
-    let myself = this;
     var dialogDiv = $('#projectListDialog');
     dialogDiv.dialog('destroy');
     projectList = document.getElementById('projectList');
@@ -240,27 +239,6 @@ FractalDraw.prototype.loadRemotely = function(evt) {
   function error(data) {
     console.log(data);
     alert('Failed To Get Project');
-  }
-
-  function load(incoming) {
-    let data = JSON.parse(incoming);
-    myself.setSeed(data.seed);
-    myself.drawSeed(true);
-    myself.setDrawWidth(data.thickness);
-    myself.disableMode();
-    myself.thicknessType = data.thicknessType;
-    if (myself.thicknessType == 1) {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
-    } else {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
-    }
-    document.getElementById('EditMode' + myself.instanceNum).click();
-    document.getElementById('IterateMode' + myself.instanceNum).click();
-    if (data.itNumber < 99) {
-      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
-    } else {
-      document.getElementById(myself.instanceNum + '~Inf ').click();
-    }
   }
 };
 
@@ -2237,33 +2215,13 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
         console.log(data);
       }
       var myself = this.editorDiv.fractalDraw;
-      function load(string) {
-        let data = JSON.parse(string);
-        myself.setSeed(data.seed);
-        myself.drawSeed(true);
-        myself.setDrawWidth(data.thickness);
-        myself.disableMode();
-        myself.thicknessType = data.thicknessType;
-        if (myself.thicknessType == 1) {
-          document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
-        } else {
-          document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
-        }
-        document.getElementById('EditMode' + myself.instanceNum).click();
-        document.getElementById('IterateMode' + myself.instanceNum).click();
-        if (data.itNumber < 99) {
-          document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
-        } else {
-          document.getElementById(myself.instanceNum + '~Inf ').click();
-        }
-      }
       if (Number.isInteger(Number(mainDiv.dataset['seed']))) {
         this.editorDiv.setSeedByName('koch');
-        cloud.loadProject(mainDiv.dataset['seed'], load, error);
+        cloud.loadProject(mainDiv.dataset['seed'], myself.load, error);
       } else {
-        
+        this.editorDiv.setSeedByName(mainDiv.dataset['seed']);
       }
-      this.editorDiv.setSeedByName(mainDiv.dataset['seed']);
+      
     }
     catch (err) {
       console.log(err);
