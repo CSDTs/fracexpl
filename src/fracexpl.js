@@ -124,9 +124,9 @@ FractalDraw.prototype.checkDim = function(dim) {
   return lenSum;
 };
 
-FractalDraw.prototype.load = function(string) {
+FractalDraw.prototype.load = function(incoming) {
   let myself = this;
-  let data = JSON.parse(string);
+  let data = JSON.parse(incoming);
   myself.setSeed(data.seed);
   myself.drawSeed(true);
   myself.setDrawWidth(data.thickness);
@@ -196,6 +196,7 @@ FractalDraw.prototype.loadRemotely = function(evt) {
   }
 
   function displayList(data) {
+    let myself = this;
     var dialogDiv = $('#projectListDialog');
     dialogDiv.dialog('destroy');
     projectList = document.getElementById('projectList');
@@ -241,6 +242,26 @@ FractalDraw.prototype.loadRemotely = function(evt) {
     alert('Failed To Get Project');
   }
 
+  function load(incoming) {
+    let data = JSON.parse(incoming);
+    myself.setSeed(data.seed);
+    myself.drawSeed(true);
+    myself.setDrawWidth(data.thickness);
+    myself.disableMode();
+    myself.thicknessType = data.thicknessType;
+    if (myself.thicknessType == 1) {
+      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
+    } else {
+      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
+    }
+    document.getElementById('EditMode' + myself.instanceNum).click();
+    document.getElementById('IterateMode' + myself.instanceNum).click();
+    if (data.itNumber < 99) {
+      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
+    } else {
+      document.getElementById(myself.instanceNum + '~Inf ').click();
+    }
+  }
 };
 
 FractalDraw.prototype.saveLocally = function() {
