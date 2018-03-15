@@ -148,9 +148,6 @@ FractalDraw.prototype.loader = function() {
   }
 }
 
-FractalDraw.prototype.load = function(incoming) {
-};
-
 FractalDraw.prototype.loadLocally = function(evt) {
   let file = evt.target.files[0];
   if (!file.name.toLowerCase().endsWith('.json')) {
