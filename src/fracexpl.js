@@ -124,6 +124,28 @@ FractalDraw.prototype.checkDim = function(dim) {
   return lenSum;
 };
 
+FractalDraw.prototype.load = function(incoming) {
+  let myself = this;
+  let data = JSON.parse(incoming);
+  myself.setSeed(data.seed);
+  myself.drawSeed(true);
+  myself.setDrawWidth(data.thickness);
+  myself.disableMode();
+  myself.thicknessType = data.thicknessType;
+  if (myself.thicknessType == 1) {
+    document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
+  } else {
+    document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
+  }
+  document.getElementById('EditMode' + myself.instanceNum).click();
+  document.getElementById('IterateMode' + myself.instanceNum).click();
+  if (data.itNumber < 99) {
+    document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
+  } else {
+    document.getElementById(myself.instanceNum + '~Inf ').click();
+  }
+};
+
 FractalDraw.prototype.loadLocally = function(evt) {
   let file = evt.target.files[0];
   if (!file.name.toLowerCase().endsWith('.json')) {
@@ -134,24 +156,7 @@ FractalDraw.prototype.loadLocally = function(evt) {
   let reader = new FileReader();
   let myself = this;
   reader.onload = function(e) {
-    let data = JSON.parse(e.target.result);
-    myself.setSeed(data.seed);
-    myself.drawSeed(true);
-    myself.disableMode();
-    myself.setDrawWidth(data.thickness);
-    myself.thicknessType = data.thicknessType;
-    if (myself.thicknessType == 1) {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
-    } else {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
-    }
-    document.getElementById('EditMode' + myself.instanceNum).click();
-    document.getElementById('IterateMode' + myself.instanceNum).click();
-    if (data.itNumber < 99) {
-      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
-    } else {
-      document.getElementById(myself.instanceNum + '~Inf ').click();
-    }
+    myself.load(e.target.result);
   };
   reader.readAsText(file);
 };
@@ -216,7 +221,7 @@ FractalDraw.prototype.loadRemotely = function(evt) {
             $(this).dialog("close");
             selected = projectList.getElementsByClassName('ui-selected');
             if (selected[0]) {
-              cloud.loadProject(selected[0].option, load, error);
+              cloud.loadProject(selected[0].option, myself.load, error);
             }
           }
         },
@@ -234,27 +239,6 @@ FractalDraw.prototype.loadRemotely = function(evt) {
   function error(data) {
     console.log(data);
     alert('Failed To Get Project');
-  }
-
-  function load(string) {
-    let data = JSON.parse(string);
-    myself.setSeed(data.seed);
-    myself.drawSeed(true);
-    myself.setDrawWidth(data.thickness);
-    myself.disableMode();
-    myself.thicknessType = data.thicknessType;
-    if (myself.thicknessType == 1) {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
-    } else {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
-    }
-    document.getElementById('EditMode' + myself.instanceNum).click();
-    document.getElementById('IterateMode' + myself.instanceNum).click();
-    if (data.itNumber < 99) {
-      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
-    } else {
-      document.getElementById(myself.instanceNum + '~Inf ').click();
-    }
   }
 };
 
@@ -2297,7 +2281,22 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
   }
 
   if (mainDiv.dataset['seed'] != undefined) {
-    this.editorDiv.setSeedByName(mainDiv.dataset['seed']);
+    try {
+      function error(data) {
+        console.log(data);
+      }
+      var myself = this.editorDiv.fractalDraw;
+      if (Number.isInteger(Number(mainDiv.dataset['seed']))) {
+        this.editorDiv.setSeedByName('koch');
+        cloud.loadProject(mainDiv.dataset['seed'], myself.load, error);
+      } else {
+        this.editorDiv.setSeedByName(mainDiv.dataset['seed']);
+      }
+      
+    }
+    catch (err) {
+      console.log(err);
+    }
   }
 
   let mode = 1;
