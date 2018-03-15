@@ -124,26 +124,31 @@ FractalDraw.prototype.checkDim = function(dim) {
   return lenSum;
 };
 
-FractalDraw.prototype.load = function(incoming) {
+FractalDraw.prototype.loader = function() {
   let myself = this;
-  let data = JSON.parse(incoming);
-  myself.setSeed(data.seed);
-  myself.drawSeed(true);
-  myself.setDrawWidth(data.thickness);
-  myself.disableMode();
-  myself.thicknessType = data.thicknessType;
-  if (myself.thicknessType == 1) {
-    document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
-  } else {
-    document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
+  function load(incoming) {
+    let data = JSON.parse(incoming);
+    myself.setSeed(data.seed);
+    myself.drawSeed(true);
+    myself.setDrawWidth(data.thickness);
+    myself.disableMode();
+    myself.thicknessType = data.thicknessType;
+    if (myself.thicknessType == 1) {
+      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
+    } else {
+      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
+    }
+    document.getElementById('EditMode' + myself.instanceNum).click();
+    document.getElementById('IterateMode' + myself.instanceNum).click();
+    if (data.itNumber < 99) {
+      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
+    } else {
+      document.getElementById(myself.instanceNum + '~Inf ').click();
+    }
   }
-  document.getElementById('EditMode' + myself.instanceNum).click();
-  document.getElementById('IterateMode' + myself.instanceNum).click();
-  if (data.itNumber < 99) {
-    document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
-  } else {
-    document.getElementById(myself.instanceNum + '~Inf ').click();
-  }
+}
+
+FractalDraw.prototype.load = function(incoming) {
 };
 
 FractalDraw.prototype.loadLocally = function(evt) {
@@ -154,9 +159,9 @@ FractalDraw.prototype.loadLocally = function(evt) {
   }
 
   let reader = new FileReader();
-  let myself = this;
+  let loader = this.loader();
   reader.onload = function(e) {
-    myself.load(e.target.result);
+    loader.load(e.target.result);
   };
   reader.readAsText(file);
 };
@@ -196,6 +201,7 @@ FractalDraw.prototype.loadRemotely = function(evt) {
   }
 
   function displayList(data) {
+    var loader = myself.loader();
     var dialogDiv = $('#projectListDialog');
     dialogDiv.dialog('destroy');
     projectList = document.getElementById('projectList');
@@ -221,7 +227,7 @@ FractalDraw.prototype.loadRemotely = function(evt) {
             $(this).dialog("close");
             selected = projectList.getElementsByClassName('ui-selected');
             if (selected[0]) {
-              cloud.loadProject(selected[0].option, myself.load, error);
+              cloud.loadProject(selected[0].option, loader.load, error);
             }
           }
         },
@@ -2285,10 +2291,10 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
       function error(data) {
         console.log(data);
       }
-      var myself = this.editorDiv.fractalDraw;
+      var loader = this.editorDiv.fractalDraw.loader();
       if (Number.isInteger(Number(mainDiv.dataset['seed']))) {
         this.editorDiv.setSeedByName('koch');
-        cloud.loadProject(mainDiv.dataset['seed'], myself.load, error);
+        cloud.loadProject(mainDiv.dataset['seed'], loader.load, error);
       } else {
         this.editorDiv.setSeedByName(mainDiv.dataset['seed']);
       }
