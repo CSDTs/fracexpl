@@ -733,15 +733,35 @@ function SeedEditor(fractalDraw, enabled) {
     panelTD.appendChild(typeBtn);
   }
   
-
+  let scaleDownButton = document.createElement('a');
+  scaleDownButton.innerHTML = 'Shrink';
+  scaleDownButton.style.verticalAlign = '-25%';
+  scaleDownButton.className = 'btn btn-default btn-xs';
+  scaleDownButton.style.marginLeft = '14px';
+  scaleDownButton.onclick = function() {
+    this.snapBox.checked = false;
+    this.scale(0.90);
+  }.bind(this);
+  let scaleUpButton = document.createElement('a');
+  scaleUpButton.innerHTML = 'Expand';
+  scaleUpButton.style.verticalAlign = '-25%';
+  scaleUpButton.className = 'btn btn-default btn-xs';
+  scaleUpButton.style.marginLeft = '4px';
+  scaleUpButton.onclick = function() {
+    this.snapBox.checked = false;
+    this.scale(1.10);
+  }.bind(this);
   
+  panelTD.appendChild(scaleDownButton);
+  panelTD.appendChild(scaleUpButton);
+
   let panelTDcompass = document.createElement('td');
 
   let compassButtonLeft = document.createElement('a');
   compassButtonLeft.innerHTML = '←';
   compassButtonLeft.className = 'btn btn-default btn-xs';
-  compassButtonLeft.style.marginLeft = '4px';
-  compassButtonLeft.style.verticalAlign = '-25%';
+  compassButtonLeft.style.marginLeft = '14px';
+  compassButtonLeft.style.verticalAlign = '-18%';
   compassButtonLeft.title = 'Move Left'
   compassButtonLeft.onclick = function() {
     this.compass('left');
@@ -786,7 +806,7 @@ function SeedEditor(fractalDraw, enabled) {
   let compassButtonRight = document.createElement('a');
   compassButtonRight.className = 'btn btn-default btn-xs';
   compassButtonRight.style.marginLeft = '4px';
-  compassButtonRight.style.verticalAlign = '-25%';
+  compassButtonRight.style.verticalAlign = '-18%';
   compassButtonRight.innerHTML = '→';
   compassButtonRight.title = 'Move Right'
   compassButtonRight.onclick = function() {
@@ -794,7 +814,7 @@ function SeedEditor(fractalDraw, enabled) {
   }.bind(this);
   panelTDcompass.appendChild(compassButtonRight);
   panelTDcompass.style.display = "inline";
-  panelTDcompass.className = "pull-right";
+  //panelTDcompass.className = "pull-right";
   panelTD.appendChild(panelTDcompass);
   panelRow.appendChild(panelTD);
 
@@ -1089,6 +1109,57 @@ SeedEditor.prototype.compass = function(movement) {
     this.fractalDraw.drawSeed(true);
   }
 };
+
+SeedEditor.prototype.scale = function(factor = 2) {
+  let minX = this.fractalDraw.canvas.width;
+  let minY = this.fractalDraw.canvas.height;
+  let maxX = 0;
+  let maxY = 0;
+  let scaleFactor = factor;
+  for (let i = 0; i < this.fractalDraw.seed.length; i++) {
+    minX = Math.min(minX, this.fractalDraw.seed[i][0]);
+    minY = Math.min(minY, this.fractalDraw.seed[i][1]);
+    maxX = Math.max(maxX, this.fractalDraw.seed[i][0]);
+    maxY = Math.max(maxY, this.fractalDraw.seed[i][1]);
+  }
+  let midX = (maxX + minX) / 2.0;
+  let midY = (maxY + minY) / 2.0;
+  let oobCount = 0;
+  let margin1 = 0;
+  let p0 = margin1;
+  let p1 = margin1;
+  let p2 = this.fractalDraw.canvas.width;
+  let p3 = this.fractalDraw.canvas.height;
+  function Create2DArray(rows) {
+    var arr = [];
+    for (var i=0;i<rows;i++) {
+       arr[i] = [3];
+    }
+    return arr;
+  }
+  let seedCopy = Create2DArray(this.fractalDraw.seed.length);
+  // shift to midpoint, scale, shift back, calculate oobCount
+  for (let i = 0; i < this.fractalDraw.seed.length; i++) {
+    seedCopy[i][0] = this.fractalDraw.seed[i][0] - midX;
+    seedCopy[i][1] = this.fractalDraw.seed[i][1] - midY;
+    seedCopy[i][2] = this.fractalDraw.seed[i][2];
+    seedCopy[i][0] = seedCopy[i][0] * scaleFactor;
+    seedCopy[i][1] = seedCopy[i][1] * scaleFactor;
+    seedCopy[i][0] += midX;
+    seedCopy[i][1] += midY;
+    if (!(p0 <= seedCopy[i][0] 
+      && seedCopy[i][0] <= p2 
+      && p1 <= seedCopy[i][1] 
+      && seedCopy[i][1] <= p3)) {
+      oobCount++;
+    }
+  }
+  // don't allow going out of bounds completely
+  if (oobCount < this.fractalDraw.seed.length) {
+    this.fractalDraw.seed = seedCopy;
+    this.fractalDraw.drawSeed(true);
+  }
+}
 
 SeedEditor.prototype.drawWork = function() {
   this.clearWork();
