@@ -156,9 +156,26 @@ FractalDraw.prototype.loadLocally = function(evt) {
   }
 
   let reader = new FileReader();
-  let loader = this.loader();
+  let myself = this;
   reader.onload = function(e) {
-    loader.load(e.target.result);
+    let data = JSON.parse(e.target.result);
+    myself.setSeed(data.seed);
+    myself.drawSeed(true);
+    myself.setDrawWidth(data.thickness);
+    myself.disableMode();
+    myself.thicknessType = data.thicknessType;
+    if (myself.thicknessType == 1) {
+      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
+    } else {
+      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
+    }
+    document.getElementById('EditMode' + myself.instanceNum).click();
+    document.getElementById('IterateMode' + myself.instanceNum).click();
+    if (data.itNumber < 99) {
+      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
+    } else {
+      document.getElementById(myself.instanceNum + '~Inf ').click();
+    }
   };
   reader.readAsText(file);
 };
@@ -224,7 +241,7 @@ FractalDraw.prototype.loadRemotely = function(evt) {
             $(this).dialog("close");
             selected = projectList.getElementsByClassName('ui-selected');
             if (selected[0]) {
-              cloud.loadProject(selected[0].option, loader.load, error);
+              cloud.loadProject(selected[0].option, load, error);
             }
           }
         },
@@ -242,6 +259,27 @@ FractalDraw.prototype.loadRemotely = function(evt) {
   function error(data) {
     console.log(data);
     alert('Failed To Get Project');
+  }
+
+  function load(data) {
+    let data = JSON.parse(data);
+    myself.setSeed(data.seed);
+    myself.drawSeed(true);
+    myself.setDrawWidth(data.thickness);
+    myself.disableMode();
+    myself.thicknessType = data.thicknessType;
+    if (myself.thicknessType == 1) {
+      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
+    } else {
+      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
+    }
+    document.getElementById('EditMode' + myself.instanceNum).click();
+    document.getElementById('IterateMode' + myself.instanceNum).click();
+    if (data.itNumber < 99) {
+      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
+    } else {
+      document.getElementById(myself.instanceNum + '~Inf ').click();
+    }
   }
 };
 
@@ -2287,6 +2325,27 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
     try {
       function error(data) {
         console.log(data);
+      }
+      let myself = this.editorDiv.fractalDraw;
+      function load(data) {
+        let data = JSON.parse(e.target.result);
+        myself.setSeed(data.seed);
+        myself.drawSeed(true);
+        myself.setDrawWidth(data.thickness);
+        myself.disableMode();
+        myself.thicknessType = data.thicknessType;
+        if (myself.thicknessType == 1) {
+          document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
+        } else {
+          document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
+        }
+        document.getElementById('EditMode' + myself.instanceNum).click();
+        document.getElementById('IterateMode' + myself.instanceNum).click();
+        if (data.itNumber < 99) {
+          document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
+        } else {
+          document.getElementById(myself.instanceNum + '~Inf ').click();
+        }
       }
       var loader = this.editorDiv.fractalDraw.loader();
       if (Number.isInteger(Number(mainDiv.dataset['seed']))) {
