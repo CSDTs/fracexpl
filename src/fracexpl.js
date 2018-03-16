@@ -216,7 +216,7 @@ FractalDraw.prototype.loadRemotely = function(evt) {
             $(this).dialog("close");
             selected = projectList.getElementsByClassName('ui-selected');
             if (selected[0]) {
-              cloud.loadProject(selected[0].option, myself.load, error);
+              cloud.loadProject(selected[0].option, load, error);
             }
           }
         },
