@@ -124,30 +124,6 @@ FractalDraw.prototype.checkDim = function(dim) {
   return lenSum;
 };
 
-FractalDraw.prototype.loader = function() {
-  let myself = this;
-  function load(incoming) {
-    let data = JSON.parse(incoming);
-    myself.setSeed(data.seed);
-    myself.drawSeed(true);
-    myself.setDrawWidth(data.thickness);
-    myself.disableMode();
-    myself.thicknessType = data.thicknessType;
-    if (myself.thicknessType == 1) {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
-    } else {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
-    }
-    document.getElementById('EditMode' + myself.instanceNum).click();
-    document.getElementById('IterateMode' + myself.instanceNum).click();
-    if (data.itNumber < 99) {
-      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
-    } else {
-      document.getElementById(myself.instanceNum + '~Inf ').click();
-    }
-  }
-}
-
 FractalDraw.prototype.loadLocally = function(evt) {
   let file = evt.target.files[0];
   if (!file.name.toLowerCase().endsWith('.json')) {
@@ -215,7 +191,6 @@ FractalDraw.prototype.loadRemotely = function(evt) {
   }
 
   function displayList(data) {
-    var loader = myself.loader();
     var dialogDiv = $('#projectListDialog');
     dialogDiv.dialog('destroy');
     projectList = document.getElementById('projectList');
@@ -2328,7 +2303,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
       }
       let myself = this.editorDiv.fractalDraw;
       function load(data) {
-        let data = JSON.parse(e.target.result);
+        let data = JSON.parse(data);
         myself.setSeed(data.seed);
         myself.drawSeed(true);
         myself.setDrawWidth(data.thickness);
@@ -2347,10 +2322,9 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
           document.getElementById(myself.instanceNum + '~Inf ').click();
         }
       }
-      var loader = this.editorDiv.fractalDraw.loader();
       if (Number.isInteger(Number(mainDiv.dataset['seed']))) {
         this.editorDiv.setSeedByName('koch');
-        cloud.loadProject(mainDiv.dataset['seed'], loader.load, error);
+        cloud.loadProject(mainDiv.dataset['seed'], load, error);
       } else {
         this.editorDiv.setSeedByName(mainDiv.dataset['seed']);
       }
