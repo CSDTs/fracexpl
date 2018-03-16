@@ -236,8 +236,8 @@ FractalDraw.prototype.loadRemotely = function(evt) {
     alert('Failed To Get Project');
   }
 
-  function load(data) {
-    let data = JSON.parse(data);
+  function load(incoming) {
+    let data = JSON.parse(incoming);
     myself.setSeed(data.seed);
     myself.drawSeed(true);
     myself.setDrawWidth(data.thickness);
