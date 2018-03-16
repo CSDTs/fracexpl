@@ -2301,9 +2301,9 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
       function error(data) {
         console.log(data);
       }
-      let myself = this.editorDiv.fractalDraw;
-      function load(data) {
-        let data = JSON.parse(data);
+      var myself = this.editorDiv.fractalDraw;
+      function load(string) {
+        let data = JSON.parse(string);
         myself.setSeed(data.seed);
         myself.drawSeed(true);
         myself.setDrawWidth(data.thickness);
@@ -2327,8 +2327,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
         cloud.loadProject(mainDiv.dataset['seed'], load, error);
       } else {
         this.editorDiv.setSeedByName(mainDiv.dataset['seed']);
-      }
-      
+      }     
     }
     catch (err) {
       console.log(err);
