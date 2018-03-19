@@ -133,28 +133,32 @@ FractalDraw.prototype.loadLocally = function(evt) {
 
   let reader = new FileReader();
   let myself = this;
-  reader.onload = function(e) {
-    let data = JSON.parse(e.target.result);
-    myself.setSeed(data.seed);
-    myself.drawSeed(true);
-    myself.setDrawWidth(data.thickness);
-    myself.disableMode();
-    myself.thicknessType = data.thicknessType;
-    if (myself.thicknessType == 1) {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
-    } else {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
-    }
-    document.getElementById('EditMode' + myself.instanceNum).click();
-    document.getElementById('IterateMode' + myself.instanceNum).click();
-    if (data.itNumber < 99) {
-      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
-    } else {
-      document.getElementById(myself.instanceNum + '~Inf ').click();
-    }
-  };
+  reader.onload = myself.load.bind(myself);
+
   reader.readAsText(file);
 };
+
+FractalDraw.prototype.load = function(input) {
+  if(input.target.result) input = input.target.result;
+  let data = JSON.parse(input);
+  this.setSeed(data.seed);
+  this.drawSeed(true);
+  this.setDrawWidth(data.thickness);
+  this.disableMode();
+  this.thicknessType = data.thicknessType;
+  if (this.thicknessType == 1) {
+    document.getElementById('thicknessBox' + this.instanceNum).checked = true;
+  } else {
+    document.getElementById('thicknessBox' + this.instanceNum).checked = false;
+  }
+  document.getElementById('EditMode' + this.instanceNum).click();
+  document.getElementById('IterateMode' + this.instanceNum).click();
+  if (data.itNumber < 99) {
+    document.getElementById(this.instanceNum + 'Iter ' + data.itNumber).click();
+  } else {
+    document.getElementById(this.instanceNum + '~Inf ').click();
+  }
+}
 
 FractalDraw.prototype.loadRemotely = function(evt) {
   let myself = this;
@@ -216,7 +220,7 @@ FractalDraw.prototype.loadRemotely = function(evt) {
             $(this).dialog("close");
             selected = projectList.getElementsByClassName('ui-selected');
             if (selected[0]) {
-              cloud.loadProject(selected[0].option, load, error);
+              cloud.loadProject(selected[0].option, myself.load.bind(myself), error);
             }
           }
         },
@@ -234,27 +238,6 @@ FractalDraw.prototype.loadRemotely = function(evt) {
   function error(data) {
     console.log(data);
     alert('Failed To Get Project');
-  }
-
-  function load(incoming) {
-    let data = JSON.parse(incoming);
-    myself.setSeed(data.seed);
-    myself.drawSeed(true);
-    myself.setDrawWidth(data.thickness);
-    myself.disableMode();
-    myself.thicknessType = data.thicknessType;
-    if (myself.thicknessType == 1) {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
-    } else {
-      document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
-    }
-    document.getElementById('EditMode' + myself.instanceNum).click();
-    document.getElementById('IterateMode' + myself.instanceNum).click();
-    if (data.itNumber < 99) {
-      document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
-    } else {
-      document.getElementById(myself.instanceNum + '~Inf ').click();
-    }
   }
 };
 
@@ -732,7 +715,7 @@ function SeedEditor(fractalDraw, enabled) {
     this.segTypeBtn.push(typeBtn);
     panelTD.appendChild(typeBtn);
   }
-  
+
   let scaleDownButton = document.createElement('a');
   scaleDownButton.innerHTML = 'Shrink';
   scaleDownButton.style.verticalAlign = '-25%';
@@ -751,7 +734,7 @@ function SeedEditor(fractalDraw, enabled) {
     this.snapBox.checked = false;
     this.scale(1.10);
   }.bind(this);
-  
+
   panelTD.appendChild(scaleDownButton);
   panelTD.appendChild(scaleUpButton);
 
@@ -785,7 +768,7 @@ function SeedEditor(fractalDraw, enabled) {
 
   compassTR1TD.appendChild(compassButtonUp);
   compassTR1.appendChild(compassTR1TD);
-    
+
   let compassButtonDown = document.createElement('a');
   compassButtonDown.className = 'btn btn-default btn-xs';
   compassButtonDown.style.marginLeft = '4px';
@@ -802,7 +785,7 @@ function SeedEditor(fractalDraw, enabled) {
   compassTable.appendChild(compassTR2);
 
   panelTDcompass.appendChild(compassTable);
-  
+
   let compassButtonRight = document.createElement('a');
   compassButtonRight.className = 'btn btn-default btn-xs';
   compassButtonRight.style.marginLeft = '4px';
@@ -1094,9 +1077,9 @@ SeedEditor.prototype.compass = function(movement) {
   }
   let seedCopy = Create2DArray(this.fractalDraw.seed.length);
   for (let i = 0; i < this.fractalDraw.seed.length; i++) {
-    if (!(p0 <= this.fractalDraw.seed[i][0] + x 
-      && this.fractalDraw.seed[i][0] + x <= p2 
-      && p1 <= this.fractalDraw.seed[i][1] + y 
+    if (!(p0 <= this.fractalDraw.seed[i][0] + x
+      && this.fractalDraw.seed[i][0] + x <= p2
+      && p1 <= this.fractalDraw.seed[i][1] + y
       && this.fractalDraw.seed[i][1] + y <= p3)) {
       oobCount++;
     }
@@ -1147,9 +1130,9 @@ SeedEditor.prototype.scale = function(factor = 2) {
     seedCopy[i][1] = seedCopy[i][1] * scaleFactor;
     seedCopy[i][0] += midX;
     seedCopy[i][1] += midY;
-    if (!(p0 <= seedCopy[i][0] 
-      && seedCopy[i][0] <= p2 
-      && p1 <= seedCopy[i][1] 
+    if (!(p0 <= seedCopy[i][0]
+      && seedCopy[i][0] <= p2
+      && p1 <= seedCopy[i][1]
       && seedCopy[i][1] <= p3)) {
       oobCount++;
     }
@@ -2302,32 +2285,12 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
         console.log(data);
       }
       var myself = this.editorDiv.fractalDraw;
-      function load(string) {
-        let data = JSON.parse(string);
-        myself.setSeed(data.seed);
-        myself.drawSeed(true);
-        myself.setDrawWidth(data.thickness);
-        myself.disableMode();
-        myself.thicknessType = data.thicknessType;
-        if (myself.thicknessType == 1) {
-          document.getElementById('thicknessBox' + myself.instanceNum).checked = true;
-        } else {
-          document.getElementById('thicknessBox' + myself.instanceNum).checked = false;
-        }
-        document.getElementById('EditMode' + myself.instanceNum).click();
-        document.getElementById('IterateMode' + myself.instanceNum).click();
-        if (data.itNumber < 99) {
-          document.getElementById(myself.instanceNum + 'Iter ' + data.itNumber).click();
-        } else {
-          document.getElementById(myself.instanceNum + '~Inf ').click();
-        }
-      }
       if (Number.isInteger(Number(mainDiv.dataset['seed']))) {
         this.editorDiv.setSeedByName('koch');
-        cloud.loadProject(mainDiv.dataset['seed'], load, error);
+        cloud.loadProject(mainDiv.dataset['seed'], myself.load.bind(myself), error);
       } else {
         this.editorDiv.setSeedByName(mainDiv.dataset['seed']);
-      }     
+      }
     }
     catch (err) {
       console.log(err);
