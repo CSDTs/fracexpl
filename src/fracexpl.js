@@ -2290,12 +2290,38 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
         cloud.loadProject(mainDiv.dataset['seed'], myself.load.bind(myself), error);
       } else {
         this.editorDiv.setSeedByName(mainDiv.dataset['seed']);
+        function testQueryStringExist(queryKey) {
+          var field = queryKey || 'q';
+          var url = window.location.href;
+          if(url.indexOf('?' + field + '=') != -1)
+              return true;
+          else if(url.indexOf('&' + field + '=') != -1)
+              return true;
+          return false
+        }
+        function getParameterByName(name, url) {
+          if (!url) url = window.location.href;
+          name = name.replace(/[\[\]]/g, "\\$&");
+          var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+              results = regex.exec(url);
+          if (!results) return null;
+          if (!results[2]) return '';
+          return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+        let queryKeyword = 'project';
+        if (testQueryStringExist(queryKeyword)) {
+          let projNum = getParameterByName(queryKeyword);
+          if (Number.isInteger(projNum)) {
+            cloud.loadProject(projNum, myself.load.bind(myself), error);
+          }
+        }
       }
     }
     catch (err) {
       console.log(err);
     }
   }
+
 
   let mode = 1;
   if ((mainDiv.dataset['mode'] != undefined) &&
