@@ -2288,8 +2288,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
       if (Number.isInteger(Number(mainDiv.dataset['seed']))) {
         this.editorDiv.setSeedByName('koch');
         cloud.loadProject(mainDiv.dataset['seed'], myself.load.bind(myself), error);
-      }
-      else {
+      } else {
         this.editorDiv.setSeedByName(mainDiv.dataset['seed']);
         function testQueryStringExist(queryKey) {
           var field = queryKey || 'q';
