@@ -2315,6 +2315,11 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
             cloud.loadProject(projNum, myself.load.bind(myself), error);
           }
         }
+        else {
+          if (Number.isInteger(config.project.id)) {
+            cloud.loadProject(config.project.id, myself.load.bind(myself), error);
+          }
+        }
       }
     }
     catch (err) {
