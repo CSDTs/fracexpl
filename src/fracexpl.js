@@ -2288,7 +2288,8 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
       if (Number.isInteger(Number(mainDiv.dataset['seed']))) {
         this.editorDiv.setSeedByName('koch');
         cloud.loadProject(mainDiv.dataset['seed'], myself.load.bind(myself), error);
-      } else {
+      }
+      else {
         this.editorDiv.setSeedByName(mainDiv.dataset['seed']);
         function testQueryStringExist(queryKey) {
           var field = queryKey || 'q';
@@ -2313,6 +2314,11 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
           let projNum = getParameterByName(queryKeyword);
           if (Number.isInteger(projNum)) {
             cloud.loadProject(projNum, myself.load.bind(myself), error);
+          }
+        }
+        else {
+          if (Number.isInteger(config.project.id)) {
+            cloud.loadProject(config.project.id, myself.load.bind(myself), error);
           }
         }
       }
