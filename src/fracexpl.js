@@ -143,7 +143,7 @@ FractalDraw.prototype.load = function(input) {
     if(input.target.result) input = input.target.result;
   }
   catch (err) {
-    
+
   }
   let data = JSON.parse(input);
   this.setSeed(data.seed);
@@ -2321,8 +2321,13 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
           }
         }
         else {
-          if (Number.isInteger(config.project.id)) {
-            cloud.loadProject(config.project.id, myself.load.bind(myself), error);
+          try {
+            if (Number.isInteger(config.project.id)) {
+              cloud.loadProject(config.project.id, myself.load.bind(myself), error);
+            }
+          }
+          catch (err) {
+            // config is not defined
           }
         }
       }
