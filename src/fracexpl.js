@@ -139,7 +139,12 @@ FractalDraw.prototype.loadLocally = function(evt) {
 };
 
 FractalDraw.prototype.load = function(input) {
-  if(input.target.result) input = input.target.result;
+  try {
+    if(input.target.result) input = input.target.result;
+  }
+  catch (err) {
+    
+  }
   let data = JSON.parse(input);
   this.setSeed(data.seed);
   this.drawSeed(true);
