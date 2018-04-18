@@ -158,10 +158,10 @@ FractalDraw.prototype.load = function(input) {
   }
   document.getElementById('EditMode' + this.instanceNum).click();
   document.getElementById('IterateMode' + this.instanceNum).click();
-  if (data.itNumber < 99) {
+  if (data.itNumber < 9) {
     document.getElementById(this.instanceNum + 'Iter ' + data.itNumber).click();
   } else {
-    document.getElementById(this.instanceNum + '~Inf ').click();
+    document.getElementById(this.instanceNum + '~Inf').click();
   }
 }
 
@@ -2316,13 +2316,17 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
         let queryKeyword = 'project';
         if (testQueryStringExist(queryKeyword)) {
           let projNum = getParameterByName(queryKeyword);
-          if (Number.isInteger(projNum)) {
-            cloud.loadProject(projNum, myself.load.bind(myself), error);
+          try {
+            if (Number.isInteger(Number(projNum))) {
+              cloud.loadProject(projNum, myself.load.bind(myself), error);
+            }
+          } catch (err) {
+            // pass
           }
         }
         else {
           try {
-            if (Number.isInteger(config.project.id)) {
+            if (Number.isInteger(Number(config.project.id))) {
               cloud.loadProject(config.project.id, myself.load.bind(myself), error);
             }
           }
