@@ -40,6 +40,7 @@ function sqr(x) {
 function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
   this.seed = seed;
   this.instanceNum = instanceNum;
+  this.currSeedName = null;
   this.canvas = document.createElement('canvas');
   this.canvas.id = 'ft-drawing-canvas-' + toolNum;
   this.canvas.width = Math.max(640, askWidth);
@@ -507,6 +508,12 @@ FractalDraw.prototype.drawIt = function(levels) {
   this.ctx.lineWidth = this.drawThickness.value;
   this.ctx.strokeStyle = 'black';
   this.ctx.lineCap = 'round';
+  if (levels === 40) {
+    if (this.currSeedName == 'sprout') {
+      levels = 100;
+    }
+  }
+  console.log(levels);
   this.basedraw(this.seed[0], this.seed[this.seed.length - 1], 1, levels);
   this.ctx.closePath();
 };
@@ -818,6 +825,7 @@ function SeedEditor(fractalDraw, enabled) {
   pickerLabel.innerHTML = 'Seed: ';
   panelTD.appendChild(pickerLabel);
   this.picker = document.createElement('select');
+  this.picker.id = 'selectSeed' + this.fractalDraw.instanceNum;
   this.picker.type = 'list';
   this.picker.onchange = function() {
     this.pickSeed();
@@ -924,6 +932,7 @@ SeedEditor.prototype.pickSeed = function() {
     this.setMode(SeedEditor.EDITMODE.LOCKED);
     this.thicknessBox.checked = (this.fractalDraw.thicknessType == 1) ? true : false;
   }
+  this.fractalDraw.currSeedName = document.getElementById('selectSeed' + this.fractalDraw.instanceNum).value;
   this.fractalDraw.drawSeed(true);
 };
 
