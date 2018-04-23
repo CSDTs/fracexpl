@@ -80,12 +80,23 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
   screenShot.className = 'btn btn-default btn-sm pull-right';
   screenShot.style.marginLeft = '4px';
   screenShot.addEventListener('click', function() {
-    
-    this.canvas.width = this.canvas.width * 2;
-    this.canvas.height = this.canvas.height * 2;
+    let scaleFactor = 8;
+    let oldWidth = this.canvas.width;
+    let oldHeight = this.canvas.height;
+    this.ctx.save();
+    this.ctx.scale(scaleFactor, scaleFactor);
+    this.canvas.width = this.canvas.width * scaleFactor;
+    this.canvas.height = this.canvas.height * scaleFactor;
+    let copyOld = this.scaleSeed(this.seed, 1);
+    let copyNew = this.scaleSeed(this.seed, scaleFactor);
+    this.seed = copyNew;
     this.drawIt(this.currLevels);
     this.highResScreenShot(this.canvas);
-
+    this.canvas.width = oldWidth;
+    this.canvas.height = oldHeight;
+    this.seed = copyOld;
+    this.drawIt(this.currLevels);
+    this.ctx.restore();
   }.bind(this));
   screenShot.title = 'Screenshot';
   screenShot.innerHTML = '<i class="glyphicon glyphicon-camera"></i>';
@@ -137,6 +148,33 @@ FractalDraw.prototype.checkDim = function(dim) {
   }
 
   return lenSum;
+};
+
+FractalDraw.prototype.scaleSeed = function(seed, scaleFactor) {
+  function Create2DArray(rows) {
+    var arr = [];
+    for (var i=0;i<rows;i++) {
+       arr[i] = [3];
+    }
+    return arr;
+  }
+  let seedCopy = Create2DArray(this.seed.length);
+  for (let i = 0; i < seed.length; i++) {
+    // seed[i][0] = this.fractalDraw.seed[i][0] - midX;
+    // seed[i][1] = this.fractalDraw.seed[i][1] - midY;
+    seedCopy[i][2] = seed[i][2];
+    seedCopy[i][0] = seed[i][0] * scaleFactor;
+    seedCopy[i][1] = seed[i][1] * scaleFactor;
+    // seed[i][0] += midX;
+    // seed[i][1] += midY;
+    // if (!(p0 <= seed[i][0]
+    //   && seed[i][0] <= p2
+    //   && p1 <= seed[i][1]
+    //   && seed[i][1] <= p3)) {
+    //   oobCount++;
+    // }
+  }
+  return seedCopy;
 };
 
 FractalDraw.prototype.highResScreenShot = function(canvas) {
@@ -654,14 +692,14 @@ FractalDraw.prototype.basedraw = function(start, end, hflip, level, thickness = 
     let endDrawX = a * this.seed[i][0] + b * this.seed[i][1] + tx;
     let endDrawY = c * this.seed[i][0] + d * this.seed[i][1] + ty;
     let newSegmentLength = ((endDrawX - startDrawX) ** 2 + (endDrawY - startDrawY) ** 2) ** 0.5;
-    if (newSegmentLength > segmentLength && level > 30) {
-      if (count > 2) {
-        level = 30;
-      }
-    }
-    if (newSegmentLength > segmentLength*0.9 && level > 20) {
+    if (newSegmentLength > segmentLength && level > 20) {
       if (count > 2) {
         level = 20;
+      }
+    }
+    if (newSegmentLength > segmentLength*0.9 && level > 10) {
+      if (count > 2) {
+        level = 10;
       }
     }
     if (this.seed[i][2] != 5) {
