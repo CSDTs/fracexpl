@@ -593,11 +593,14 @@ FractalDraw.prototype.basedraw = function(start, end, hflip, level, thickness = 
   let ty = start[1] - c * this.seed[0][0] - d * this.seed[0][1];
   let startDrawX = a * this.seed[0][0] + b * this.seed[0][1] + tx;
   let startDrawY = c * this.seed[0][0] + d * this.seed[0][1] + ty;
-  let count = 0;
   // allows for bypassing the feedback catch:
+  let count = 0;
   for (let i = 0; i < this.seed.length; i++) {
     if (this.seed[i][2] !== 4 && this.seed[i][2] !== 5) {
       count++;
+      if (count > 2) {
+        break;
+      }
     }
   }
   for (let i = 1; i < this.seed.length; i++) {
