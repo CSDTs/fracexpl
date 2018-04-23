@@ -508,12 +508,6 @@ FractalDraw.prototype.drawIt = function(levels) {
   this.ctx.lineWidth = this.drawThickness.value;
   this.ctx.strokeStyle = 'black';
   this.ctx.lineCap = 'round';
-  if (levels === 40) {
-    if (this.currSeedName == 'sprout') {
-      levels = 100;
-    }
-  }
-  console.log(levels);
   this.basedraw(this.seed[0], this.seed[this.seed.length - 1], 1, levels);
   this.ctx.closePath();
 };
@@ -597,18 +591,28 @@ FractalDraw.prototype.basedraw = function(start, end, hflip, level, thickness = 
   let c = (baseDeltaX * segmentDeltaY - hflip * baseDeltaY * segmentDeltaX) / baseLength ** 2;
   let d = (segmentDeltaY * baseDeltaY + hflip * baseDeltaX * segmentDeltaX) / baseLength ** 2;
   let ty = start[1] - c * this.seed[0][0] - d * this.seed[0][1];
-99
   let startDrawX = a * this.seed[0][0] + b * this.seed[0][1] + tx;
   let startDrawY = c * this.seed[0][0] + d * this.seed[0][1] + ty;
-
+  let count = 0;
+  // allows for bypassing the feedback catch:
+  for (let i = 0; i < this.seed.length; i++) {
+    if (this.seed[i][2] !== 4 && this.seed[i][2] !== 5) {
+      count++;
+    }
+  }
   for (let i = 1; i < this.seed.length; i++) {
     let endDrawX = a * this.seed[i][0] + b * this.seed[i][1] + tx;
     let endDrawY = c * this.seed[i][0] + d * this.seed[i][1] + ty;
     let newSegmentLength = ((endDrawX - startDrawX) ** 2 + (endDrawY - startDrawY) ** 2) ** 0.5;
-    if (newSegmentLength > segmentLength && level > 10) {
-      level = 10;
-    } if (newSegmentLength > segmentLength*0.9 && level > 20) {
-      level = 20;
+    if (newSegmentLength > segmentLength && level > 30) {
+      if (count > 2) {
+        level = 30;
+      }
+    }
+    if (newSegmentLength > segmentLength*0.9 && level > 20) {
+      if (count > 2) {
+        level = 20;
+      }
     }
     if (this.seed[i][2] != 5) {
       if ((level == 1) || (this.seed[i][2] == 4)) {
@@ -2147,14 +2151,12 @@ SeedEditor.StdSeeds = {
     thickness: 2.0,
     thicknessType: 0,
     itNumber: 9,
-    seed: [
-      [260.0, 320.0, 0],
-      [260.0, 180.0, 4],
-      [260.0, 180.0, 5],
-      [260.0, 180.0, 0],
-      [340.0, 120.0, 0],
-      [320.0, 180.0, 5],
-      [260.0, 180.0, 5],
+    "seed": [
+      [260.5, 320.5, 0],
+      [260.5, 180.5, 4],
+      [340.5, 120.5, 0],
+      [320.5, 180.5, 5],
+      [260.5, 180.5, 5]
     ],
   },
   'turbulence': {
