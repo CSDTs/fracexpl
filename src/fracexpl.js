@@ -75,6 +75,20 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
   this.levelButtons.appendChild(button);
 
   this.currLevels = levels;
+
+  let screenShot = document.createElement('button');
+  screenShot.className = 'btn btn-default btn-sm pull-right';
+  screenShot.style.marginLeft = '4px';
+  screenShot.addEventListener('click', function() {
+    
+    this.canvas.width = this.canvas.width * 2;
+    this.canvas.height = this.canvas.height * 2;
+    this.drawIt(this.currLevels);
+    this.highResScreenShot(this.canvas);
+
+  }.bind(this));
+  screenShot.title = 'Screenshot';
+  screenShot.innerHTML = '<i class="glyphicon glyphicon-camera"></i>';
   this.ctrlPanel.appendChild(this.levelButtons);
 
   panelRow = document.createElement('div');
@@ -98,6 +112,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
   this.dimInfo = document.createElement('span');
   this.dimInfo.style.marginLeft = '20px';
   this.dimInfo.innerHTML = 'Dim=?';
+  panelRow.appendChild(screenShot);
   panelRow.appendChild(this.dimInfo);
 
   this.ctrlPanel.appendChild(panelRow);
@@ -122,6 +137,39 @@ FractalDraw.prototype.checkDim = function(dim) {
   }
 
   return lenSum;
+};
+
+FractalDraw.prototype.highResScreenShot = function(canvas) {
+  var lnk = document.createElement('a'),
+      e;
+
+  /// the key here is to set the download attribute of the a tag
+  lnk.download = 'download';
+
+  /// convert canvas content to data-uri for link. When download
+  /// attribute is set the content pointed to by link will be
+  /// pushed as "download" in HTML5 capable browsers
+  let ctx = canvas.getContext('2d');
+  ctx.mozImageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = false;
+  ctx.webkitImageSmoothingEnabled = false;
+  ctx.scale(4,4);
+  lnk.href = canvas.toDataURL();
+
+  /// create a "fake" click-event to trigger the download
+  if (document.createEvent) {
+
+      e = document.createEvent("MouseEvents");
+      e.initMouseEvent("click", true, true, window,
+                        0, 0, 0, 0, 0, false, false, false,
+                        false, 0, null);
+
+      lnk.dispatchEvent(e);
+
+  } else if (lnk.fireEvent) {
+
+      lnk.fireEvent("onclick");
+  }
 };
 
 FractalDraw.prototype.loadLocally = function(evt) {
