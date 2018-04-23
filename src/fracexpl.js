@@ -832,7 +832,6 @@ function SeedEditor(fractalDraw, enabled) {
   pickerLabel.innerHTML = 'Seed: ';
   panelTD.appendChild(pickerLabel);
   this.picker = document.createElement('select');
-  this.picker.id = 'selectSeed' + this.fractalDraw.instanceNum;
   this.picker.type = 'list';
   this.picker.onchange = function() {
     this.pickSeed();
@@ -939,7 +938,6 @@ SeedEditor.prototype.pickSeed = function() {
     this.setMode(SeedEditor.EDITMODE.LOCKED);
     this.thicknessBox.checked = (this.fractalDraw.thicknessType == 1) ? true : false;
   }
-  this.fractalDraw.currSeedName = document.getElementById('selectSeed' + this.fractalDraw.instanceNum).value;
   this.fractalDraw.drawSeed(true);
 };
 
