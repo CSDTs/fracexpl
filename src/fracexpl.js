@@ -40,7 +40,6 @@ function sqr(x) {
 function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
   this.seed = seed;
   this.instanceNum = instanceNum;
-  this.currSeedName = null;
   this.canvas = document.createElement('canvas');
   this.canvas.id = 'ft-drawing-canvas-' + toolNum;
   this.canvas.width = Math.max(640, askWidth);
