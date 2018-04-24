@@ -158,21 +158,11 @@ FractalDraw.prototype.scaleSeed = function(seed, scaleFactor) {
     }
     return arr;
   }
-  let seedCopy = Create2DArray(this.seed.length);
+  let seedCopy = Create2DArray(seed.length);
   for (let i = 0; i < seed.length; i++) {
-    // seed[i][0] = this.fractalDraw.seed[i][0] - midX;
-    // seed[i][1] = this.fractalDraw.seed[i][1] - midY;
     seedCopy[i][2] = seed[i][2];
     seedCopy[i][0] = seed[i][0] * scaleFactor;
     seedCopy[i][1] = seed[i][1] * scaleFactor;
-    // seed[i][0] += midX;
-    // seed[i][1] += midY;
-    // if (!(p0 <= seed[i][0]
-    //   && seed[i][0] <= p2
-    //   && p1 <= seed[i][1]
-    //   && seed[i][1] <= p3)) {
-    //   oobCount++;
-    // }
   }
   return seedCopy;
 };
