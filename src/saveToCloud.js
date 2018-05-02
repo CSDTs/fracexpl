@@ -304,27 +304,38 @@ CloudSaver.prototype.getGISPoints = function(dataset,
    }).fail(errorCallBack);
 };
 
-
-/** Don't want to bother writing your own login? Here is one that returns user
-@param {function} callBack - The return function
-@param {function} errorCallBack - If there is an error
- */
 CloudSaver.prototype.loginPopup = function(callBack, errorCallBack) {
   this.getCSRFToken();
-  let username = prompt('Enter your username', '');
-  if (!username) {
-    alert('No username entered, signin aborted');
-    return;
-  }
-  let password = prompt('Hello ' + username + ', enter your password', '');
-  if (!password) {
-    alert('No password entered, signin aborted');
-    return;
-  }
-  const myself = this;
-  this.login(username, password, function(data) {
-    myself.getUser(callBack, errorCallBack);
-  },
-    errorCallBack
-  );
+  let dialogDiv = $('#loginDialog');
+  dialogDiv.dialog('destroy');
+  dialogDiv.dialog({
+  modal : true,
+  buttons : [
+    {
+        text : "Submit",
+        class : 'Green',
+        click() {
+          $( this ).dialog( "close" );
+          let username = document.getElementsByName('username')[0].value;
+          let password = document.getElementsByName('password')[0].value;
+          if (!username || !password) {
+            errorCallBack('Didn\'t log in');
+            return;
+          }
+          cloud.login(username, password, data => {
+            cloud.getUser(callBack, errorCallBack);
+          },
+            errorCallBack
+          );
+        }
+    },
+    {
+        text : "Cancel",
+        class : 'Red',
+        click() {
+          $( this ).dialog( "close" );
+          errorCallBack('Didn\'t log in');
+        }
+    } ]
+  });
 };
