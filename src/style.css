@@ -1,0 +1,130 @@
+body{
+    font: 16px 'Roboto',sans-serif;
+    font-weight: 400;
+    color: #333;
+}
+label{
+    margin-right: .5rem;
+}
+input {
+    height: 2em;
+    border-radius: 4px;
+    border: 1px solid #828282;
+}
+
+.input-thickness {
+    width: 4em;
+}
+.canvas{
+    border: 2px solid #E0E0E0;
+    position: absolute;
+    left:0; 
+    top:0; 
+    z-index:1;
+}
+
+
+
+.ctrlPanel{
+    display:block;
+}
+.panelRow{
+    margin-top: .5rem;
+}
+.levelButtons{
+    background-color: #E0E0E0;
+    border: 1px solid #828282;
+    border-radius: 2px;
+    padding: 0;
+}
+.btn{
+    display: inline;
+    padding:.5em;
+    font-size: 1.5rem;
+    line-height: 1em;
+    background-color: white;
+}
+
+.btn-default{
+    border: 1px solid #828282;
+    border-radius: 4px;
+    margin-left: .5em;
+    margin-bottom: .5em;
+}
+.btn-iter{
+    margin:0;
+    border: 1px solid #E0E0E0;
+    border-radius: 0;
+}
+.btn-iter:hover{
+    background-color: #F2F2F2;
+}
+.btn-iter-inf{ margin-left:.5em;}
+
+.btn-edit{
+    margin-left: .5rem;
+    border: 2px solid #E0E0E0;
+    border-radius: 2px;
+}
+
+.btn-edit img{
+    width: 2em;
+    height: auto;
+}
+.type-flip {
+    border-color: #2F80ED;
+}
+.type-inverflip {
+    border-color: #9B51E0;
+}
+.type-invert {
+    border-color: #F2994A;
+}
+.type-invisible {
+    border-color: #bdbdbd;
+}
+.type-passive {
+    border-color: #27AE60;
+}
+.type-regular {
+    border-color: #EB5757;
+}
+
+/* mode selection */
+.modeSelDiv {
+    display: inline-block;
+    vertical-align: top;
+    margin:.5em;
+}
+.btn-mode{
+    margin:0;
+    border: 2px solid #333;
+    border-radius: 0;
+}
+.btn-mode:focus{
+    color:white;
+    outline: none;
+}
+.active-mode {
+    background-color: #333;
+    color:white;
+}
+.compass{
+    display: grid;
+    grid-template-columns: 3em 3em 3em;
+    grid-template-rows: 3em 3em;
+    grid-gap: 0;
+}
+
+.compass a:nth-child(1){
+    grid-area: 1 / 2 / span 1 / span 1;
+}
+.compass a:nth-child(2){
+    grid-area: 2 / 1 / span 1 / span 1;
+}
+.compass a:nth-child(3){
+    grid-area: 2 / 2 / span 1 / span 1;
+}
+.compass a:nth-child(4){
+    grid-area: 2 / 3 / span 1 / span 1;
+}
