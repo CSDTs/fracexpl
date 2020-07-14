@@ -51,60 +51,97 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
   this.ctrlPanel.id = 'ft-drawing-ctrls-' + toolNum;
   this.ctrlPanel.className = 'ctrlPanel';
 
-  //level 1 to 8
+  //=========================
+  //levelButtons: iteration times selection, 1 to 8 & infinity
   this.levelButtons = document.createElement('div');
   this.levelButtons.className = 'levelButtons';
-  for (let i = 1; i <= 8; i++) {
-    let button = document.createElement('button');
-    button.className = 'btn btn-iter';
-    button.innerHTML = 'Iter ' + i;
-    button.id = instanceNum + button.innerHTML;
-    this.levelButtons.appendChild(button);
 
-    button.addEventListener('click', function(inum) {
+  //level 1 to 8
+  for (let i = 1; i <= 8; i++) {
+    let levelBtn = document.createElement('button');
+    levelBtn.className = 'btn btn-iter';
+    levelBtn.innerHTML = 'Iter ' + i;
+    levelBtn.id = instanceNum + levelBtn.innerHTML;
+    levelBtn.addEventListener('click', function(inum) {
       this.drawIt(inum);
     }.bind(this, i));
+
+    this.levelButtons.appendChild(levelBtn);
   }
   //level infinity
-  button = document.createElement('button');
-  button.className = 'btn btn-iter btn-iter-inf';
-  button.addEventListener('click', function(inum) {
+  let infBtn = document.createElement('button');
+  infBtn.className = 'btn btn-iter btn-iter-inf';
+  infBtn.innerHTML = '&infin; Inf';
+  infBtn.id = instanceNum + infBtn.innerHTML;
+  infBtn.addEventListener('click', function(inum) {
     this.drawIt(inum);
   }.bind(this, 40));
-  button.innerHTML = '&infin; Inf';
-  button.id = instanceNum + button.innerHTML;
-  this.levelButtons.appendChild(button);
+  
+  this.levelButtons.appendChild(infBtn);
 
-  this.currLevels = levels;
-  this.ctrlPanel.appendChild(this.levelButtons);
+  //=========================
+  //dimInfo: dimention display
+  this.dimInfo = document.createElement('span');
+  this.dimInfo.style.marginLeft = '20px';
+  this.dimInfo.innerHTML = 'Dim=?';
 
-  //second row of iterate control panel
-  panelRow = document.createElement('div');
-  panelRow.className = 'panelRow';
-  let thickLabel = document.createElement('label');
-  thickLabel.htmlFor = "thickness";
-  thickLabel.innerHTML = 'Line Thickness';
-  panelRow.appendChild(thickLabel);
+  //=========================
+  //segThickness: line thickness input & thinner
+  let segThickness = document.createElement('div');
+  segThickness.className = 'segThickness';
+
+  //segThicknessInput: input line thickness
+  let segThicknessInput = document.createElement('div');
+
   this.drawThickness = document.createElement('input');
-  this.drawThickness.name = "thickness";
+  this.drawThickness.id = "thickness";
   this.drawThickness.type = 'number';
   this.drawThickness.value = 1;
   this.drawThickness.min = 1;
   this.drawThickness.className = 'input-thickness';
   this.drawThickness.addEventListener('change', function() {
-    if (this.drawThickness.value < 1.0) {
-      this.drawThickness.value = 1.0;
-    }
-    this.drawIt(this.currLevels);
-  }.bind(this));
-  panelRow.appendChild(this.drawThickness);
+      if (this.drawThickness.value < 1.0) {
+        this.drawThickness.value = 1.0;
+      }
+      this.drawIt(this.currLevels,true);
+    }.bind(this));
 
-  this.dimInfo = document.createElement('span');
-  this.dimInfo.style.marginLeft = '20px';
-  this.dimInfo.innerHTML = 'Dim=?';
-  panelRow.appendChild(this.dimInfo);
+  let thickLabel = document.createElement('label');
+  thickLabel.htmlFor = this.drawThickness.id;
+  thickLabel.innerHTML = 'Line Thickness';
 
-  this.ctrlPanel.appendChild(panelRow);
+  segThicknessInput.appendChild(thickLabel);
+  segThicknessInput.appendChild(this.drawThickness);
+
+  // segThinner: thinner with recursion, checkbox
+  let segThinner = document.createElement('div');
+  segThinner.className = 'checkbox';
+
+  this.thicknessBox = document.createElement('input');
+  this.thicknessBox.id = 'thicknessBox' + this.instanceNum;
+  this.thicknessBox.type = 'checkbox';
+  this.thicknessBox.checked = this.thicknessType;
+  this.thicknessBox.onchange = function() {
+    this.thicknessBoxClicked();
+    this.drawIt(this.currLevels,true);
+  }.bind(this);
+  
+  let thicknessBoxLabel = document.createElement('label');
+  thicknessBoxLabel.htmlFor = this.thicknessBox.id;
+  thicknessBoxLabel.innerHTML = 'Thin with recursion';
+
+  segThinner.appendChild(this.thicknessBox);
+  segThinner.appendChild(thicknessBoxLabel);
+
+  segThickness.appendChild(segThicknessInput);
+  segThickness.appendChild(segThinner);
+
+  //control panel layout
+  this.ctrlPanel.appendChild(this.levelButtons);
+  this.ctrlPanel.appendChild(this.dimInfo);
+  this.ctrlPanel.appendChild(segThickness);
+
+  this.currLevels = levels;
   this.drawWidth = 1;//
   this.thicknessType = 0;//
 }
@@ -454,7 +491,9 @@ FractalDraw.prototype.closestPt = function(pt) {
     return -1;
   }
 };
-
+FractalDraw.prototype.thicknessBoxClicked = function() {
+  this.thicknessType = this.thicknessBox.checked ? 1 : 0;
+};
 /** Distance between point and line
 @param {point} pt - A point
 @param {point} e1 - First point in segment
@@ -498,14 +537,19 @@ FractalDraw.prototype.clear = function() {
   this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 };
 
-FractalDraw.prototype.drawIt = function(levels) {
-  let currentLevelBtn = this.currLevels < this.levelButtons.children.length ? this.currLevels - 1 : this.levelButtons.children.length - 1;
+//draw fractals with specific iteration times
+FractalDraw.prototype.drawIt = function(levels, init = false) {
+  let levelBtns = this.levelButtons.children;
+  let levelBtns_len = levelBtns.length;
+  if(levels == this.currLevels && !init){return;}
+
+  let oldLevel = Math.min(this.currLevels, levelBtns_len) - 1;//old level
   if (this.currLevels != -1) {
-    this.levelButtons.children[currentLevelBtn].disabled = false;
+    levelBtns[oldLevel].classList.remove('active-iter');
   }
-  currentLevelBtn = levels < this.levelButtons.children.length ? levels - 1 : this.levelButtons.children.length - 1;
+  let newLevel = Math.min(levels, levelBtns_len) - 1;//new level
+  levelBtns[newLevel].classList.add('active-iter');
   this.currLevels = levels;
-  this.levelButtons.children[currentLevelBtn].disabled = true;
   this.clear();
   this.ctx.lineWidth = this.drawThickness.value;
   this.ctx.strokeStyle = 'black';
@@ -522,10 +566,9 @@ FractalDraw.prototype.getCtrls = function() {
   return this.ctrlPanel;
 };
 
-///????
 FractalDraw.prototype.enableMode = function() {
-  this.ctrlPanel.style.display = 'inline-block';
-  this.drawIt(this.currLevels);
+  this.ctrlPanel.className = 'ctrlPanel';
+  this.drawIt(this.currLevels, true);//init fractal
   let dim = Math.round(this.getDim() * 1000.0) / 1000.0;
   if (dim == -1) {
     this.dimInfo.innerHTML = 'Dim=?';
@@ -535,7 +578,7 @@ FractalDraw.prototype.enableMode = function() {
 };
 
 FractalDraw.prototype.disableMode = function() {
-  this.ctrlPanel.style.display = 'none';
+  this.ctrlPanel.className = 'hide';
 };
 
 FractalDraw.prototype.drawSeed = function(drawBaseLine = false, without = -1) {
@@ -648,31 +691,40 @@ FractalDraw.prototype.basedraw = function(start, end, hflip, level, thickness = 
 function SeedEditor(fractalDraw, enabled) {
   this.fractalDraw = fractalDraw;
   let drawingcanvas = fractalDraw.getCanvas();
-  let drawingz = parseInt(drawingcanvas.style['z-index']);
-  drawingcanvas.style['z-index'] = drawingz + 1;
+  let drawing_W = drawingcanvas.width;
+  let drawing_H = drawingcanvas.height;
+  let drawing_Z = parseInt(drawingcanvas.style['z-index']);
+  
 
+  //bgcanvas: background grid
   this.bgcanvas = document.createElement('canvas');
   this.bgcanvas.id = 'fraceditbg';
-  this.bgcanvas.width = drawingcanvas.width;
-  this.bgcanvas.height = drawingcanvas.height;
   this.bgcanvas.className = 'canvas';
-  this.bgcanvas.style['z-index'] = drawingz;
-  if (!enabled) {
-    this.bgcanvas.style['display'] = 'none';
-  }
+  this.bgcanvas.width            = drawing_W;
+  this.bgcanvas.height           = drawing_H;
+  this.bgcanvas.style['z-index'] = drawing_Z;
+ 
   drawingcanvas.parentElement.appendChild(this.bgcanvas);
   this.setupBackground();
+  
+  //drawingcanvas: render fractal iteration
+  drawingcanvas.style['z-index'] = drawing_Z + 1;
 
+  //workcanvas: the canvas users interact with
   this.workcanvas = document.createElement('canvas');
   this.workcanvas.id = 'fraceditwork';
-  this.workcanvas.width = drawingcanvas.width;
-  this.workcanvas.height = drawingcanvas.height;
   this.workcanvas.className = 'canvas';
-  this.workcanvas.style['z-index'] = drawingz + 2;
+  this.workcanvas.width            = drawing_W;
+  this.workcanvas.height           = drawing_H;
+  this.workcanvas.style['z-index'] = drawing_Z + 2;
+
+  drawingcanvas.parentElement.appendChild(this.workcanvas);
+  
   if (!enabled) {
+    this.bgcanvas.style['display'] = 'none';
     this.workcanvas.style['display'] = 'none';
   }
-  drawingcanvas.parentElement.appendChild(this.workcanvas);
+  
   this.workctx = this.workcanvas.getContext('2d');
   this.workrect = this.workcanvas.getBoundingClientRect();
   this.workcanvas.seedEditor = this;
@@ -696,7 +748,42 @@ function SeedEditor(fractalDraw, enabled) {
   this.ctrlPanel.id = 'scoobydoo';
   this.ctrlPanel.className = 'ctrlPanel';
 
-  let editBtns = [
+  this.stdSeeds = [];
+  this.stdSeedWidth = [];
+  this.stdSeedThicknessType = [];
+
+  //=========================
+  //seedPicker: seed selection
+  let seedPicker = document.createElement('div');
+  seedPicker.className = 'seedPicker';
+
+  let pickerLabel = document.createElement('label');
+  pickerLabel.innerHTML = 'Seed: ';
+  pickerLabel.htmlFor = 'seedSel';
+
+  this.picker = document.createElement('select');
+  this.picker.id = 'seedSel';
+  this.picker.type = 'list';
+  this.picker.onchange = function() {
+    this.pickSeed();
+  }.bind(this);
+
+  seedPicker.appendChild(pickerLabel);
+  seedPicker.appendChild(this.picker);
+  
+  this.addSeed('edit', 'Make your own...', []);
+  //=========================
+  //segTypeSel: line type/color selection
+  this.currentSegType = -1;
+  this.segTypeBtn = [];
+  
+  let segTypeSel = document.createElement('div');
+  segTypeSel.className = 'segTypeSel';
+
+  let segTypeLabel = document.createElement('label');
+  segTypeLabel.innerHTML = 'Line:';
+  segTypeSel.appendChild(segTypeLabel);
+  let typeBtns = [
     {name:'regular',title:'Regular'},
     {name:'passive',title:'Passive Replication'},
     {name:'invisible',title:'Invisible'},
@@ -704,30 +791,30 @@ function SeedEditor(fractalDraw, enabled) {
     {name:'invert',title:'Invert'},
     {name:'inverflip',title:'Invert and Flip'}
   ];
-  let panelTbl = document.createElement('table');
-  let panelRow = document.createElement('tr');
-  panelTbl.appendChild(panelRow);
-
-  let panelTD = document.createElement('td');
-  this.currentSegType = -1;
-  this.segTypeBtn = [];
   for (let i = 0; i < SeedEditor.SegType.length; i++) {
-    let typeBtn = document.createElement('button');
+    let btn = document.createElement('button');
     let icon = document.createElement('img');
-    icon.src = "icons/button_" + editBtns[i].name + ".svg";
-    typeBtn.appendChild(icon);
-    // typeBtn.innerHTML = SeedEditor.SegType[i].name;
-    typeBtn.className = 'btn btn-edit type-' + editBtns[i].name;
-    typeBtn.title = editBtns[i].title;
-    typeBtn.onclick = function(type) {
+    icon.src = "icons/button_" + typeBtns[i].name + ".svg";
+    btn.appendChild(icon);
+    btn.className = 'btn btn-edit type-' + typeBtns[i].name;
+    btn.title = typeBtns[i].title;
+    btn.onclick = function(type) {
       this.setSegType(type);
     }.bind(this, i);
-    this.segTypeBtn.push(typeBtn);
-    panelTD.appendChild(typeBtn);
+    this.segTypeBtn.push(btn);
+    segTypeSel.appendChild(btn);
   }
 
-  ///scale and move buttons
-  let scaleDownButton = document.createElement('a');
+  //=========================
+  ///scaleMoveBtns: scale and move buttons
+  let scaleMoveBtns = document.createElement('div');
+  scaleMoveBtns.className = 'scaleMoveBtns';
+
+  ///scaleBtns: scale down and up
+  let scaleBtns = document.createElement('div');
+  scaleBtns.className = 'scaleBtns';
+
+  let scaleDownButton = document.createElement('button');
   scaleDownButton.innerHTML = 'Shrink';
   scaleDownButton.className = 'btn btn-default';
   scaleDownButton.onclick = function() {
@@ -735,7 +822,7 @@ function SeedEditor(fractalDraw, enabled) {
     this.scale(0.90);
   }.bind(this);
 
-  let scaleUpButton = document.createElement('a');
+  let scaleUpButton = document.createElement('button');
   scaleUpButton.innerHTML = 'Expand';
   scaleUpButton.className = 'btn btn-default';
   scaleUpButton.onclick = function() {
@@ -743,9 +830,10 @@ function SeedEditor(fractalDraw, enabled) {
     this.scale(1.10);
   }.bind(this);
 
-  panelTD.appendChild(scaleDownButton);
-  panelTD.appendChild(scaleUpButton);
-/////compass buttons
+  scaleBtns.appendChild(scaleDownButton);
+  scaleBtns.appendChild(scaleUpButton);
+  
+  ///compass: move fractal around
   let compass = document.createElement('div');
   compass.className = 'compass';
   let compassBtns = [
@@ -755,7 +843,7 @@ function SeedEditor(fractalDraw, enabled) {
     {name:'right',content:'&rarr;',title:'Move Right'}
   ];
   for (let i = 0 ; i < 4 ; i++ ){
-    let btn = document.createElement('a');
+    let btn = document.createElement('button');
     btn.innerHTML = compassBtns[i].content;
     btn.title = compassBtns[i].title;
     btn.className = 'btn btn-default';
@@ -764,71 +852,42 @@ function SeedEditor(fractalDraw, enabled) {
     }.bind(this);
     compass.appendChild(btn);
   }
-  panelTD.appendChild(compass);
-  panelRow.appendChild(panelTD);
-
-  panelRow = document.createElement('tr');
-  panelTbl.appendChild(panelRow);
-  panelTD = document.createElement('td');
-  panelTD.style['padding-top'] = '6px';
-
-  this.stdSeeds = [];
-  this.stdSeedWidth = [];
-  this.stdSeedThicknessType = [];
-  let pickerLabel = document.createElement('span');
-  pickerLabel.innerHTML = 'Seed: ';
-  panelTD.appendChild(pickerLabel);
-  this.picker = document.createElement('select');
-  this.picker.type = 'list';
-  this.picker.onchange = function() {
-    this.pickSeed();
-  }.bind(this);
-
-  panelTD.appendChild(this.picker);
-  this.addSeed('edit', 'Make your own...', []);
-/////clear button
-  this.clearBtn = document.createElement('button');
-  this.clearBtn.innerHTML = 'Clear';
-  this.clearBtn.className = 'btn btn-default';
-  this.clearBtn.onclick = function() {
-    this.clearBtnClicked();
-  }.bind(this);
-  panelTD.appendChild(this.clearBtn);
+  
+  scaleMoveBtns.appendChild(scaleBtns);
+  scaleMoveBtns.appendChild(compass);
+  
+  //=========================
+  //snapCheckbox: snap to grid, checkbox
+  let snapCheckbox = document.createElement('div');
+  snapCheckbox.className ='snapCheckbox checkbox';
 
   this.snapBox = document.createElement('input');
   this.snapBox.type = 'checkbox';
   this.snapBox.checked = true;
-  this.snapBox.name = 'snap';
-  this.snapBox.style.marginLeft = '8px';
-  panelTD.appendChild(this.snapBox);
+  this.snapBox.id = 'snap';
 
   let snapBoxLabel = document.createElement('label');
-  snapBoxLabel.htmlFor = 'span';
-  snapBoxLabel.innerHTML = ' Snap to grid';
-  panelTD.appendChild(snapBoxLabel);
+  snapBoxLabel.htmlFor = this.snapBox.id;
+  snapBoxLabel.innerHTML = 'Snap to grid';
+  snapCheckbox.appendChild(this.snapBox);
+  snapCheckbox.appendChild(snapBoxLabel);
 
-  this.thicknessBox = document.createElement('input');
-  this.thicknessBox.id = 'thicknessBox' + this.fractalDraw.instanceNum;
-  this.thicknessBox.name = 'thinner';
-  this.thicknessBox.type = 'checkbox';
-  this.thicknessBox.checked = this.fractalDraw.seed.thicknessType;
-  this.thicknessBox.style.marginLeft = '8px';
-  this.thicknessBox.onchange = function() {
-    this.thicknessBoxClicked();
+  //=========================
+  ///clearBtn: clear button
+  this.clearBtn = document.createElement('button');
+  this.clearBtn.innerHTML = 'Clear';
+  this.clearBtn.className = 'btn btn-default btn-clear';
+  this.clearBtn.onclick = function() {
+    this.clearBtnClicked();
   }.bind(this);
-  panelTD.appendChild(this.thicknessBox);
 
-  let thicknessBoxLabel = document.createElement('label');
-  thicknessBoxLabel.htmlFor = 'thinner';
-  thicknessBoxLabel.innerHTML = ' Thin with recursion';
-  panelTD.appendChild(thicknessBoxLabel);
-
-
-
-  panelRow.appendChild(panelTD);
-
-  this.ctrlPanel.appendChild(panelTbl);
-
+  //ctrlPanel layout
+  this.ctrlPanel.appendChild(seedPicker);
+  this.ctrlPanel.appendChild(segTypeSel);
+  this.ctrlPanel.appendChild(scaleMoveBtns);
+  this.ctrlPanel.appendChild(snapCheckbox);
+  this.ctrlPanel.appendChild(this.clearBtn);
+  
   this.setSegType(0);
 }
 //add seed to the drop down list
@@ -883,7 +942,7 @@ SeedEditor.prototype.pickSeed = function() {
     this.fractalDraw.thicknessType = this.stdSeedThicknessType[this.picker.selectedIndex];
     this.clearWork();
     this.setMode(SeedEditor.EDITMODE.LOCKED);
-    this.thicknessBox.checked = (this.fractalDraw.thicknessType == 1) ? true : false;
+    // this.thicknessBox.checked = (this.fractalDraw.thicknessType == 1) ? true : false;
   }
   this.fractalDraw.drawSeed(true);
 };
@@ -906,27 +965,7 @@ SeedEditor.prototype.clearBtnClicked = function() {
 SeedEditor.prototype.getCtrls = function() {
   return this.ctrlPanel;
 };
-
-SeedEditor.prototype.setSegType = function(type) {
-  seedEditorMouseMoved = false;
-  document.removeEventListener("mousemove", this.onMouseMove, false);
-  document.removeEventListener("mouseup", this.onMouseUp, false);
-  if (type != this.currentSegType) {
-    if (this.currentSegType != -1) {
-      this.segTypeBtn[this.currentSegType].style.border = null;
-      this.segTypeBtn[this.currentSegType].disabled = false;
-    }
-    this.segTypeBtn[type].style.border = '2px solid rgb(236, 65, 168)';
-    this.segTypeBtn[type].disabled = true;
-    this.currentSegType = type;
-
-    if (this.anchor1 != null) {
-      this.anchor1[2] = type;
-      this.drawWork();
-    }
-  }
-};
-
+// defined line types
 SeedEditor.SegType = [{
   name: 'Reg',
   color: '#e41a1c',
@@ -952,6 +991,28 @@ SeedEditor.SegType = [{
   color: '#808080',
   width: 1,
 }];
+
+SeedEditor.prototype.setSegType = function(type) {
+  seedEditorMouseMoved = false;
+  document.removeEventListener("mousemove", this.onMouseMove, false);
+  document.removeEventListener("mouseup", this.onMouseUp, false);
+
+  if(type == this.currentSegType) {return;}
+  
+  if (this.currentSegType != -1) {
+    this.segTypeBtn[this.currentSegType].classList.remove('active-edit');
+    this.segTypeBtn[this.currentSegType].style.backgroundColor = 'white';
+  }
+  this.segTypeBtn[type].classList.add('active-edit');
+  this.segTypeBtn[type].style.backgroundColor = SeedEditor.SegType[type].color;
+  this.currentSegType = type;
+
+  if (this.anchor1 != null) {
+    this.anchor1[2] = type;
+    this.drawWork();
+  }
+  
+};
 
 SeedEditor.EDITMODE = {
   INIT: 0,
@@ -981,7 +1042,7 @@ SeedEditor.prototype.setupBackground = function() {
 SeedEditor.prototype.enableMode = function() {
   this.bgcanvas.style.display = 'inline';
   this.workcanvas.style.display = 'inline';
-  this.ctrlPanel.style.display = 'inline-block';
+  this.ctrlPanel.className = 'ctrlPanel';
   if ((this.editMode == SeedEditor.EDITMODE.DONE) ||
     (this.editMode == SeedEditor.EDITMODE.LOCKED)) {
     this.fractalDraw.drawSeed(true);
@@ -993,7 +1054,7 @@ SeedEditor.prototype.enableMode = function() {
 SeedEditor.prototype.disableMode = function() {
   this.bgcanvas.style.display = 'none';
   this.workcanvas.style.display = 'none';
-  this.ctrlPanel.style.display = 'none';
+  this.ctrlPanel.className = 'hide';
 };
 
 SeedEditor.prototype.reset = function() {
@@ -1108,7 +1169,7 @@ SeedEditor.prototype.scale = function(factor = 2) {
     this.fractalDraw.seed = seedCopy;
     this.fractalDraw.drawSeed(true);
   }
-}
+};
 
 SeedEditor.prototype.drawWork = function() {
   this.clearWork();
@@ -1130,7 +1191,7 @@ SeedEditor.prototype.drawWork = function() {
   if ((this.gridhighlight[0] != -1) && (this.gridhighlight[1] != -1)) {
     this.workctx.beginPath();
     this.workctx.arc(this.gridhighlight[0], this.gridhighlight[1],
-      3.5, 0, 6.28);
+      3.5, 0, Math.PI * 2, true);
     this.workctx.fill();
   }
 };
@@ -1144,10 +1205,6 @@ SeedEditor.prototype.editCopy = function() {
 
 SeedEditor.prototype.setMode = function(mode) {
   this.editMode = mode;
-};
-
-SeedEditor.prototype.thicknessBoxClicked = function() {
-  this.fractalDraw.thicknessType = this.thicknessBox.checked ? 1 : 0;
 };
 
 SeedEditor.prototype.clearWork = function() {
@@ -1402,6 +1459,7 @@ SeedEditor.prototype.mouseDblClick = function(evt) {
   }
 };
 
+//standared seeds
 SeedEditor.StdSeeds = {
   '3crosses': {
     fullname: 'Three Crosses',
@@ -2192,48 +2250,46 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
   if (mainDiv.dataset['width'] != undefined) {
     this.width = Math.max(640, mainDiv.dataset['width']);
   }
-
   this.height = 600;
   if (mainDiv.dataset['height'] != undefined) {
     this.height = Math.max(320, mainDiv.dataset['height']);
   }
-
+  this.mainDiv.style.width = (this.width)+'px';
 
   let levels = 1;
   if (mainDiv.dataset['levels'] != undefined) {
     levels = mainDiv.dataset['levels'];
   }
+
   this.drawDiv = new FractalDraw(toolNum, [], this.width, this.height, levels, instanceNum);
   this.setupSaveMenu();
 
   this.modeSelDiv = document.createElement('div');
   this.modeSelDiv.id = 'ft-modesel-' + toolNum;
   this.modeSelDiv.className = 'modeSelDiv';
-
   mainDiv.appendChild(this.modeSelDiv);
 
   this.ctrlPanelDiv = document.createElement('div');
   this.ctrlPanelDiv.id = 'ft-ctrlpanel-' + toolNum;
-  this.ctrlPanelDiv.style.display = 'inline';
+  this.ctrlPanelDiv.className = 'ctrlPanelDiv';
   mainDiv.appendChild(this.ctrlPanelDiv);
   
   this.canvasDiv = document.createElement('div');
   this.canvasDiv.id = 'ft-canvases-' + toolNum;
-  this.canvasDiv.style.position = 'relative';
+  this.canvasDiv.className = 'canvasDiv';
   this.canvasDiv.style.height = (this.height + 4) + 'px';
   mainDiv.appendChild(this.canvasDiv);
 
- 
-
   this.canvasDiv.appendChild(this.drawDiv.getCanvas());
-  this.addMode('Iterate Mode', this.drawDiv, instanceNum);
-  this.drawDiv.disableMode();
-
   this.editorDiv = new SeedEditor(this.drawDiv, true);
+
   this.addMode('Edit Mode', this.editorDiv, instanceNum);
   this.editorDiv.disableMode();
-
-  let seedlist = 'koch,sprout,tree';
+  
+  this.addMode('Iterate Mode', this.drawDiv, instanceNum);
+  this.drawDiv.disableMode();
+  
+  let seedlist = 'koch,sprout,tree';//defualt seed list
   if (mainDiv.dataset['seedlist'] != undefined) {
     seedlist = mainDiv.dataset['seedlist'];
   }
@@ -2242,6 +2298,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
     this.editorDiv.addStdSeed(stdseeds[i]);
   }
 
+  // the seed to start with
   if (mainDiv.dataset['seed'] != undefined) {
     try {
       function error(data) {
@@ -2300,10 +2357,10 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
   }
 
 
-  let mode = 1;
+  let mode = 0;
   if ((mainDiv.dataset['mode'] != undefined) &&
     (mainDiv.dataset['mode'].toLowerCase() == 'draw')) {
-    mode = 0;
+    mode = 1;
   }
 
   this.setMode(mode);
@@ -2317,6 +2374,7 @@ MultiModeTool.prototype.addMode = function(title, modeObj, globalId) {
   button.onclick = function(modeNum) {
     this.setMode(modeNum);
   }.bind(this, this.modes.length);
+
   this.modeSelDiv.appendChild(button);
   modeObj.disableMode();
   this.ctrlPanelDiv.appendChild(modeObj.getCtrls());
@@ -2328,11 +2386,9 @@ MultiModeTool.prototype.setMode = function(modeNum) {
   if (modeNum != this.currentMode) {
     if (this.currentMode != -1) {
       this.modes[this.currentMode].disableMode();
-      // this.modeButtons[this.currentMode].disabled = false;
       this.modeButtons[this.currentMode].classList.remove('active-mode');
     }
     this.modes[modeNum].enableMode();
-    // this.modeButtons[modeNum].disabled = true;
     this.modeButtons[modeNum].classList.add('active-mode');
     this.currentMode = modeNum;
   }
@@ -2341,13 +2397,13 @@ MultiModeTool.prototype.setMode = function(modeNum) {
 MultiModeTool.prototype.setupSaveMenu = function() {
   let drawer = this.drawDiv;
   let loadAndSave = document.createElement('div');
+  loadAndSave.className = 'loadSaveDiv';
 
   // load files
   let selectFile = document.createElement('input');
   selectFile.type = 'file';
   selectFile.id = 'selectFile';
   selectFile.accept = '.json';
-  selectFile.style = 'display: inline;';
   selectFile.onchange = function(event) {
     drawer.loadLocally(event);
   };
@@ -2356,9 +2412,7 @@ MultiModeTool.prototype.setupSaveMenu = function() {
   // load files from cloud
   let loadFromCloudItem = document.createElement('li');
   let loadFromCloud = document.createElement('button');
-  loadFromCloud.className = 'btn btn-default btn-xs';
-  loadFromCloud.style.marginLeft = '4px';
-  loadFromCloud.style.marginBottom = '2px';
+  loadFromCloud.className = 'btn btn-default';
   loadFromCloud.innerHTML = 'Load From Cloud';
   loadFromCloud.onclick = function(event) {
     drawer.loadRemotely(event);
@@ -2367,9 +2421,7 @@ MultiModeTool.prototype.setupSaveMenu = function() {
 
   // save to cloud
   let saveToCloud = document.createElement('button');
-  saveToCloud.className = 'btn btn-default btn-xs';
-  saveToCloud.style.marginLeft = '4px';
-  saveToCloud.style.marginBottom = '2px';
+  saveToCloud.className = 'btn btn-default';
   saveToCloud.innerHTML = 'Save To Cloud';
   saveToCloud.onclick = function(event) {
     drawer.saveRemotely(event);
@@ -2378,9 +2430,7 @@ MultiModeTool.prototype.setupSaveMenu = function() {
 
   // save files
   let save = document.createElement('button');
-  save.className = 'btn btn-default btn-xs';
-  save.style.marginLeft = '4px';
-  save.style.marginBottom = '2px';
+  save.className = 'btn btn-default';
   save.innerHTML = 'Save To File';
   save.onclick = function(event) {
     drawer.saveLocally(event);

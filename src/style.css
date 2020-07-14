@@ -1,19 +1,32 @@
-body{
+  
+.fractaltool{
+    position: relative;
+    /* background-color: #F5F5F5; */
     font: 16px 'Roboto',sans-serif;
     font-weight: 400;
     color: #333;
+    padding: .5em;
+}
+button:focus, .btn:focus{
+    outline: none;
+    text-decoration: none;
 }
 label{
     margin-right: .5rem;
 }
-input {
-    height: 2em;
+
+select,input{
     border-radius: 4px;
     border: 1px solid #828282;
 }
-
+select,input[type=number] {
+    height: 2em; 
+}
 .input-thickness {
     width: 4em;
+}
+.canvasDiv{
+    position: relative;
 }
 .canvas{
     border: 2px solid #E0E0E0;
@@ -22,14 +35,31 @@ input {
     top:0; 
     z-index:1;
 }
-
-
-
-.ctrlPanel{
-    display:block;
+.hide{
+    display: none;
+    visibility: hidden;
 }
-.panelRow{
-    margin-top: .5rem;
+.loadSaveDiv {
+    display: block;
+    position:absolute;
+    top: .5em;
+    right: .5em;
+    z-index: 99;
+}
+.loadSaveDiv input{
+    display: none;
+}
+/* control panel */
+.ctrlPanelDiv{
+    display: block;
+    width: 100%;
+}
+.ctrlPanel{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: .5em;
 }
 .levelButtons{
     background-color: #E0E0E0;
@@ -37,19 +67,40 @@ input {
     border-radius: 2px;
     padding: 0;
 }
+
+.checkbox{
+    margin:0;
+}
+.checkbox label, .checkbox input[type=checkbox]{
+    min-height: auto;
+    line-height: 2em;
+    position: static;
+    display: inline;
+    margin:0;
+    padding:0;
+}
+
+.checkbox input[type=checkbox]{
+    margin-right: .5em;
+}
+
 .btn{
     display: inline;
-    padding:.5em;
+    padding: .5em;
     font-size: 1.5rem;
     line-height: 1em;
     background-color: white;
 }
-
 .btn-default{
     border: 1px solid #828282;
     border-radius: 4px;
     margin-left: .5em;
     margin-bottom: .5em;
+}
+.btn-clear {
+    border-color: red;
+    color: red;
+    margin: 0;
 }
 .btn-iter{
     margin:0;
@@ -61,14 +112,42 @@ input {
 }
 .btn-iter-inf{ margin-left:.5em;}
 
+.active-iter {
+    background-color: #CCEEF9;
+}
+
+.segThickness {
+    position: absolute;
+    bottom: 1em;
+    left: 1em;
+    background-color: white;
+    z-index: 99;
+}
+.segThickness div{
+    display: inline;
+    margin-left: 1em;
+}
+.scaleMoveBtns {
+    display: flex;
+    position: absolute;
+    align-items: flex-end;
+    bottom: 1em;
+    right: 1em;
+    z-index:99;
+}
+.segTypeSel{
+    margin-left: 1em;
+    margin-right: 1em;
+}
 .btn-edit{
     margin-left: .5rem;
+    padding:.2em .5em .2em .5em;
     border: 2px solid #E0E0E0;
     border-radius: 2px;
 }
 
 .btn-edit img{
-    width: 2em;
+    width: 1.5em;
     height: auto;
 }
 .type-flip {
@@ -94,7 +173,7 @@ input {
 .modeSelDiv {
     display: inline-block;
     vertical-align: top;
-    margin:.5em;
+    margin-bottom:.5em;
 }
 .btn-mode{
     margin:0;
@@ -109,6 +188,10 @@ input {
     background-color: #333;
     color:white;
 }
+.active-edit {
+    background-color: #333;
+}
+
 .compass{
     display: grid;
     grid-template-columns: 3em 3em 3em;
@@ -116,15 +199,15 @@ input {
     grid-gap: 0;
 }
 
-.compass a:nth-child(1){
+.compass button:nth-child(1){
     grid-area: 1 / 2 / span 1 / span 1;
 }
-.compass a:nth-child(2){
+.compass button:nth-child(2){
     grid-area: 2 / 1 / span 1 / span 1;
 }
-.compass a:nth-child(3){
+.compass button:nth-child(3){
     grid-area: 2 / 2 / span 1 / span 1;
 }
-.compass a:nth-child(4){
+.compass button:nth-child(4){
     grid-area: 2 / 3 / span 1 / span 1;
 }
