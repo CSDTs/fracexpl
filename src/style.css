@@ -35,6 +35,9 @@ select,input[type=number] {
     top:0; 
     z-index:1;
 }
+.canvas:focus{
+    outline: none;
+}
 .hide{
     display: none;
     visibility: hidden;
