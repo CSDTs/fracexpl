@@ -21,7 +21,39 @@
 //all instances need to use the same cloud
 window.cloud = new CloudSaver();
 window.applicationID = 69;
-
+const lineTypes = [
+  {
+    name:'regular',
+    title:'Regular',
+    color: '#EB5757',
+    width: 2
+  },{
+    name:'passive',
+    title:'Passive Replication',
+    color: '#27AE60',
+    width: 2
+  },{
+    name:'invisible',
+    title:'Invisible',
+    color: '#bdbdbd',
+    width: 1
+  }, {
+    name:'flip',
+    title:'Flip',
+    color: '#2F80ED',
+    width: 2
+  }, {
+    name:'invert',
+    title:'Invert',
+    color: '#F2994A',
+    width: 2
+  }, {
+    name:'inverflip',
+    title:'Invert and Flip',
+    color: '#9B51E0',
+    width: 2
+}
+];
 /** Returns the square of a value
 @param {double} x - The value to be squared
 @return {double} - The square of x
@@ -587,8 +619,8 @@ FractalDraw.prototype.drawSeed = function(drawBaseLine = false, without = -1) {
     for (let i = 1; i < this.seed.length; i++) {
       if ((i - 1 != without) && (i != without)) {
         this.ctx.beginPath();
-        this.ctx.lineWidth = SeedEditor.SegType[this.seed[i][2]].width;
-        this.ctx.strokeStyle = SeedEditor.SegType[this.seed[i][2]].color;
+        this.ctx.lineWidth = lineTypes[this.seed[i][2]].width;
+        this.ctx.strokeStyle = lineTypes[this.seed[i][2]].color;
         this.ctx.moveTo(this.seed[i - 1][0], this.seed[i - 1][1]);
         this.ctx.lineTo(this.seed[i][0], this.seed[i][1]);
         this.ctx.stroke();
@@ -608,19 +640,27 @@ FractalDraw.prototype.drawSeed = function(drawBaseLine = false, without = -1) {
   }
 };
 
+function lineLen(pt1,pt2){
+  let x=pt1[0]-pt2[0];
+  let y=pt1[1]-pt2[1];
+  return Math.pow( Math.pow(x, 2) + Math.pow(y, 2), 0.5 );
+};
+
 FractalDraw.prototype.basedraw = function(start, end, hflip, level, thickness = this.ctx.lineWidth) {
-  if (this.seed.length < 2) return;
+  let seedLen = this.seed.length;
+  if (seedLen < 2) return;
   if (this.thicknessType == 1) {
     this.ctx.lineWidth = thickness;
     --thickness;
   }
 
-  let baseDeltaX = this.seed[this.seed.length - 1][0] - this.seed[0][0];
-  let baseDeltaY = this.seed[this.seed.length - 1][1] - this.seed[0][1];
-  let baseLength = (baseDeltaX ** 2 + baseDeltaY ** 2) ** 0.5;
+  let baseDeltaX = this.seed[seedLen - 1][0] - this.seed[0][0];
+  let baseDeltaY = this.seed[seedLen - 1][1] - this.seed[0][1];
   let segmentDeltaX = end[0] - start[0];
   let segmentDeltaY = end[1] - start[1];
-  let segmentLength = (segmentDeltaX ** 2 + segmentDeltaY ** 2) ** 0.5;
+
+  let baseLength = lineLen(this.seed[seedLen- 1],this.seed[0]);
+  let segmentLength = lineLen(end, start);
 
   if (segmentLength < 2.0) {
     this.ctx.beginPath();
@@ -634,25 +674,33 @@ FractalDraw.prototype.basedraw = function(start, end, hflip, level, thickness = 
   let a = (baseDeltaX * segmentDeltaX + hflip * baseDeltaY * segmentDeltaY) / baseLength ** 2;
   let b = (segmentDeltaX * baseDeltaY - hflip * baseDeltaX * segmentDeltaY) / baseLength ** 2;
   let tx = start[0] - a * this.seed[0][0] - b * this.seed[0][1];
+
   let c = (baseDeltaX * segmentDeltaY - hflip * baseDeltaY * segmentDeltaX) / baseLength ** 2;
   let d = (segmentDeltaY * baseDeltaY + hflip * baseDeltaX * segmentDeltaX) / baseLength ** 2;
   let ty = start[1] - c * this.seed[0][0] - d * this.seed[0][1];
-  let startDrawX = a * this.seed[0][0] + b * this.seed[0][1] + tx;
-  let startDrawY = c * this.seed[0][0] + d * this.seed[0][1] + ty;
+
+  let startDrawX = start[0];
+  let startDrawY = start[1];
+
   // allows for bypassing the feedback catch:
   let count = 0;
+  
   for (let i = 0; i < this.seed.length; i++) {
-    if (this.seed[i][2] !== 4 && this.seed[i][2] !== 5) {
+    let type = lineTypes[this.seed[i][2]].name;
+    if (type !== 'passive' && type !== 'invisible') {
       count++;
       if (count > 2) {
         break;
       }
     }
   }
+
   for (let i = 1; i < this.seed.length; i++) {
     let endDrawX = a * this.seed[i][0] + b * this.seed[i][1] + tx;
     let endDrawY = c * this.seed[i][0] + d * this.seed[i][1] + ty;
-    let newSegmentLength = ((endDrawX - startDrawX) ** 2 + (endDrawY - startDrawY) ** 2) ** 0.5;
+    let newSegmentLength = lineLen( [endDrawX,endDrawY], [startDrawX,startDrawY]);
+
+    //for positive feedback
     if (newSegmentLength > segmentLength && level > 30) {
       if (count > 2) {
         level = 30;
@@ -663,19 +711,20 @@ FractalDraw.prototype.basedraw = function(start, end, hflip, level, thickness = 
         level = 20;
       }
     }
-    if (this.seed[i][2] != 5) {
-      if ((level == 1) || (this.seed[i][2] == 4)) {
+    let type = lineTypes[this.seed[i][2]].name;
+    if (type != 'invisible') {
+      if ((level == 1) || (type == 'passive')) {
         this.ctx.beginPath();
         this.ctx.moveTo(startDrawX, startDrawY);
         this.ctx.lineTo(endDrawX, endDrawY);
         this.ctx.stroke();
-      } else if (this.seed[i][2] == 1) {
+      } else if (type == 'flip') { //flip
         this.basedraw([startDrawX, startDrawY], [endDrawX, endDrawY], -hflip, level - 1, thickness);
-      } else if (this.seed[i][2] == 2) {
+      } else if (type == 'invert') { //invert
         this.basedraw([endDrawX, endDrawY], [startDrawX, startDrawY], -hflip, level - 1, thickness);
-      } else if (this.seed[i][2] == 3) {
+      } else if (type == 'inverflip') { //invert & flip
         this.basedraw([endDrawX, endDrawY], [startDrawX, startDrawY], hflip, level - 1, thickness);
-      } else {
+      } else { //regular
         this.basedraw([startDrawX, startDrawY], [endDrawX, endDrawY], hflip, level - 1, thickness);
       }
     }
@@ -783,21 +832,14 @@ function SeedEditor(fractalDraw, enabled) {
   let segTypeLabel = document.createElement('label');
   segTypeLabel.innerHTML = 'Line:';
   segTypeSel.appendChild(segTypeLabel);
-  let typeBtns = [
-    {name:'regular',title:'Regular'},
-    {name:'passive',title:'Passive Replication'},
-    {name:'invisible',title:'Invisible'},
-    {name:'flip',title:'Flip'},
-    {name:'invert',title:'Invert'},
-    {name:'inverflip',title:'Invert and Flip'}
-  ];
-  for (let i = 0; i < SeedEditor.SegType.length; i++) {
+
+  for (let i = 0; i < lineTypes.length; i++) {
     let btn = document.createElement('button');
     let icon = document.createElement('img');
-    icon.src = "icons/button_" + typeBtns[i].name + ".svg";
+    icon.src = "icons/button_" + lineTypes[i].name + ".svg";
     btn.appendChild(icon);
-    btn.className = 'btn btn-edit type-' + typeBtns[i].name;
-    btn.title = typeBtns[i].title;
+    btn.className = 'btn btn-edit type-' + lineTypes[i].name;
+    btn.title = lineTypes[i].title;
     btn.onclick = function(type) {
       this.setSegType(type);
     }.bind(this, i);
@@ -965,32 +1007,6 @@ SeedEditor.prototype.clearBtnClicked = function() {
 SeedEditor.prototype.getCtrls = function() {
   return this.ctrlPanel;
 };
-// defined line types
-SeedEditor.SegType = [{
-  name: 'Reg',
-  color: '#e41a1c',
-  width: 2,
-}, {
-  name: 'Flip',
-  color: '#377eb8',
-  width: 2,
-}, {
-  name: 'Disabled1',
-  color: '#ff7f00',
-  width: 2,
-}, {
-  name: 'Disabled2',
-  color: '#984ea3',
-  width: 2,
-}, {
-  name: 'No Recurse',
-  color: '#4daf4a',
-  width: 2,
-}, {
-  name: 'No Line',
-  color: '#808080',
-  width: 1,
-}];
 
 SeedEditor.prototype.setSegType = function(type) {
   seedEditorMouseMoved = false;
@@ -1000,11 +1016,17 @@ SeedEditor.prototype.setSegType = function(type) {
   if(type == this.currentSegType) {return;}
   
   if (this.currentSegType != -1) {
-    this.segTypeBtn[this.currentSegType].classList.remove('active-edit');
-    this.segTypeBtn[this.currentSegType].style.backgroundColor = 'white';
+    let n = this.currentSegType;
+    this.segTypeBtn[n].style.backgroundColor = 'white';
+    this.segTypeBtn[n].classList.remove('active-edit');
+    let icon = this.segTypeBtn[n].getElementsByTagName('img')[0];
+    icon.src = "icons/button_" + lineTypes[n].name + ".svg";
   }
+
+  this.segTypeBtn[type].style.backgroundColor = lineTypes[type].color;
   this.segTypeBtn[type].classList.add('active-edit');
-  this.segTypeBtn[type].style.backgroundColor = SeedEditor.SegType[type].color;
+  let icon = this.segTypeBtn[type].getElementsByTagName('img')[0];
+  icon.src = "icons/button_" + lineTypes[type].name + "_a.svg";
   this.currentSegType = type;
 
   if (this.anchor1 != null) {
@@ -1175,14 +1197,14 @@ SeedEditor.prototype.drawWork = function() {
   this.clearWork();
   if (this.anchor1 != null) {
     this.workctx.beginPath();
-    this.workctx.strokeStyle = SeedEditor.SegType[this.anchor1[2]].color;
+    this.workctx.strokeStyle = lineTypes[this.anchor1[2]].color;
     this.workctx.moveTo(this.anchor1[0], this.anchor1[1]);
     this.workctx.lineTo(this.mouseX, this.mouseY);
     this.workctx.stroke();
   }
   if (this.anchor2 != null) {
     this.workctx.beginPath();
-    this.workctx.strokeStyle = SeedEditor.SegType[this.anchor2[2]].color;
+    this.workctx.strokeStyle = lineTypes[this.anchor2[2]].color;
     this.workctx.moveTo(this.anchor2[0], this.anchor2[1]);
     this.workctx.lineTo(this.mouseX, this.mouseY);
     this.workctx.stroke();

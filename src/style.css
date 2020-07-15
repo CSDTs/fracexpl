@@ -98,9 +98,13 @@ select,input[type=number] {
     margin-bottom: .5em;
 }
 .btn-clear {
-    border-color: red;
-    color: red;
+    border-color: #DC3545;
+    color: #DC3545;
     margin: 0;
+}
+.btn-clear:hover{
+    background-color: #DC3545;
+    color:white;
 }
 .btn-iter{
     margin:0;
@@ -140,16 +144,23 @@ select,input[type=number] {
     margin-right: 1em;
 }
 .btn-edit{
-    margin-left: .5rem;
-    padding:.2em .5em .2em .5em;
-    border: 2px solid #E0E0E0;
-    border-radius: 2px;
+    font-size: 16px;
+    margin-left: .3em;
+    padding: .25em .5em .25em .5em;
+    border: 1px solid #E0E0E0;
+    border-radius: 1px;
+    border-left-width: .5em;
 }
 
 .btn-edit img{
     width: 1.5em;
     height: auto;
 }
+.active-edit {
+    border-left-width: .25em;
+    border-right-width: .25em;
+}
+
 .type-flip {
     border-color: #2F80ED;
 }
@@ -188,9 +199,7 @@ select,input[type=number] {
     background-color: #333;
     color:white;
 }
-.active-edit {
-    background-color: #333;
-}
+
 
 .compass{
     display: grid;
