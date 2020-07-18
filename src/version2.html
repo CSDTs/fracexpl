@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fractal Simulator</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src = "https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="FileSaver.min.js"></script>
+  <script src="saveToCloud.js"></script>
+  <script src="experiment.js"></script>
+  <style>
+     .ui-widget-header,.ui-state-default, ui-button {
+        background:#b9cd6d;
+        border: 1px solid #b9cd6d;
+        color: #FFFFFF;
+        font-weight: bold;
+     }
+    #feedback { font-size: 1.4em; }
+    #projectList .ui-selecting { background: #FECA40; }
+    #projectList .ui-selected { background: #F39814; color: white; }
+    #mycanvas{
+      width: 800px;
+      height: 400px;
+      border: 1px solid black;
+    }
+  </style>
+  <script>
+     $(function() {
+        $( "#projectListDialog" ).dialog({
+           autoOpen: false,
+        });
+      });
+     $(function() {
+        $( "#loginDialog" ).dialog({
+           autoOpen: false,
+        });
+      });
+  </script>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- <canvas id="mycanvas" width='800px' height='400px'></canvas> -->
+    <div id="projectListDialog" title="Select A Project">
+      <ol id="projectList" style="list-style-type: none;">
+      </ol>
+    </div>
+    <div id="loginDialog" title="Login">
+      User Name:
+      <input type="text" name="username"/>
+      <br/>
+      Password:
+      <input type="password" name="password"/>
+    </div>
+    <div class="fractaltool" data-width="800" data-height="600" data-mode="edit"
+     data-seedlist="3crosses,baila,blanket,bullhorn,cantorpaper,carpet,chaetophora,cnegative,cpositive,davincitree2,davincitree3,davincitree4,dendrite,ethiopian,ethiopian2,fern,fractalspirals,goldenrec,kitwe,koch,kochsmall,logone,lungs,mokoulek,nankani,negative,neuron,positive,queenanne,riverbasin,sierpinski,sprout,turbulence,villi,sharkfin" data-seed="koch"></div>
+
+  </div>
+
+
+</body>
+
+</html>

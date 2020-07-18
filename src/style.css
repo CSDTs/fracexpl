@@ -7,11 +7,16 @@
     color: #333;
     padding: .5em;
 }
+.icon-question{
+    width: 1em;
+    height: auto;
+}
 button:focus, .btn:focus{
     outline: none;
     text-decoration: none;
 }
-label{
+.fractaltool label{
+    font-size: 14px;
     margin-right: .5rem;
 }
 
@@ -40,7 +45,6 @@ select,input[type=number] {
 }
 .hide{
     display: none;
-    visibility: hidden;
 }
 .loadSaveDiv {
     display: block;
@@ -69,6 +73,63 @@ select,input[type=number] {
     border: 1px solid #828282;
     border-radius: 2px;
     padding: 0;
+}
+
+.tutor {
+    position: absolute;
+    font-size: 16px;
+    top: 6.5em;
+    padding: .2em;
+    background-color: white;
+    border: 1px solid #f5f6f5;
+    box-shadow: 0 1px 4px rgba(0,0,0,.09);
+    border-radius: .2em;
+    z-index: 99;
+}
+.help-panel{
+    display: none;
+    padding-left:1em;
+    padding-right:1em;
+    width: 30%;
+    right:1em;
+}
+.help-panel h3{
+    text-align: center;
+}
+.help-panel ul{
+    padding-left: 1em;
+}
+.help-panel .icon-close{
+    opacity: 50%;
+    position: absolute;
+    top: .5em;
+    right: .5em;
+    width: 1em;
+}
+.icon-close:hover{
+    opacity: 100%;
+}
+.typeTutor{
+    left: 1em;
+}
+.tutor-heading {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+.tutor-heading div,.tutor-heading img,.tutor-heading p{
+    flex-shrink: 0;
+    margin: .2em;
+    padding: 0;
+}
+.type-color {
+    height: 1em;
+    width: 16px;
+    border-radius: 8px;
+    background-color: black;
 }
 
 .checkbox{
@@ -145,6 +206,9 @@ select,input[type=number] {
 .segTypeSel{
     margin-left: 1em;
     margin-right: 1em;
+}
+.typeBtnReg,.typeBtnAdv{
+    display: inline;
 }
 .btn-edit{
     font-size: 16px;

@@ -1,23 +1,4 @@
-/**
- * fracexpl.js - Fractal explorer Javascript component
- * Copyright (C) 2017 Stephen R. Tate
- *
- * Project page: https://github.com/srtate/fracexpl
- *
- * The JavaScript code in this page is free software: you can
- * redistribute it and/or modify it under the terms of the GNU
- * General Public License (GNU GPL) as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option)
- * any later version.  The code is distributed WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
- *
- * As additional permission under GNU GPL version 3 section 7, you
- * may distribute non-source (e.g., minimized or compacted) forms of
- * that code without the copy of the GNU GPL normally required by
- * section 4, provided you include this license notice and a URL
- * through which recipients can access the Corresponding Source.
- */
+
 //all instances need to use the same cloud
 window.cloud = new CloudSaver();
 window.applicationID = 69;
@@ -73,6 +54,95 @@ function toggle_e(e) {
   else
      e.style.display = 'block';
 }
+class Fractal {
+  constructor( seed = [], oldversion = false, b1 = [100,100], b2 = [200,100]) {
+      this.pts = []; //pointlist
+      this.adj = {}; //adjacent lists
+      this.baseline = [b1,b2];
+      this.ctx = "";
+      if(oldversion) {
+          this.initFromSeed(seed);
+      }
+  }
+  initFromSeed(seed){
+      let len = seed.length;
+      if(len >= 2) {
+          let pt0 = seed[0].slice(0,2);
+          let index0 = this.ptToStr(pt0);
+          let pt1 = [];
+          let index1 = "";
+          
+          this.pts.push( pt0 );
+          this.adj[index0] = [ 0, ];
+
+          for( let i = 1; i < len; i++ ) {//from 0 to 1
+              pt1 = seed[i].slice(0,2);
+              index1 = this.ptToStr(pt1);
+              if(seed[i][2]!=5){
+                  if(!(index1 in this.adj)) { //new point
+                      this.pts.push(pt1);
+                      this.adj[index1] = [ this.pts.length - 1, ];//[position in pts, line count]
+                  }
+                  this.adj[index0].push([ this.adj[index1][0], seed[i][2] ]);
+              }
+              pt0 = pt1;
+              index0 = index1;
+          }
+      }
+      this.baseline = [ seed[0].slice(0,2) , seed[len-1].slice(0,2) ];
+  }
+  ptToStr(pt){
+      let x = Math.round(pt[0]);
+      let y = Math.round(pt[1]);
+      if( x < 0 ) x = "m" + Math.abs(x);
+      if( y < 0 ) y = "m" + Math.abs(y);
+      return "pt" + x + "_" + y;
+  }
+  drawIt(ctx) {
+      this.ctx = ctx;
+      this.drawBaseline();
+      for(const key in this.adj){
+          let index = this.adj[key][0];
+          let list = this.adj[key].slice(1);
+          list.forEach(adj => this.drawLine(index,adj));
+      }
+      this.drawPts();
+  }
+  drawLine(index,adj) {
+      if(adj[1]==5) return;
+      let start = this.pts[index];
+      let end = this.pts[adj[0]];
+      let color = lineTypes[adj[1]].color;
+      this.ctx.strokeStyle = color;
+      this.ctx.beginPath();
+      this.ctx.moveTo( start[0], start[1] );
+      this.ctx.lineTo( end[0], end[1] );
+      this.ctx.stroke();
+  }
+  drawBaseline() {
+      let ctx = this.ctx;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(this.baseline[0][0],this.baseline[0][1]);
+      ctx.lineTo(this.baseline[1][0],this.baseline[1][1]);
+      ctx.setLineDash([8, 4]);
+      ctx.strokeStyle = "#666";
+      ctx.stroke();
+      ctx.restore();
+      ctx.lineWidth = 2;
+  }
+  drawPts() {
+      let ctx = this.ctx;
+      ctx.save();
+      ctx.beginPath();
+      this.pts.forEach(pt => {
+          ctx.moveTo(pt[0], pt[1]);
+          ctx.arc(pt[0], pt[1], 2, 0, Math.PI * 2, true);
+      });
+      ctx.fill();
+      ctx.restore();
+  }
+}
 /** Returns the square of a value
 @param {double} x - The value to be squared
 @return {double} - The square of x
@@ -97,6 +167,7 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
   this.canvas.height = Math.max(480, askHeight);
   this.canvas.className = 'canvas';
   this.ctx = this.canvas.getContext('2d');
+  this.fractal = new Fractal();
 
   this.ctrlPanel = document.createElement('div');
   this.ctrlPanel.id = 'ft-drawing-ctrls-' + toolNum;
@@ -634,29 +705,31 @@ FractalDraw.prototype.disableMode = function() {
 
 FractalDraw.prototype.drawSeed = function(drawBaseLine = false, without = -1) {
   this.clear();
-  if (this.seed.length > 1) {
-    for (let i = 1; i < this.seed.length; i++) {
-      if ((i - 1 != without) && (i != without)) {
-        this.ctx.beginPath();
-        this.ctx.lineWidth = lineTypes[this.seed[i][2]].width;
-        this.ctx.strokeStyle = lineTypes[this.seed[i][2]].color;
-        this.ctx.moveTo(this.seed[i - 1][0], this.seed[i - 1][1]);
-        this.ctx.lineTo(this.seed[i][0], this.seed[i][1]);
-        this.ctx.stroke();
-      }
-    }
-    if (drawBaseLine) {
-      this.ctx.beginPath();
-      this.ctx.lineWidth = 1;
-      this.ctx.strokeStyle = 'black';
-      this.ctx.setLineDash([10, 10]);
-      this.ctx.moveTo(this.seed[0][0], this.seed[0][1]);
-      this.ctx.lineTo(this.seed[this.seed.length - 1][0],
-        this.seed[this.seed.length - 1][1]);
-      this.ctx.stroke();
-      this.ctx.setLineDash([]);
-    }
-  }
+  this.fractal.initFromSeed(this.seed);
+  this.fractal.drawIt(this.ctx);
+  // if (this.seed.length > 1) {
+  //   for (let i = 1; i < this.seed.length; i++) {
+  //     if ((i - 1 != without) && (i != without)) {
+  //       this.ctx.beginPath();
+  //       this.ctx.lineWidth = lineTypes[this.seed[i][2]].width;
+  //       this.ctx.strokeStyle = lineTypes[this.seed[i][2]].color;
+  //       this.ctx.moveTo(this.seed[i - 1][0], this.seed[i - 1][1]);
+  //       this.ctx.lineTo(this.seed[i][0], this.seed[i][1]);
+  //       this.ctx.stroke();
+  //     }
+  //   }
+  //   if (drawBaseLine) {
+  //     this.ctx.beginPath();
+  //     this.ctx.lineWidth = 1;
+  //     this.ctx.strokeStyle = 'black';
+  //     this.ctx.setLineDash([10, 10]);
+  //     this.ctx.moveTo(this.seed[0][0], this.seed[0][1]);
+  //     this.ctx.lineTo(this.seed[this.seed.length - 1][0],
+  //       this.seed[this.seed.length - 1][1]);
+  //     this.ctx.stroke();
+  //     this.ctx.setLineDash([]);
+  //   }
+  // }
 };
 
 function lineLen(pt1,pt2){
@@ -1552,7 +1625,7 @@ SeedEditor.prototype.mouseDblClick = function(evt) {
   }
 };
 
-//standared seeds
+//standard seeds
 SeedEditor.StdSeeds = {
   '3crosses': {
     fullname: 'Three Crosses',
