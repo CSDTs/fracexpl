@@ -1271,6 +1271,7 @@ class SeedEditor{
     this.canvas.style.display = 'block';
     this.ctrlPanel.style.display = 'block';
     this.setSegType(this.segType,true);
+    this.setMode(this.status,true);
   }
   disableMode(){
     this.canvas.style.display = 'none';
@@ -1383,12 +1384,20 @@ class SeedEditor{
     let btn = document.createElement('button');
     btn.innerHTML = this.modetxt[mode];
     btn.addEventListener('click', function() {
-      this.status = mode;
-      this.selectedPt = -1;
-      this.anchorPt = -1;
-      this.modeSel.querySelector('span').innerHTML = 'MODE: '+  this.modetxt[mode];
+      this.setMode(mode);
     }.bind(this));
     this.modeSel.appendChild(btn);
+  }
+  setMode(mode, init = false){
+    if( mode == this.status && !init) return;
+    if(!init){
+      this.modeSel.querySelectorAll('button')[this.status].classList.remove('active-mode');
+    }
+    this.modeSel.querySelectorAll('button')[mode].classList.add('active-mode');
+    this.status = mode;
+    this.selectedPt = -1;
+    this.anchorPt = -1;
+    this.modeSel.querySelector('span').innerHTML = 'MODE: '+  this.modetxt[mode];
   }
   drawBackground(){
     let canvas = this.bgctx.canvas;
