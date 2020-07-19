@@ -813,78 +813,102 @@ const toggle_e = function(elem){
   if( elem.style.display == 'none' ) elem.style.display = 'block';
   else elem.style.display = 'none';
 }
+//initMethod:
+//0 - new version
+//1 - oldversion, init from stdSeed
+//2 - oldversion, init from json file
 class Fractal {
-    constructor( seed = [], oldversion = false, b1 = [100,100], b2 = [200,100]) {
+    constructor( seed = [], initMethod = 0, b1 = [300,240], b2 = [500,240]) {
+        this.name = "";
+        this.seed = seed;
         this.pts = []; //pointlist
-        this.adj = {}; //adjacent lists
-        this.lines = 0;
+        this.adj = []; //adjacent lists
         this.baseline = [b1,b2];
-        this.baseDeltaX, this.baseDeltaY, this.baseLen;
+        this.baseDeltaX, this.baseDeltaY, this.sqrbaseLen;
         this.ctx = "";
         this.dim = 0;
-        if(oldversion) {
-            this.initFromSeed(seed);
-            this.setup_baseline();
+        switch (initMethod) {
+          case 0: this.init();break;
+          case 1: this.initFromSeed(this.seed);break;
+          case 2: this.initFromFile();break;
         }
     }
     clearPts(){
+      this.name = "";
       this.pts = [];
-      this.adj = {};
-      this.lines = 0;
-      this.baseline = [[100,0]],[200,0]];
+      this.adj = [];
+      this.baseline = [ [300,240], [500,240] ];
+      this.setup_baseline();
     }
-    initFromSeed(seed){
+    clearCanvas(){
+      this.ctx.clearRect(0, 0, this.ctx.canvas.clientWidth, this.ctx.canvas.clientHeight);
+    }
+    init(){}
+    initFromSeed(name){
       this.clearPts();
+      this.name = name;
+      let seed = StdSeeds[name].seed;
       let len = seed.length;
+      
       if(len >= 2) {
           let pt0 = seed[0].slice(0,2);
-          let index0 = this.ptToStr(pt0);
+          let index0 = 0;
+          pt0 = this.roundPt(pt0);
           let pt1 = [];
-          let index1 = "";
           
           this.pts.push( pt0 );
-          this.adj[index0] = [ 0, ];
+          this.adj.push( [0, ] );
 
           for( let i = 1; i < len; i++ ) {//from 0 to 1
-              pt1 = seed[i].slice(0,2);
-              index1 = this.ptToStr(pt1);
-              if(seed[i][2]!=5){
-                  if(!(index1 in this.adj)) { //new point
+              pt1 = this.roundPt( seed[i].slice(0,2) );
+              let type = seed[i][2];
+              let index1 = this.searchPt(pt1);
+              if( index1 == -1 ) { //new point
                       this.pts.push(pt1);
-                      this.adj[index1] = [ this.pts.length - 1, ];//[position in pts, line count]
+                      this.adj.push( [0, ] );//count line connected
+                      index1 = this.pts.length - 1;
                   }
-                  this.adj[index0].push([ this.adj[index1][0], seed[i][2] ]);
-                  this.lines ++;
+              if(type!=5){
+                  this.adj[index1][0] ++;
+                  this.adj[index0][0] ++;
+                  this.adj[index0].push([ index1, type ]);
               }
               pt0 = pt1;
               index0 = index1;
           }
       }
       this.baseline = [ seed[0].slice(0,2) , seed[len-1].slice(0,2) ];
+      this.setup_baseline();
     }
-    ptToStr(pt){
-        let x = Math.round(pt[0]);
-        let y = Math.round(pt[1]);
-        if( x < 0 ) x = "m" + Math.abs(x);
-        if( y < 0 ) y = "m" + Math.abs(y);
-        return "pt" + x + "_" + y;
+    initFromFile(){}
+    roundPt(pt){
+      return [Math.round(pt[0]),Math.round(pt[1])];
+    }
+    searchPt(pt){
+      let index = -1;
+      for(let i=0; i < this.pts.length; i++){
+        let item = this.pts[i];
+        if( item[0]==pt[0] && item[1]==pt[1] ){
+          index = i; break;
+        }
+      }
+      return index;
     }
     setup_baseline(){
       let b1= this.baseline[0];
       let b2= this.baseline[1];
       this.baseDeltaX = b1[0] - b2[0];
       this.baseDeltaY = b1[1] - b2[1];
-      this.baseLen = this.lineLen(b1,b2);
+      this.sqrbaseLen = this.sqrlineLen(b1,b2);
     }
     drawSeed(ctx) {
-      console.log(this.adj);
       this.ctx = ctx;
+      this.clearCanvas();
       this.drawBaseline();
-      for(const key in this.adj){
-          let index = this.adj[key][0];
-          let list = this.adj[key].slice(1);
-          if( list.length > 0 ) list.forEach(adj => this.drawSeedLine(index,adj));
-      }
+      this.adj.forEach( (item,index) => {
+        let list = item.slice(1);
+        if( list.length > 0 ) list.forEach( adj => this.drawSeedLine(index,adj));
+      });
       this.drawPts();
     }
     drawSeedLine(index,adj) {
@@ -919,26 +943,28 @@ class Fractal {
     }
     drawIter(ctx, level) {
       this.ctx = ctx;
-      this.basedraw(this.baseline[0],this.baseline[1],true,level,2);
+      this.clearCanvas();
+      if(this.pts < 1) return;
+      this.basedraw(this.baseline[0],this.baseline[1],false,level,2);
     }
     basedraw(b1,b2,hflip,level,lineWidth){
-      if(this.lines < 1) return;
-      let segLen = this.lineLen(b1,b2);
+      let color = 'black';
+      let segLen = this.sqrlineLen(b1,b2);
       let d_segX = b1[0] - b2[0];
       let d_segY = b1[1] - b2[1];
       let d_baseX = this.baseDeltaX;
       let d_baseY = this.baseDeltaY;
-      if( segLen < 2.0){ //if segment too short, return
+      if( segLen < 4.0){ //if segment too short, return
         this.drawline(b1,b2); return;
       }
       //factors
-      let h = hflip ? 1 : -1;
-      let a = (d_baseX * d_segX + h * d_baseY * d_segY) / this.baseLen**2;
-      let b = (d_baseY * d_segX - h * d_baseX * d_segY) / this.baseLen**2;
+      let h = hflip ? -1 : 1;
+      let a = (d_baseX * d_segX + h * d_baseY * d_segY) / this.sqrbaseLen;
+      let b = (d_baseY * d_segX - h * d_baseX * d_segY) / this.sqrbaseLen;
       let tx = b1[0] - a * this.baseline[0][0] - b * this.baseline[0][1];
       
-      let c = (d_baseX * d_segY - h * d_baseY * d_segX) / this.baseLen**2;
-      let d = (d_baseY * d_segY + h * d_baseX * d_segX) / this.baseLen**2;
+      let c = (d_baseX * d_segY - h * d_baseY * d_segX) / this.sqrbaseLen;
+      let d = (d_baseY * d_segY + h * d_baseX * d_segX) / this.sqrbaseLen;
       let ty = b1[1] - c * this.baseline[0][0] - d * this.baseline[0][1];
       //recalculate pt positions
       let segPts = this.pts.map( pt => {
@@ -948,21 +974,23 @@ class Fractal {
         return newPt;
       });
       //loop through all lines
-      for(const key in this.adj){
-        let index = this.adj[key][0];
-        let list = this.adj[key].slice(1);
-        if( list.length > 0 ) list.forEach(adj => {
-          if(level==1 || adj[1]==4) this.drawline(segPts[index],segPts[adj[0]],null,lineWidth);
-          else this.basedraw(segPts[index],segPts[adj[0]], hflip, level-1,lineWidth);
-        });
-      }
+      this.adj.forEach( (item, index) => {
+        let list = item.slice(1);
+        if( list.length > 0 ) 
+          list.forEach(adj => {
+            if( level == 1 || adj[1] == 4 ) {
+              this.drawline(segPts[index],segPts[adj[0]],color,lineWidth);
+            }
+            else this.basedraw(segPts[index],segPts[adj[0]], hflip, level-1,lineWidth);
+          });
+      });
     }
-    lineLen(pt1,pt2){
-      let x=pt1[0]-pt2[0];
-      let y=pt1[1]-pt2[1];
-      return Math.pow( Math.pow(x, 2) + Math.pow(y, 2), 0.5 );
-    };
-    drawline(pt1,pt2,color="#000",width=1){
+    sqrlineLen(pt1,pt2){
+        let x=pt1[0]-pt2[0];
+        let y=pt1[1]-pt2[1];
+        return Math.pow(x, 2) + Math.pow(y, 2);
+    }
+    drawline(pt1,pt2,color="black",width=1){
       this.ctx.strokeStyle = color;
       this.ctx.lineWidth = width;
       this.ctx.lineCap = 'round';
@@ -972,6 +1000,148 @@ class Fractal {
       this.ctx.stroke();
     }
     getDim(){}
+    addPt(pos,before = [],after = []){
+      let pt = this.roundPt(pos);
+      if( this.searchPt(pt) != -1 ) return -1;//!! if the pt already exists... fix later
+      this.pts.push(pt);
+      this.adj.push( [0, ] );
+      let index = this.pts.length - 1;
+      if(after.length > 0) after.forEach(item => {
+        this.adj[index][0] ++;
+        this.adj[item[0]][0] ++;
+        this.adj[index].push(item);
+      });
+      if(before.length > 0) before.forEach(item => {
+        this.adj[index][0] ++;
+        this.adj[item[0]][0] ++;
+        this.adj[ item[0] ].push( [ index, item[1] ] );
+      });
+      this.drawSeed(this.ctx);
+      return index;
+    }
+    addPtToLn(pos, ln1, ln2){ //
+      let pt = this.roundPt(pos);
+      if( this.searchPt(pt) != -1 ) return -1;
+      this.pts.push(pt);
+      this.adj.push([2, ]);
+      let index = this.pts.length - 1;
+      let type = -1;
+      this.adj[ln1].slice(1).forEach((item,i) => {
+        if( item[0] == ln2 ) {
+          type = item[1];
+          this.adj[ln1][i+1][0] = index;
+        }
+      });
+      if(type!=-1) this.adj[index].push([ln2,type]);
+      this.drawSeed(this.ctx);
+      return index;
+    }
+    addLn(pt1,pt2,type){
+      for(let i = 1 ; i < this.adj[pt1].length ; i++ ){
+        if( this.adj[pt1][i][0] == pt2) return;
+      }
+      for(let i = 1 ; i < this.adj[pt2].length ; i++ ){
+        if( this.adj[pt2][i][0] == pt1) return;
+      }
+      this.adj[pt1].push( [pt2,type] );
+      this.adj[pt1][0]++; 
+      this.adj[pt2][0]++;
+    }
+    deletePt(n){
+      if( n < 0 || n > (this.pts.length - 1) ) return;
+      let count = this.adj[n][0];
+      let list = this.adj[n].slice(1);
+      if( count > 2 || count < list.length) return;
+
+      if(list.length > 0 && count == list.length) 
+          list.forEach( item => this.adj[ item[0] ][0]-- );
+
+      this.adj.forEach((item, i) => {
+        if( i == n ) return;
+        let position = -1;
+        for(let j = 1; j < item.length ; j++){
+          if( item[j][0] > n ) item[j][0]--; 
+          else if( item[j][0] == n ) position = j;
+        }
+        if( position != -1 ){
+          item[0]--;
+          item.splice( position, 1 );
+          if( count == 2 ){
+              let toPt = list[0][0] < n ? list[0][0] : ( list[0][0]-1 );
+              item[0]++; 
+              item.push( [toPt,list[0][1]] );
+            }
+        }
+      });
+      this.pts.splice(n,1);
+      this.adj.splice(n,1);
+    }
+    movePt(n, pos, editingbase = false){
+      if(editingbase) {
+        this.baseline[n] = pos;
+        this.setup_baseline();
+      }
+      else this.pts[n] = pos;
+      this.drawSeed(this.ctx);
+      this.highlightPt(n, editingbase);
+    }
+    selectPt(pos, editingbase = false, givenList = []){
+      let range = 3.0;
+      let n = -1;
+      let list = editingbase ? this.baseline : this.pts;
+      if( givenList.length > 0 ) list = givenList;
+      list.forEach((pt,index) => {
+        if( Math.abs(pt[0]-pos[0]) <= range && Math.abs(pt[1]-pos[1]) <= range ){
+          n = index; return;
+        }
+      });
+      return n;
+    }
+    selectLn(pos){
+      let range = 9.0;
+      let ln = [];
+      this.adj.forEach( (item, index) => {
+        let list = item.slice(1);
+        if( list.length > 0 ) 
+          list.forEach(adj => {
+            let distance = this.distanceLnPt(this.pts[index],this.pts[adj[0]], pos);
+            if ( distance <= range ) {
+              ln = [ index, adj[0], adj[1] ]; return;}
+          });
+        if(ln.length > 0) return;
+      });
+      return ln;
+    }
+    setLnType(ln,type){
+      let list = this.adj[ln[0]];
+      for(let i = 1 ; i < list.length ; i++) {
+        if( list[i][0] == ln[1] ){
+          this.adj[ln[0]][i][1] = type; return;
+        }
+      }
+    }
+    distanceLnPt(ln1,ln2,pt){ // return distance sqaure
+      let Len = this.sqrlineLen(ln1,ln2);
+      let d1 = this.sqrlineLen(ln1, pt); 
+      if(Len <= 4.0) return d1;
+      else if(d1 >= Len) return 99;
+      let d2 = this.sqrlineLen(ln2, pt); 
+      if(d2 >= Len) return 99;
+      let k = (ln1[1]-ln2[1])/(ln1[0]-ln2[0]);
+      let d3 = ( (ln1[1]-pt[1]) - k*(ln1[0]-pt[0]) )**2 / ( k**2 + 1 ) ;
+      return d3;
+    }
+    highlightPt(n, editingbase = false){
+      let ctx = this.ctx;
+      let pt = editingbase ? this.baseline[n] : this.pts[n];
+      ctx.save();
+      ctx.fillStyle = 'rgba(66, 102, 245,.3)';
+      ctx.beginPath();
+      ctx.moveTo(pt[0], pt[1]);
+      ctx.arc(pt[0], pt[1], 8, 0, Math.PI * 2, true);
+      ctx.fill();
+      ctx.restore();
+    }
 }
 /** Class for switching between modes
 @param {div} mainDiv - The div in which you're drawing
@@ -980,15 +1150,14 @@ class Fractal {
 @param {int} askHeight - The div height requested
 */
 class SeedIterator{
-  constructor(index, seed, width = 600, height = 480, level = 1){
+  constructor(index, fractal, width = 600, height = 480, level = 1){
     //properties
     this.index = index;
-    this.seed = StdSeeds[seed].seed;
+    this.fractal = fractal;
     this.width = Math.max(600, width);
     this.height = Math.max(480, height);
     this.level;
     //elements
-    this.fractal = new Fractal(this.seed,true);
     this.canvas, this.ctx;
     this.ctrlPanel, this.levelBtns;
     this.layout();
@@ -1002,6 +1171,7 @@ class SeedIterator{
   enableMode(){
     this.canvas.style.display = 'block';
     this.ctrlPanel.style.display = 'block';
+    this.setLevel(this.level,true);
   }
   disableMode(){
     this.canvas.style.display = 'none';
@@ -1019,8 +1189,8 @@ class SeedIterator{
     let newBtnNum = Math.min(level, len) - 1;
     btns[newBtnNum].classList.add('active-iter');
     //draw fractal
-    this.clear();
-    this.fractal.drawIter(this.ctx,level);
+    this.fractal.drawIter(this.ctx, level);
+    // this.fractal.drawSeed(this.ctx);
     this.level = level;
   }
   setup_canvas(){
@@ -1055,9 +1225,6 @@ class SeedIterator{
     this.levelBtns = elem;
     this.ctrlPanel.appendChild(elem);
   }
-  clear(){
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  }
   get_canvas(){
     return this.canvas;
   }
@@ -1067,29 +1234,43 @@ class SeedIterator{
   set_fractal(){}
 };
 class SeedEditor{
-  constructor(index, seed, width = 600, height = 480, seedlist){
+  constructor(index, fractal, width = 600, height = 480, seedlist){
     //properties
     this.index = index;
-    this.seed = seed;
+    this.fractal = fractal;
     this.width = Math.max(600, width);
     this.height = Math.max(480, height);
     this.seedlist = seedlist;
+    this.mousePos = [];
+    this.status = 0;
+    this.segType = 4;
+    this.selectedPt = -1;
+    this.anchorPt = -1;
+    this.modes = {
+      MOVE: 0, BASE: 1, ADD: 2
+    }
+    this.modetxt = ["move pt", "edit baseline", "add pt"]
     //elements
-    this.fractal = new Fractal();
     this.canvas, this.bgctx, this.workctx;
-    this.ctrlPanel, this.segTypeSel;
+    this.ctrlPanel, this.seedSel, this.modeSel, this.segTypeSel;
+    this.segTypeBtn = [];
     this.layout();
     this.drawBackground();
+    this.interactions();
   }
   layout(){
     this.setup_canvas();
     this.setup_ctrlPanel();
     //inside ctrlPanel
     this.setup_seedPicker();
+    this.setup_modeSel();
+    this.setup_segTypeSel();
   }
   enableMode(){
+    this.fractal.drawSeed(this.workctx);
     this.canvas.style.display = 'block';
     this.ctrlPanel.style.display = 'block';
+    this.setSegType(this.segType,true);
   }
   disableMode(){
     this.canvas.style.display = 'none';
@@ -1123,7 +1304,6 @@ class SeedEditor{
     elem.id = 'ft-editing-ctrlPanel-' + this.index;
     elem.className = 'ctrlPanel';
     this.ctrlPanel = elem;
-    
   }
   setup_seedPicker(){
     let elem = document.createElement('div');
@@ -1135,30 +1315,209 @@ class SeedEditor{
 
     let select = document.createElement('select');
     select.id = 'seedSel';
+    let option = document.createElement('option');
+    option.value = "create";
+    option.innerHTML = "Custom";
+    select.appendChild(option);
+
     this.seedlist.forEach(name => {
       let option = document.createElement('option');
       option.value = name;
-      option.innerHTML = name;
+      option.innerHTML = StdSeeds[name].fullname;
       select.appendChild(option);
     });
+    //init default value
+    if(this.fractal.name.length > 0 && (this.fractal.name in StdSeeds)) {
+      select.value =  this.fractal.name;
+    } else {select.value ="create";}
+    //set behaviour
     select.onchange = function(e){
       this.setSeed(e.target.value,'name');
     }.bind(this);
 
     elem.appendChild(label);
     elem.appendChild(select);
-    this.picker = select;
+    this.seedSel = select;
     this.ctrlPanel.appendChild(elem);
   }
-  drawBackground(){
+  setup_modeSel(){
+    let elem = document.createElement('div');
+    this.modeSel = elem;
+    this.ctrlPanel.appendChild(elem);
+    this.addMode(this.modes.MOVE);
+    this.addMode(this.modes.BASE);
+    this.addMode(this.modes.ADD);
+    let span = document.createElement('span');
+    span.innerHTML = 'MODE: ' + this.modetxt[this.status];
+    this.modeSel.appendChild(span);
+  }
+  setup_segTypeSel(){
+    let elem = document.createElement('div');
+    elem.className = "segTypeSel";
+    let label = document.createElement('label');
+    label.innerHTML = "Line: ";
+    let regbtns = document.createElement('span');
+    let advbtns = document.createElement('span');
+    lineTypes.forEach( (item,index)=> {
+      let btn = document.createElement('button');
+      let icon = document.createElement('img');
+      icon.src = "icons/button_" + item.name +".svg";
+      btn.appendChild(icon);
+      btn.className = "btn btn-edit type-" + item.name;
+      btn.title = item.title;
+      btn.onclick = function(type){
+        this.setSegType(type);
+      }.bind(this,index);
 
+      this.segTypeBtn.push(btn);
+      if(item.advanced) advbtns.appendChild(btn);
+      else regbtns.appendChild(btn);
+    });
+    elem.appendChild(label);
+    elem.appendChild(regbtns);
+    elem.appendChild(advbtns);
+    this.segTypeSel = elem;
+    this.ctrlPanel.appendChild(elem);
+  }
+  addMode(mode){
+    let btn = document.createElement('button');
+    btn.innerHTML = this.modetxt[mode];
+    btn.addEventListener('click', function() {
+      this.status = mode;
+      this.selectedPt = -1;
+      this.anchorPt = -1;
+      this.modeSel.querySelector('span').innerHTML = 'MODE: '+  this.modetxt[mode];
+    }.bind(this));
+    this.modeSel.appendChild(btn);
+  }
+  drawBackground(){
+    let canvas = this.bgctx.canvas;
+  }
+  interactions(){
+    let canvas = this.workctx.canvas;
+    canvas.onmousemove = this.handleMouseMove.bind(this);
+    canvas.onclick = this.handleClick.bind(this);
+    canvas.onmouseup;
+    canvas.onmousedown;
+    document.addEventListener('keydown',this.handleKeyDown.bind(this));
+  }
+  handleMouseMove(e){
+    if( (this.status == this.modes.MOVE || this.status == this.modes.BASE) && this.selectedPt != -1){
+      let editingbase = this.status == this.modes.BASE;
+      this.getMousePos(e);
+      this.fractal.movePt(this.selectedPt,this.mousePos,editingbase);
+    } 
+    else if(this.status == this.modes.ADD && this.anchorPt != -1){
+      this.getMousePos(e);
+      if(this.selectedPt == -1){
+        let pos = [this.mousePos[0]+1,this.mousePos[1]+1]
+        let before = [[this.anchorPt,this.segType],];
+        this.fractal.addPt(pos, before);
+        this.selectedPt = this.fractal.pts.length - 1;
+      }
+      else this.fractal.movePt(this.selectedPt,this.mousePos);
+    }
+    
+  }
+  handleClick(e){
+    this.getMousePos(e);
+    if(this.status == this.modes.MOVE || this.status == this.modes.BASE){//MODE-MOVE: move pts, click to select pt
+      let editingbase = this.status == this.modes.BASE; 
+      if(this.selectedPt == -1) {  //pick up pt
+        this.selectedPt = this.fractal.selectPt(this.mousePos, editingbase);
+        if(this.selectedPt == -1){
+          let ln = this.fractal.selectLn(this.mousePos);
+          if(ln.length > 0) {
+            this.fractal.setLnType(ln,this.segType);
+            this.fractal.drawSeed(this.workctx);
+          }
+        }
+      } else { //drop pt
+        this.selectedPt = -1; 
+        this.fractal.drawSeed(this.workctx); //clear highlight
+        return;
+      }
+    } else if(this.status == this.modes.ADD){ //MODE-ADD: add pts, click to add/delete pt
+      if(this.anchorPt == -1){
+        let pt = this.fractal.selectPt(this.mousePos);
+        let ln = this.fractal.selectLn(this.mousePos);
+        
+        if( pt != -1 ){ //start from existing pts
+          this.anchorPt = pt;
+        } else if( ln.length > 0 ){ // add pt to existing line
+          this.fractal.addPtToLn(this.mousePos,ln[0],ln[1]);
+        } else { // start new lines
+          this.fractal.addPt(this.mousePos);
+          this.anchorPt = this.fractal.pts.length - 1;
+        } 
+      } else { //add on to new line
+        let pts = this.fractal.pts.slice(0,-1);
+        let n = this.fractal.selectPt(this.mousePos,false,pts);
+        if(n !=-1){ //connect the loosing end to existing pts
+          if(n == this.anchorPt) return;
+          this.fractal.deletePt(this.selectedPt);
+          this.fractal.addLn(this.anchorPt,n,this.segType);
+          this.fractal.drawSeed(this.workctx);
+          this.anchorPt = -1;
+          this.selectedPt = -1; 
+        }
+        this.anchorPt = this.selectedPt;
+      }
+      this.selectedPt = -1;
+    } else if(this.status == 99){ //MODE-2: change line type, click to select line
+
+    } else if(this.status == 99){ //MODE-3: delete lines, click to select line & delete
+
+    }
+  }
+  handleKeyDown(e) {
+    if (event.isComposing || event.keyCode === 229) {
+      return;//ignore composition keydown events
+    }
+    if(this.status == this.modes.MOVE && this.selectedPt != -1){//press delete/backspace to delete pt
+      if(e.code == "Backspace" || e.code == "Delete") {
+        this.fractal.deletePt(this.selectedPt);
+        this.fractal.drawSeed(this.workctx);
+        this.selectedPt = -1;
+      }
+    } else if(this.status == this.modes.ADD && this.selectedPt != -1){
+      if(e.code == "Escape" || e.code == "Space") {
+        this.fractal.deletePt(this.selectedPt);
+        this.fractal.drawSeed(this.workctx);
+        this.anchorPt = -1;
+        this.selectedPt = -1;
+      }
+      
+    }
   }
   setSeed(seed, method){
     if(method == 'name') {
-      let seedPts = StdSeeds[seed].seed;
-      this.fractal.initFromSeed(seedPts);
+      if(seed in StdSeeds) this.fractal.initFromSeed(seed);
+      else this.fractal.clearPts();
+      this.fractal.drawSeed(this.workctx);
       return;
     }
+  }
+  setSegType(type,init = false){
+    if(!init && type == this.segType) return;
+    if(!init && this.segType >= 0){
+      let n = this.segType;
+      let oldbtn = this.segTypeBtn[n];
+      oldbtn.classList.remove('active-edit');
+      oldbtn.style.backgroundColor = "white";
+      oldbtn.querySelector('img').src = "icons/button_"+ lineTypes[n].name + ".svg";
+    }
+    let newbtn = this.segTypeBtn[type];
+    newbtn.classList.add('active-edit');
+    newbtn.style.backgroundColor = lineTypes[type].color;
+    newbtn.querySelector('img').src = "icons/button_"+ lineTypes[type].name + "_a.svg";
+    this.segType = type;
+  }
+  getMousePos(e){
+    let workrect = this.workctx.canvas.getBoundingClientRect();
+    let x = e.clientX - workrect.left;
+    let y = e.clientY - workrect.top;
+    this.mousePos = [ x, y ];
   }
 };
 class Software {
@@ -1178,8 +1537,9 @@ class Software {
     this.modeSel, this.loadSave, this.ctrlPanelDiv, this.canvasDiv, this.helpPanel;
     this.editCanvas, this.iterCanvas;
     this.handelParams();
-    this.iterator = new SeedIterator(this.index, this.seed, this.width, this.height, this.level);
-    this.editor = new SeedEditor(this.index, this.seed, this.width, this.height, this.seedlist);
+    this.fractal = new Fractal(this.seed,1);
+    this.iterator = new SeedIterator(this.index, this.fractal, this.width, this.height, this.level);
+    this.editor = new SeedEditor(this.index, this.fractal, this.width, this.height, this.seedlist);
     this.iterator.disableMode();
     this.editor.disableMode();
     this.layout();
@@ -1332,11 +1692,15 @@ function fractalToolInit() {
 window.addEventListener('load', function(evt) {
   fractalToolInit();
   // let canvas = document.querySelector('#mycanvas');
-  // let graph = new Fractal(StdSeeds.koch.seed,true);
+  // let graph = new Fractal('koch',1);
   // if (canvas.getContext) {
   //   let ctx = canvas.getContext('2d');
-  //   // graph.drawSeed(ctx);
-  //   graph.drawIter(ctx,3);
+  //   console.log(graph.adj);
+  //   graph.deletePt(3);
+  //   // graph.addLn(0,1,0);
+    
+  //   graph.drawSeed(ctx);
+  //   // graph.drawIter(ctx,3);
   // }
   
 });
