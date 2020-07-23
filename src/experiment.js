@@ -1240,8 +1240,10 @@ class SeedEditor{
     this.fractal = fractal;
     this.width = Math.max(600, width);
     this.height = Math.max(480, height);
+    this.gridSize = 20;
     this.seedlist = seedlist;
     this.mousePos = [];
+    this.rawPos = [];
     this.status = 0;
     this.segType = 4;
     this.selectedPt = -1;
@@ -1252,10 +1254,10 @@ class SeedEditor{
     this.modetxt = ["move pt", "edit baseline", "add pt"]
     //elements
     this.canvas, this.bgctx, this.workctx;
-    this.ctrlPanel, this.seedSel, this.modeSel, this.segTypeSel;
+    this.ctrlPanel, this.seedSel, this.modeSel, this.segTypeSel, this.snapBox;
     this.segTypeBtn = [];
     this.layout();
-    this.drawBackground();
+    // this.drawBackground();
     this.interactions();
   }
   layout(){
@@ -1265,6 +1267,7 @@ class SeedEditor{
     this.setup_seedPicker();
     this.setup_modeSel();
     this.setup_segTypeSel();
+    this.setup_snapCheckbox();
   }
   enableMode(){
     this.fractal.drawSeed(this.workctx);
@@ -1380,6 +1383,28 @@ class SeedEditor{
     this.segTypeSel = elem;
     this.ctrlPanel.appendChild(elem);
   }
+  setup_snapCheckbox(){
+    let elem = document.createElement('div');
+    elem.className = "snapCheckbox checkbox";
+
+    let input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = false;
+    input.id = 'snap'+ this.index;
+    input.onchange = (e) => {
+      if(e.target.checked) this.drawBackground();
+      else this.clearBackground();
+    };
+
+    let label = document.createElement('label');
+    label.htmlFor = input.id;
+    label.innerHTML = 'Snap to grid';
+    
+    elem.appendChild(input);
+    elem.appendChild(label);
+    this.snapBox = input;
+    this.ctrlPanel.appendChild(elem);
+  }
   addMode(mode){
     let btn = document.createElement('button');
     btn.innerHTML = this.modetxt[mode];
@@ -1399,8 +1424,44 @@ class SeedEditor{
     this.anchorPt = -1;
     this.modeSel.querySelector('span').innerHTML = 'MODE: '+  this.modetxt[mode];
   }
-  drawBackground(){
-    let canvas = this.bgctx.canvas;
+  clearBackground(){
+    this.bgctx.clearRect(0, 0, this.bgctx.canvas.clientWidth, this.bgctx.canvas.clientHeight);
+  }
+  drawBackground(type = 2){
+    let ctx = this.bgctx;
+    let cell = this.gridSize;
+    let lineWidth = 1;
+    let count_x = Math.floor(ctx.canvas.width / cell);
+    let count_y = Math.floor(ctx.canvas.height / cell);
+    ctx.save();
+    ctx.strokeStyle = '#ddd';
+    ctx.lineWidth = lineWidth;
+    ctx.beginPath();
+    if(type == 1){//style: grid points
+      let a = lineWidth / 2;
+      let w = 3;
+      for (let x = 1; x < count_x ; x++) {
+        for (let y = 1; y < count_y; y++) {
+          ctx.moveTo(x * cell - w, y * cell + a);
+          ctx.lineTo(x * cell + w + lineWidth, y * cell + a);
+          ctx.moveTo(x * cell + a, y * cell - w);
+          ctx.lineTo(x * cell + a, y * cell + w + lineWidth);
+        }
+      }
+    } else if(type == 2){
+      let width = ctx.canvas.width;
+      let height = ctx.canvas.height;
+      for(let i = 1; i < count_y; i++) {
+        ctx.moveTo( 0 , i * cell);
+        ctx.lineTo( width, i * cell);
+      }
+      for(let i = 1; i < count_x; i++) {
+        ctx.moveTo( i * cell, 0);
+        ctx.lineTo( i * cell, height);
+      }
+    }
+    ctx.stroke();
+    ctx.restore();
   }
   interactions(){
     let canvas = this.workctx.canvas;
@@ -1433,9 +1494,9 @@ class SeedEditor{
     if(this.status == this.modes.MOVE || this.status == this.modes.BASE){//MODE-MOVE: move pts, click to select pt
       let editingbase = this.status == this.modes.BASE; 
       if(this.selectedPt == -1) {  //pick up pt
-        this.selectedPt = this.fractal.selectPt(this.mousePos, editingbase);
+        this.selectedPt = this.fractal.selectPt(this.rawPos, editingbase);
         if(this.selectedPt == -1){
-          let ln = this.fractal.selectLn(this.mousePos);
+          let ln = this.fractal.selectLn(this.rawPos);
           if(ln.length > 0) {
             this.fractal.setLnType(ln,this.segType);
             this.fractal.drawSeed(this.workctx);
@@ -1526,6 +1587,12 @@ class SeedEditor{
     let workrect = this.workctx.canvas.getBoundingClientRect();
     let x = e.clientX - workrect.left;
     let y = e.clientY - workrect.top;
+    this.rawPos = [ x, y];
+    if(this.snapBox.checked) {
+      let cell = this.gridSize;
+      x = cell * Math.round( x / cell );
+      y = cell * Math.round( y / cell );
+    }
     this.mousePos = [ x, y ];
   }
 };
@@ -1545,7 +1612,7 @@ class Software {
     //element
     this.modeSel, this.loadSave, this.ctrlPanelDiv, this.canvasDiv, this.helpPanel;
     this.editCanvas, this.iterCanvas;
-    this.handelParams();
+    this.handleParams();
     this.fractal = new Fractal(this.seed,1);
     this.iterator = new SeedIterator(this.index, this.fractal, this.width, this.height, this.level);
     this.editor = new SeedEditor(this.index, this.fractal, this.width, this.height, this.seedlist);
@@ -1553,7 +1620,7 @@ class Software {
     this.editor.disableMode();
     this.layout();
   }
-  handelParams(){
+  handleParams(){
     if(this.params.width!=undefined) this.width = Math.max(800, this.params.width);
     if(this.params.height!=undefined) this.height = Math.max(600, this.params.height);
     if(this.params.level!=undefined) this.level = this.params.level;
@@ -1562,7 +1629,7 @@ class Software {
     if(this.params.mode!=undefined && (this.params.mode.toLowerCase()=='draw')) this.currentMode = 1;
   }
   layout(){
-    this.setup_loadSave();
+    // this.setup_loadSave();
     this.setup_modeSel();
     this.setup_ctrlPanelDiv();
     this.setup_canvasDiv();

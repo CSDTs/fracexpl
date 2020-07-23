@@ -486,7 +486,7 @@ FractalDraw.prototype.saveRemotely = function() {
     alert('Success');
   }
 };
-///calculate dimension
+
 FractalDraw.prototype.checkDim = function(dim) {
   let seed = this.seed;
   if (seed.length < 2) return -1.0;
@@ -505,6 +505,7 @@ FractalDraw.prototype.checkDim = function(dim) {
 
   return lenSum;
 };
+///calculate dimension
 FractalDraw.prototype.getDim = function() {
   let seed = this.seed;
   let replSum = 0.0;
