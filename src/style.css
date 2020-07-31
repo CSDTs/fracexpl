@@ -2,11 +2,17 @@
 .fractaltool{
     position: relative;
     /* background-color: #F5F5F5; */
-    font: 16px 'Roboto',sans-serif;
+    font: 14px 'Roboto',sans-serif;
     font-weight: 400;
     color: #333;
     padding: .5em;
+    box-sizing: border-box;
 }
+.fractaltool select{
+    height: 2.5em;
+    border: 1px solid #bdbdbd;
+}
+
 .icon-question{
     width: 1em;
     height: auto;
@@ -64,8 +70,8 @@ select,input[type=number] {
 .ctrlPanel{
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
+    align-items: center;
+    /* justify-content: space-between; */
     margin-bottom: .5em;
 }
 .levelButtons{
@@ -108,6 +114,14 @@ select,input[type=number] {
 }
 .icon-close:hover{
     opacity: 100%;
+}
+.icon-color{
+    display: inline-block;
+    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+    margin: 2px;
+    border-radius: 8px;
 }
 .typeTutor{
     left: 1em;
@@ -184,6 +198,10 @@ select,input[type=number] {
     background-color: #CCEEF9;
 }
 
+.btn-tool{
+    border:none;
+    margin-bottom: 0;
+}
 .segThickness {
     position: absolute;
     bottom: 1em;
@@ -204,9 +222,41 @@ select,input[type=number] {
     z-index:99;
 }
 .segTypeSel{
+    display: inline-block;
+    position: relative;
     margin-left: 1em;
     margin-right: 1em;
+    border: 1px solid #e0e0e0;
+    border-radius: .5em;
 }
+.segTypeSel button{
+    border:none;
+    margin: .2em;
+}
+
+.repSel-list{
+    font-size: 14px;
+    position: absolute;
+    z-index: 99;
+    left: 0;
+    top: 3em;
+    
+    padding: .2em;
+    border-radius: .5em;
+    background-color: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,.16);
+}
+.repSel-list button{
+    display: block;
+    text-align: left;
+    width: 100%;
+    margin: 0;
+}
+.repSel-list span{
+    margin-left: .5em;
+    line-height: 16px;
+}
+
 .typeBtnReg,.typeBtnAdv{
     display: inline;
 }
@@ -224,28 +274,16 @@ select,input[type=number] {
     height: auto;
 }
 .active-edit {
-    border-left-width: .25em;
-    border-right-width: .25em;
+    background-color: #f5f5f5;
+}
+.active-edit img {
+    opacity: 1.0;
+}
+.active-type {
+    background-color: #f5f5f5;
 }
 
-.type-flip {
-    border-color: #2F80ED;
-}
-.type-inverflip {
-    border-color: #9B51E0;
-}
-.type-invert {
-    border-color: #F2994A;
-}
-.type-invisible {
-    border-color: #bdbdbd;
-}
-.type-passive {
-    border-color: #27AE60;
-}
-.type-regular {
-    border-color: #EB5757;
-}
+
 
 /* mode selection */
 .modeSelDiv {
@@ -264,9 +302,15 @@ select,input[type=number] {
 }
 .active-mode {
     background-color: #333;
-    color:white;
+    color: white;
 }
-
+.color-selected{
+    position:absolute;
+    width:1.3em;
+    height: .3em;
+    left:.5em;
+    bottom:.4em;
+}
 
 .compass{
     display: grid;
