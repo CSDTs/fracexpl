@@ -31,13 +31,13 @@ const lineTypes = [
       rep: false,
       width: 2
     }
-    // ,{
-    //   name:'invisible',
-    //   title:'Invisible',
-    //   color: '#bdbdbd',
-    //   rep: false,
-    //   width: 1
-    // }
+    ,{
+      name:'invisible',
+      title:'Invisible',
+      color: '#bdbdbd',
+      rep: false,
+      width: 1
+    }
   ];
 const StdSeeds = {
     '3crosses': {
@@ -900,7 +900,7 @@ class Fractal {
       let b2= this.baseline[1];
       this.baseDeltaX = b1[0] - b2[0];
       this.baseDeltaY = b1[1] - b2[1];
-      this.sqrbaseLen = this.sqrlineLen(b1,b2);
+      this.sqrbaseLen = this.sqlineLen(b1,b2);
     }
     drawSeed(ctx) {
       this.ctx = ctx;
@@ -913,11 +913,17 @@ class Fractal {
       this.drawPts();
     }
     drawSeedLine(index,adj) {
-        if(adj[1]==5) return;
+        // if(adj[1] == 5) return;
         let start = this.pts[index];
         let end = this.pts[adj[0]];
-        let color = lineTypes[adj[1]].color;
-        this.drawline(start,end,color);
+        if(adj[1].length > 1){ //draw circle
+          let v = adj[1];
+          let color = lineTypes[v[2]].color;
+          this.drawcircle(start, end, v[1], color);
+        } else {
+          let color = lineTypes[adj[1]].color;
+          this.drawline(start,end,color);
+        }
     }
     drawBaseline() {
         let ctx = this.ctx;
@@ -929,7 +935,6 @@ class Fractal {
         ctx.strokeStyle = "#666";
         ctx.stroke();
         ctx.restore();
-        ctx.lineWidth = 2;
     }
     drawPts() {
         let ctx = this.ctx;
@@ -950,7 +955,7 @@ class Fractal {
     }
     basedraw(b1,b2,hflip,level,lineWidth){
       let color = 'black';
-      let segLen = this.sqrlineLen(b1,b2);
+      let segLen = this.sqlineLen(b1,b2);
       let d_segX = b1[0] - b2[0];
       let d_segY = b1[1] - b2[1];
       let d_baseX = this.baseDeltaX;
@@ -979,14 +984,19 @@ class Fractal {
         let list = item.slice(1);
         if( list.length > 0 ) 
           list.forEach(adj => {
-            if( level == 1 || adj[1] == 4 ) {
-              this.drawline(segPts[index],segPts[adj[0]],color,lineWidth);
-            }
+            if( level == 1 || adj[1] == 4 || adj[1] == 5 || adj[1].length > 1) {
+              if( adj[1] == 5 ) return;
+              if(adj[1].length > 1){
+                this.drawcircle(segPts[index],segPts[adj[0]],adj[1][1],color,lineWidth);
+              } else {
+                this.drawline(segPts[index],segPts[adj[0]],color,lineWidth);
+              }
+            } 
             else this.basedraw(segPts[index],segPts[adj[0]], hflip, level-1,lineWidth);
           });
       });
     }
-    sqrlineLen(pt1,pt2){
+    sqlineLen(pt1,pt2){
         let x=pt1[0]-pt2[0];
         let y=pt1[1]-pt2[1];
         return Math.pow(x, 2) + Math.pow(y, 2);
@@ -999,6 +1009,49 @@ class Fractal {
       this.ctx.moveTo(pt1[0], pt1[1]);
       this.ctx.lineTo(pt2[0], pt2[1]);
       this.ctx.stroke();
+    }
+    getAngle(center,start){
+      let alpha;
+      if(start[1]==center[1]){
+        if(start[0] > center[0]) alpha = 0;
+        else alpha = Math.PI;
+      } else if(start[0]==center[0]){
+        if(start[1] > center[1]) alpha = 0.5 * Math.PI;
+        else alpha = -0.5 * Math.PI;
+      } else {
+        alpha = Math.atan( (start[1]-center[1]) / (start[0]-center[0]) );
+        if(start[0] < center[0]) alpha = alpha + Math.PI;
+      }
+      return alpha;
+    }
+    drawcircle(center, start, n, color = "black", width = 1){
+      if( n!=8 && n!=16 && n!=-1 ) return;
+      if( n == -1 && type < 4) return;
+      let ctx = this.ctx;
+      ctx.save();
+      ctx.beginPath();
+      let r = Math.sqrt(this.sqlineLen(center,start));
+      if( n == -1 ){
+        ctx.arc(center[0], center[1], r, 0, 2 * Math.PI);
+      } else {
+        let alpha = this.getAngle(center,start);
+        let theta = 2 * Math.PI / n;
+        
+        ctx.moveTo(start[0],start[1]);
+        for(let i = 1 ; i < n ; i++ ){
+          let x = r * Math.cos( alpha + i * theta );
+          let y = r * Math.sin( alpha + i * theta );
+          ctx.lineTo( center[0] + x , center[1] + y );
+        }
+        ctx.closePath();
+      }
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+      ctx.restore();
+    }
+    breakcircle(center, start, n, type = 4){
+
     }
     getDim(){}
     addPt(pos,before = [],after = []){
@@ -1015,7 +1068,9 @@ class Fractal {
       if(before.length > 0) before.forEach(item => {
         this.adj[index][0] ++;
         this.adj[item[0]][0] ++;
-        this.adj[ item[0] ].push( [ index, item[1] ] );
+        let type = item[1];
+        if(item.length > 2) type = item.slice(1);
+        this.adj[ item[0] ].push( [ index,  type ] );
       });
       this.drawSeed(this.ctx);
       return index;
@@ -1081,8 +1136,16 @@ class Fractal {
       if(editingbase) {
         this.baseline[n] = pos;
         this.setup_baseline();
+      } else{ 
+        if(this.adj[n][1] && this.adj[n][1][1].length > 1){
+          let follower = this.adj[n][1][0];
+          let x = this.pts[follower][0] + pos[0] - this.pts[n][0];
+          let y = this.pts[follower][1] + pos[1] - this.pts[n][1];
+          this.pts[follower] = [ x, y ];
+        }
+        this.pts[n] = pos;
       }
-      else this.pts[n] = pos;
+      
       this.drawSeed(this.ctx);
       this.highlightPt(n, editingbase);
     }
@@ -1122,11 +1185,11 @@ class Fractal {
       }
     }
     distanceLnPt(ln1,ln2,pt){ // return distance sqaure
-      let Len = this.sqrlineLen(ln1,ln2);
-      let d1 = this.sqrlineLen(ln1, pt); 
+      let Len = this.sqlineLen(ln1,ln2);
+      let d1 = this.sqlineLen(ln1, pt); 
       if(Len <= 4.0) return d1;
       else if(d1 >= Len) return 99;
-      let d2 = this.sqrlineLen(ln2, pt); 
+      let d2 = this.sqlineLen(ln2, pt); 
       if(d2 >= Len) return 99;
       let k = (ln1[1]-ln2[1])/(ln1[0]-ln2[0]);
       let d3 = ( (ln1[1]-pt[1]) - k*(ln1[0]-pt[0]) )**2 / ( k**2 + 1 ) ;
@@ -1323,10 +1386,11 @@ class SeedEditor{
   setup_seedPicker(){
     let elem = document.createElement('div');
     elem.className = 'seedPicker';
+    elem.style.marginRight = '2em';
 
     let select = document.createElement('select');
     select.id = 'seedSel'+this.index;
-    select.style.marginRight = '2em';
+    
     
     let label = document.createElement('label');
     label.innerHTML = 'Seed:';
@@ -1385,6 +1449,7 @@ class SeedEditor{
   setup_segTypeSel(){
     let elem = document.createElement('div');
     elem.className = "segTypeSel";
+    elem.style.marginRight = "2em";
     
     //the dropdown panel
     let repBtns = document.createElement('div');
@@ -1564,6 +1629,15 @@ class SeedEditor{
         this.selectedPt = this.fractal.pts.length - 1;
       }
       else this.fractal.movePt(this.selectedPt,this.mousePos);
+    } else if(this.status == this.modes.SHAPE && this.anchorPt != -1){
+      this.getMousePos(e);
+      if(this.selectedPt == -1){
+        let pos = [this.mousePos[0]+1,this.mousePos[1]+1]
+        let before = [[this.anchorPt, -1, 8, this.segType],];
+        this.fractal.addPt(pos, before);
+        this.selectedPt = this.fractal.pts.length - 1;
+      }
+      else this.fractal.movePt(this.selectedPt,this.mousePos);
     }
     
   }
@@ -1612,13 +1686,22 @@ class SeedEditor{
         this.anchorPt = this.selectedPt;
       }
       this.selectedPt = -1;
-    } else if(this.status == this.modes.DELETE){ //MODE-2: change line type, click to select line
+    } else if(this.status == this.modes.DELETE){ //MODE-DELETE: delete existing pts, click to select & delete
       let pt = this.fractal.selectPt(this.rawPos);
-      this.fractal.deletePt(pt);
-      this.fractal.drawSeed(this.workctx);
-      this.selectedPt = -1;
-    } else if(this.status == 99){ //MODE-3: delete lines, click to select line & delete
-
+      if(pt != -1 ){
+        this.fractal.deletePt(pt);
+        this.fractal.drawSeed(this.workctx);
+        this.selectedPt = -1;
+      }
+    } else if(this.status == this.modes.SHAPE){ //MODE-SHAPE: add circles to seed
+      if(this.anchorPt == -1){ // set circle center
+        this.fractal.addPt(this.mousePos);
+        this.anchorPt = this.fractal.pts.length - 1;
+      } else { // end draw
+        this.fractal.drawSeed(this.workctx);
+        this.anchorPt = -1;
+        this.selectedPt = -1; 
+      }
     }
   }
   handleKeyDown(e) {
@@ -1673,6 +1756,10 @@ class SeedEditor{
     this.segType = type;
     let newbtn = this.segTypeBtn[this.segType];
     newbtn.classList.add('active-type');
+    if(init && this.segType != this.repType){
+      this.segTypeBtn[this.repType].classList.add('active-type');
+    }
+
     let tool = this.toolBar.querySelectorAll('button')[this.status];
     if(tool.querySelector('.color-selected')){
       tool.querySelector('.color-selected').style.backgroundColor = lineTypes[this.segType].color;
