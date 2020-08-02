@@ -984,10 +984,23 @@ class Fractal {
         let list = item.slice(1);
         if( list.length > 0 ) 
           list.forEach(adj => {
+            if(adj[1].length > 1){//for shapes
+              let v = adj[1];
+              if(v[0] == -1){ //for circles
+                if(level == 1 || v[2] > 3 ) this.drawcircle(segPts[index],segPts[adj[0]],v[1],color,lineWidth);
+                else {
+                  let circlePts = this.getCirclePt(segPts[index],segPts[adj[0]],v[1]);
+                  for(let i = 1 ; i < v[1] ; i++ ){
+                    this.basedraw( circlePts[i-1], circlePts[i], hflip, level-1, lineWidth );
+                  }
+                  this.basedraw( circlePts[v[1]-1], circlePts[0], hflip, level-1, lineWidth );
+                }
+              }
+            }
             if( level == 1 || adj[1] == 4 || adj[1] == 5 || adj[1].length > 1) {
               if( adj[1] == 5 ) return;
               if(adj[1].length > 1){
-                this.drawcircle(segPts[index],segPts[adj[0]],adj[1][1],color,lineWidth);
+                
               } else {
                 this.drawline(segPts[index],segPts[adj[0]],color,lineWidth);
               }
@@ -1050,6 +1063,19 @@ class Fractal {
       ctx.stroke();
       ctx.restore();
     }
+    getCirclePt(center, start, n){
+      let pts = [];
+      pts.push(start);
+      let r = Math.sqrt(this.sqlineLen(center,start));
+      let alpha = this.getAngle(center,start);
+      let theta = 2 * Math.PI / n;
+      for(let i = 1 ; i < n ; i++ ){
+        let x = r * Math.cos( alpha + i * theta );
+        let y = r * Math.sin( alpha + i * theta );
+        pts.push([center[0] + x , center[1] + y]);
+      }
+      return pts;
+    }
     breakcircle(center, start, n, type = 4){
 
     }
@@ -1108,6 +1134,14 @@ class Fractal {
       let count = this.adj[n][0];
       let list = this.adj[n].slice(1);
       if( count > 2 || count < list.length) return;
+      if( list[0][1].length > 1){ // for shape center
+        let follower = list[0][0];
+        this.pts.splice(follower,1);
+        this.adj.splice(follower,1);
+        this.pts.splice(n,1);
+        this.adj.splice(n,1);
+        return;
+      }
 
       if(list.length > 0 && count == list.length) 
           list.forEach( item => this.adj[ item[0] ][0]-- );
@@ -1313,6 +1347,7 @@ class SeedEditor{
     this.repType = this.segType < 4? this.segtype : 0;
     this.selectedPt = -1;
     this.anchorPt = -1;
+    this.circleSeg = 8;
     this.modes = {
       SELECT: 0, ADD: 1, DELETE: 2, PAINT: 3,  SHAPE: 4
     }
@@ -1633,7 +1668,7 @@ class SeedEditor{
       this.getMousePos(e);
       if(this.selectedPt == -1){
         let pos = [this.mousePos[0]+1,this.mousePos[1]+1]
-        let before = [[this.anchorPt, -1, 8, this.segType],];
+        let before = [[this.anchorPt, -1, this.circleSeg, this.segType],];
         this.fractal.addPt(pos, before);
         this.selectedPt = this.fractal.pts.length - 1;
       }
