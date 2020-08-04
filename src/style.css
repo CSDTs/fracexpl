@@ -65,6 +65,7 @@ select,input[type=number] {
 /* control panel */
 .ctrlPanelDiv{
     display: block;
+    position: relative;
     width: 100%;
 }
 .ctrlPanel{
@@ -233,13 +234,24 @@ select,input[type=number] {
     border:none;
     margin: .2em;
 }
-
+.circleSel{
+    font-size: 14px;
+    position: absolute;
+    z-index: 99;
+    left: 0;
+    top: 3.5em;
+    
+    padding: .2em;
+    border-radius: .5em;
+    background-color: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,.16);
+}
 .repSel-list{
     font-size: 14px;
     position: absolute;
     z-index: 99;
     left: 0;
-    top: 3em;
+    top: 3.5em;
     
     padding: .2em;
     border-radius: .5em;
