@@ -1167,10 +1167,11 @@ class Fractal {
       // for shape center
       if( list.length > 0 && list[0][1].length > 1){
         let follower = list[0][0];
-        this.pts.splice(follower,1);
-        this.adj.splice(follower,1);
         this.pts.splice(n,1);
         this.adj.splice(n,1);
+        if(n < follower) follower--;
+        this.pts.splice(follower,1);
+        this.adj.splice(follower,1);
         return;
       }
 
@@ -1295,7 +1296,7 @@ class SeedIterator{
   }
   enableMode(){
     this.canvas.style.display = 'block';
-    this.ctrlPanel.style.display = 'block';
+    this.ctrlPanel.style.display = 'flex';
     this.setLevel(this.level,true);
   }
   disableMode(){
@@ -1383,7 +1384,7 @@ class SeedEditor{
       { mode:"SELECT",name:"select",  title:"select & move points"},
       { mode:"ADD",   name:"addpt",   title:"draw new points & lines"},
       { mode:"DELETE",name:"deletept",title:"delete points"},
-      { mode:"PAINT", name:"paint",   title:"apply color to segmants"},
+      { mode:"PAINT", name:"paint",   title:"apply color to segments"},
       { mode:"SHAPE", name:"circle",  title:"draw a circle"}
     ];
     this.modetxt = ["move pt", "edit baseline", "add pt"]
