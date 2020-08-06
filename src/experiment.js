@@ -819,15 +819,15 @@ const toggle_e = function(elem){
 //1 - oldversion, init from stdSeed
 //2 - oldversion, init from json file
 class Fractal {
-    constructor( seed = [], initMethod = 0, b1 = [300,240], b2 = [500,240]) {
+    constructor( seed = [], initMethod = 0) {
         this.name = "";
         this.seed = seed;
         this.pts = []; //pointlist
         this.adj = []; //adjacent lists
-        this.baseline = [b1,b2];
+        this.baseline = [];
         this.baseDeltaX, this.baseDeltaY, this.sqrbaseLen;
         this.ctx = "";
-        this.dim = 0;
+        this.dim = -1;
         switch (initMethod) {
           case 0: this.init();break;
           case 1: this.initFromSeed(this.seed);break;
@@ -878,8 +878,9 @@ class Fractal {
               index0 = index1;
           }
       }
-      // this.baseline = [ seed[0].slice(0,2) , seed[len-1].slice(0,2) ];
-      this.baseline = [ 0 , this.pts.length - 1 ];
+      // this.baseline = [ seed[0].slice(0,2) ,  seed[len-1].slice(0,2)];
+      let vertix = this.searchPt(seed[len-1].slice(0,2));
+      this.baseline = [ 0 , vertix ];
       this.setup_baseline();
     }
     initFromFile(){}
@@ -923,7 +924,7 @@ class Fractal {
           let v = adj[1];
           let color = lineTypes[v[2]].color;
           this.drawcircle(start, end, v[1], color);
-          this.drawline(start,end,color,null,[4,4]);
+          this.drawline(start,end,color,null,[1,6]);
         } else {
           let color = lineTypes[adj[1]].color;
           this.drawline(start,end,color);
@@ -932,7 +933,7 @@ class Fractal {
     drawBaseline() {
       let pt1 = this.pts[this.baseline[0]];
       let pt2 = this.pts[this.baseline[1]];
-      this.drawline(pt1,pt2,"#666",1,[8,4]);
+      this.drawline(pt1,pt2,"#666",2,[12,8]);
     }
     drawPts() {
         let ctx = this.ctx;
@@ -1099,8 +1100,65 @@ class Fractal {
       }
       this.addLn(this.pts.length-1, startIndex, type);
     }
+    isCircleCenter(n){
+      if(n < 0 || n >= this.pts.length) return false;
+      if(this.adj[n][0] > 0 && this.adj[n][1][1].length > 1) return true;
+      return false;
+    }
+    checkDim(dim,baseLen){
+      let replSum = 0.0;
+      this.adj.forEach( (item,index) => {
+        let list = item.slice(1);
+        if( list.length > 0 ) list.forEach( adj => {
+          let segLen = Math.sqrt(this.sqlineLen( this.pts[index], this.pts[adj[0]] ));
+          if( adj[1] < 4 ){ replSum += segLen**dim;
+          } 
+        });
+      });
+      replSum /= baseLen**dim;
+      return replSum;
+    }
     getDim(){
+      if (this.adj.length < 2) return 0.0;
+
+      let base0 = this.baseline[0];
+      let base1 = this.baseline[1];
+      let baseLen = Math.sqrt(this.sqlineLen( this.pts[base0], this.pts[base1] ));
+      if (baseLen < 1.0) return -1.0;
+
+      let replSum = 0.0;
+      let nonrepl = 0.0;
+      this.adj.forEach( (item,index) => {
+        let list = item.slice(1);
+        if( list.length > 0 ) list.forEach( adj => {
+          let type = adj[1];
+          if( type < 4 ){ 
+            let segLen = Math.sqrt(this.sqlineLen( this.pts[index], this.pts[adj[0]] ));
+            replSum += segLen;
+          } else if ( type == 4){// Visible but non-replicating
+            nonrepl += 1; 
+          }
+        });
+      });
+      replSum /= baseLen;
+      if( nonrepl > 0.0 && replSum < 1.0 ) return 1.0;
+      if( nonrepl == 0.0 && replSum == 0.0 ) return 0.0;
+        
+      let lo = 0.0;
+      let hi = 2.0;
+      if (this.checkDim(lo,baseLen) < 1.0 || this.checkDim(hi,baseLen) > 1.0) return -1.0;
       
+      let tmp;
+      while ((hi - lo) > 0.0005) {
+        let mid = (lo + hi) / 2;
+        tmp = this.checkDim(mid,baseLen);
+        if (tmp >= 1.0) {
+          lo = mid;
+        } else {
+          hi = mid;
+        }
+      }
+      return Math.round( (lo + hi) * 500.0) / 1000.0;
     }
     addPt(pos, before = [], after = [], isInitiating = false){
       let pt = this.roundPt(pos);
@@ -1288,16 +1346,19 @@ class SeedIterator{
     this.ctrlPanel, this.levelBtns;
     this.layout();
     this.setLevel(level,true);
+    this.setDimInfo();
   }
   layout(){
     this.setup_canvas();
     this.setup_ctrlPanel();
     this.setup_levelBtns();
+    this.setup_dimInfo();
   }
   enableMode(){
     this.canvas.style.display = 'block';
     this.ctrlPanel.style.display = 'flex';
     this.setLevel(this.level,true);
+    this.setDimInfo();
   }
   disableMode(){
     this.canvas.style.display = 'none';
@@ -1351,13 +1412,21 @@ class SeedIterator{
     this.levelBtns = elem;
     this.ctrlPanel.appendChild(elem);
   }
-  get_canvas(){
-    return this.canvas;
+  setup_dimInfo(){
+    let elem = document.createElement('div');
+    elem.style.marginLeft = '2em';
+    let dim = this.dim == -1 ? '--' : this.dim;
+    elem.innerHTML = "Dim = ";
+    let span = document.createElement('span');
+    span.innerHTML = dim;
+    this.dimInfo = span;
+    elem.appendChild(span);
+    this.ctrlPanel.appendChild(elem);
   }
-  get_ctrlPanel(){
-    return this.ctrlPanel;
+  setDimInfo(){
+    let dim = this.fractal.getDim();
+    this.dimInfo.innerHTML = dim==-1? "-" : dim;
   }
-  set_fractal(){}
 };
 class SeedEditor{
   constructor(index, fractal, width = 600, height = 480, seedlist){
@@ -1387,12 +1456,15 @@ class SeedEditor{
       { mode:"PAINT", name:"paint",   title:"apply color to segments"},
       { mode:"SHAPE", name:"circle",  title:"draw a circle"}
     ];
+    this.instructions = {
+      select_circle:'You can press "b" to break the circle into segments',};
     this.modetxt = ["move pt", "edit baseline", "add pt"]
     //elements
     this.canvas, this.bgctx, this.workctx;
     this.ctrlPanel;
     this.seedSel, this.modeSel, this.toolBar, this.segTypeSel, this.snapBox;
     this.repTypeBtn, this.segTypeBtn = [];
+    this.message;
     this.layout();
     this.setSegType(this.segType,true);
     this.setMode(this.status,true);
@@ -1407,13 +1479,14 @@ class SeedEditor{
     this.setup_toolBar();
     this.setup_segTypeSel();
     this.setup_snapCheckbox();
+    this.setup_message();
   }
   enableMode(){
     this.fractal.drawSeed(this.workctx);
     this.canvas.style.display = 'block';
     this.ctrlPanel.style.display = 'flex';
-    this.setSegType(this.segType,false);
-    this.setMode(this.modes.SELECT,false);
+    this.setSegType(this.segType);
+    this.setMode(this.modes.SELECT);
     this.anchorPt = -1;
     this.selectedPt = -1;
   }
@@ -1647,6 +1720,25 @@ class SeedEditor{
     this.snapBox = input;
     this.ctrlPanel.appendChild(elem);
   }
+  setup_message(){
+    let elem = document.createElement('div');
+    elem.className = "message";
+    elem.style.display = "none";
+    let span = document.createElement('span');
+    span.className = "message-text"
+    let icon = document.createElement('img');
+    icon.src = "icons/close.svg";
+    icon.width = 14;
+    icon.style.marginLeft = '1em';
+    icon.onclick = (e)=>{
+      e.target.parentElement.style.display = 'none';
+    };
+    
+    elem.appendChild(span);
+    elem.appendChild(icon);
+    this.message = elem;
+    this.ctrlPanel.appendChild(elem);
+  }
   setMode(mode, init = false){
     if( mode == this.status && !init) return;
     if(!init){//clear old highlight
@@ -1752,10 +1844,22 @@ class SeedEditor{
     if(this.status == this.modes.SELECT || this.status == this.modes.BASE){//MODE-MOVE: move pts, click to select pt
       let editingbase = this.status == this.modes.BASE; 
       if(this.selectedPt == -1) {  //pick up pt
-        this.selectedPt = this.fractal.selectPt(this.rawPos, editingbase);
+        let n = this.fractal.selectPt(this.rawPos, editingbase);
+        this.selectedPt = n;
+        if(n != -1 && this.fractal.isCircleCenter(n)){//select circle center
+          this.message.querySelector('.message-text').innerHTML = this.instructions.select_circle;
+          this.message.style.display = 'block';
+        } else if(this.message.style.display == 'block') {
+          this.message.querySelector('.message-text').innerHTML = "";
+          this.message.style.display = 'none';
+        }
       } else { //drop pt
         this.selectedPt = -1; 
         this.fractal.drawSeed(this.workctx); //clear highlight
+        if(this.message.style.display == 'block') {
+          this.message.querySelector('.message-text').innerHTML = "";
+          this.message.style.display = 'none';
+        }
         return;
       }
     } else if(this.status == this.modes.PAINT){ // MODE-PAINT: set line types
@@ -2031,8 +2135,8 @@ class Software {
     }.bind(this);
 
     let panel = document.createElement('div');
+    panel.className = "tutor help-panel";
     panel.innerHTML = '<h3>Instructions</h3>\
-    <div><img class="icon-close" src="icons/close.svg"><div>\
     <ul>\
         <li><strong>Change mode - </strong>Click "Edit Mode" to enter the edit mode.</li>\
         <li><strong>Change line color - </strong>Select a color at the top then click on the line you wish to change.</li>\
@@ -2040,11 +2144,14 @@ class Software {
         <li><strong>Insert a node - </strong>Double click on a line between nodes to insert a new node.</li>\
         <li><strong>Delete a node - </strong>Click a node and press Delete/Backspace Key.</li>\
     </ul>';
-    panel.className = "tutor help-panel";
-    panel.querySelector(".icon-close").onclick = function(){
+    let icon = document.createElement('img');
+    icon.src = 'icons/close.svg';
+    icon.className = 'icon-close';
+    icon.onclick = function(){
       this.helpPanel.style.display = "none";
     }.bind(this);
 
+    panel.appendChild(icon);
     this.modeSel.appendChild(link);
     this.helpPanel = panel;
     this.main.appendChild(panel);

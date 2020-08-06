@@ -81,7 +81,14 @@ select,input[type=number] {
     border-radius: 2px;
     padding: 0;
 }
-
+.message{
+    position: absolute;
+    top: 4.5em;
+    left: .5em;
+    background-color: #f5f5f5;
+    padding: 4px;
+    z-index: 99;
+}
 .tutor {
     position: absolute;
     font-size: 16px;
