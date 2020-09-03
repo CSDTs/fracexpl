@@ -1,4 +1,6 @@
 
+window.cloud = new CloudSaver();
+window.applicationID = 69;
 const lineTypes = [
     {
       name:'regular',
@@ -47,8 +49,8 @@ const StdSeeds = {
       itNumber: 3,
       seed: [
         [260.0, 180.0, 0],
-        [280.0, 220.0, 5],
-        [260.0, 120.0, 5],
+        [280.0, 220.0, 6],
+        [260.0, 120.0, 6],
         [260.0, 20.0, 4],
         [380.0, 20.0, 4],
         [380.0, 120.0, 4],
@@ -62,9 +64,9 @@ const StdSeeds = {
         [160.0, 220.0, 4],
         [160.0, 120.0, 4],
         [260.0, 120.0, 4],
-        [300.0, 180.0, 5],
+        [300.0, 180.0, 6],
         [340.0, 180.0, 0],
-        [380.0, 180.0, 5],
+        [380.0, 180.0, 6],
       ],
     },
     'baila': {
@@ -74,7 +76,7 @@ const StdSeeds = {
       itNumber: 3,
       seed: [
         [210.0, 284.0, 0],
-        [210.0, 187.07369995117188, 5],
+        [210.0, 187.07369995117188, 6],
         [210.0, 200.80044555664062, 4],
         [216.86341857910156, 221.39060974121094, 4],
         [223.726806640625, 235.117431640625, 0],
@@ -101,9 +103,9 @@ const StdSeeds = {
         [216.1770477294922, 110.2037124633789, 0],
         [210.0, 128.73486328125, 4],
         [210.0, 139.0299072265625, 4],
-        [374.7213439941406, 180.21029663085938, 5],
+        [374.7213439941406, 180.21029663085938, 6],
         [374.7213439941406, 118.43974304199219, 0],
-        [210.0, 32.34235382080078, 5],
+        [210.0, 32.34235382080078, 6],
       ],
     },
     'blanket': {
@@ -113,21 +115,21 @@ const StdSeeds = {
       itNumber: 3,
       seed: [
         [240.0, 160.0, 0],
-        [170.0, 160.0, 5],
+        [170.0, 160.0, 6],
         [130.0, 220.0, 4],
         [90.0, 160.0, 4],
         [130.0, 100.0, 4],
         [170.0, 160.0, 4],
-        [50.0, 100.0, 5],
+        [50.0, 100.0, 6],
         [10.0, 160.0, 4],
         [50.0, 220.0, 4],
         [90.0, 160.0, 4],
         [50.0, 100.0, 4],
-        [280.0, 120.0, 5],
+        [280.0, 120.0, 6],
         [330.0, 120.0, 0],
-        [280.0, 200.0, 5],
+        [280.0, 200.0, 6],
         [330.0, 200.0, 0],
-        [430.0, 160.0, 5],
+        [430.0, 160.0, 6],
         [470.0, 220.0, 4],
         [510.0, 160.0, 4],
         [550.0, 220.0, 4],
@@ -136,7 +138,7 @@ const StdSeeds = {
         [510.0, 160.0, 4],
         [470.0, 100.0, 4],
         [430.0, 160.0, 4],
-        [360.0, 160.0, 5],
+        [360.0, 160.0, 6],
       ],
     },
     'bullhorn': {
@@ -146,7 +148,7 @@ const StdSeeds = {
       itNumber: 4,
       seed: [
         [220.0, 200.0, 0],
-        [255.0, 170.0, 5],
+        [255.0, 170.0, 6],
         [270.0, 180.0, 4],
         [296.0, 198.0, 4],
         [300.0, 206.0, 4],
@@ -163,8 +165,8 @@ const StdSeeds = {
         [209.0, 154.0, 4],
         [244.0, 156.0, 0],
         [255.0, 170.0, 4],
-        [220.0, 200.0, 5],
-        [258.0, 171.0, 5],
+        [220.0, 200.0, 6],
+        [258.0, 171.0, 6],
       ],
     },
     'cantorpaper': {
@@ -174,18 +176,18 @@ const StdSeeds = {
       itNumber: 3,
       seed: [
         [220.0, 161.0, 0],
-        [240.0, 81.0, 5],
-        [260.0, 81.0, 5],
+        [240.0, 81.0, 6],
+        [260.0, 81.0, 6],
         [320.0, 81.0, 0],
-        [340.0, 81.0, 5],
+        [340.0, 81.0, 6],
         [240.0, 81.0, 4],
-        [360.0, 161.0, 5],
+        [360.0, 161.0, 6],
         [220.0, 161.0, 4],
-        [260.0, 241.0, 5],
+        [260.0, 241.0, 6],
         [320.0, 241.0, 0],
-        [340.0, 241.0, 5],
+        [340.0, 241.0, 6],
         [240.0, 241.0, 4],
-        [360.0, 161.0, 5],
+        [360.0, 161.0, 6],
       ],
     },
     'carpet': {
@@ -195,26 +197,26 @@ const StdSeeds = {
       itNumber: 3,
       seed: [
         [200.0, 300.0, 0],
-        [238.58258056640625, 197.11302185058594, 5],
+        [238.58258056640625, 197.11302185058594, 6],
         [238.58258056640625, 94.22604370117188, 4],
         [341.4696044921875, 94.22604370117188, 4],
         [341.4696044921875, 197.11302185058594, 4],
         [238.58258056640625, 197.11302185058594, 4],
-        [252.06201171875, 194.14932250976562, 5],
-        [238.58258056640625, 197.11302185058594, 5],
+        [252.06201171875, 194.14932250976562, 6],
+        [238.58258056640625, 197.11302185058594, 6],
         [238.58258056640625, 158.53041076660156, 0],
-        [238.58258056640625, 132.80865478515625, 5],
+        [238.58258056640625, 132.80865478515625, 6],
         [238.58258056640625, 94.22604370117188, 0],
         [277.16522216796875, 94.22604370117188, 0],
-        [302.8869934082031, 94.22604370117188, 5],
+        [302.8869934082031, 94.22604370117188, 6],
         [341.4696044921875, 94.22604370117188, 0],
         [341.4696044921875, 132.80865478515625, 0],
-        [341.4696044921875, 158.53041076660156, 5],
+        [341.4696044921875, 158.53041076660156, 6],
         [341.4696044921875, 197.11302185058594, 0],
         [302.8869934082031, 197.11302185058594, 0],
-        [277.16522216796875, 197.11302185058594, 5],
+        [277.16522216796875, 197.11302185058594, 6],
         [238.58258056640625, 197.11302185058594, 0],
-        [380.0522155761719, 300.0, 5],
+        [380.0522155761719, 300.0, 6],
       ],
     },
     'chaetophora': {
@@ -224,17 +226,17 @@ const StdSeeds = {
       itNumber: 5,
       seed: [
         [249.0, 322.0, 0],
-        [254.1637420654297, 319.21954345703125, 5],
+        [254.1637420654297, 319.21954345703125, 6],
         [264.9272766113281, 245.37684631347656, 4],
-        [243.8362274169922, 319.21954345703125, 5],
+        [243.8362274169922, 319.21954345703125, 6],
         [252.0132598876953, 246.23777770996094, 4],
-        [255.02651977539062, 244.9463653564453, 5],
+        [255.02651977539062, 244.9463653564453, 6],
         [236.23672485351562, 184.3251953125, 1],
-        [207.3065948486328, 245.58892822265625, 5],
-        [261.4835510253906, 245.37684631347656, 5],
+        [207.3065948486328, 245.58892822265625, 6],
+        [261.4835510253906, 245.37684631347656, 6],
         [286.0102233886719, 194.520263671875, 0],
-        [309.412841796875, 245.58892822265625, 5],
-        [258.3596496582031, 245.58892822265625, 5],
+        [309.412841796875, 245.58892822265625, 6],
+        [258.3596496582031, 245.58892822265625, 6],
       ],
     },
     'cnegative': {
@@ -280,13 +282,13 @@ const StdSeeds = {
       itNumber: 2,
       seed: [
         [240.0, 320.0, 0],
-        [240.0, 320.0, 5],
+        [240.0, 320.0, 6],
         [240.0, 230.0, 4],
         [260.0, 210.0, 0],
         [270.0, 210.0, 4],
         [290.0, 230.0, 0],
         [290.0, 320.0, 4],
-        [290.0, 320.0, 5],
+        [290.0, 320.0, 6],
       ],
     },
     'davincitree3': {
@@ -296,13 +298,13 @@ const StdSeeds = {
       itNumber: 2,
       seed: [
         [240.0, 320.0, 0],
-        [240.0, 320.0, 5],
+        [240.0, 320.0, 6],
         [240.0, 230.0, 4],
         [253.0, 211.0, 0],
         [277.0, 211.0, 0],
         [290.0, 230.0, 0],
         [290.0, 320.0, 4],
-        [290.0, 320.0, 5],
+        [290.0, 320.0, 6],
       ],
     },
     'davincitree4': {
@@ -312,14 +314,14 @@ const StdSeeds = {
       itNumber: 2,
       seed: [
         [240.0, 320.0, 0],
-        [240.0, 320.0, 5],
+        [240.0, 320.0, 6],
         [240.0, 232.24789428710938, 4],
         [246.3679962158203, 213.5637969970703, 0],
         [264.8714294433594, 206.16534423828125, 0],
         [283.6661376953125, 214.4735107421875, 0],
         [288.75115966796875, 232.24789428710938, 0],
         [288.75115966796875, 320.0, 4],
-        [288.75115966796875, 320.0, 5],
+        [288.75115966796875, 320.0, 6],
       ],
     },
     'dendrite': {
@@ -330,22 +332,22 @@ const StdSeeds = {
       seed: [
         [260.0, 288.0, 0],
         [260.0, 240.0, 4],
-        [300.0, 200.0, 5],
-        [260.0, 240.0, 5],
+        [300.0, 200.0, 6],
+        [260.0, 240.0, 6],
         [260.0, 200.0, 1],
         [260.0, 186.0, 1],
-        [236.0, 228.0, 5],
-        [183.0, 270.0, 5],
-        [227.0, 220.0, 5],
+        [236.0, 228.0, 6],
+        [183.0, 270.0, 6],
+        [227.0, 220.0, 6],
         [260.0, 240.0, 4],
-        [236.85000610351562, 170.38999938964844, 5],
-        [209.30999755859375, 228.70999145507812, 5],
-        [260.0, 240.0, 5],
+        [236.85000610351562, 170.38999938964844, 6],
+        [209.30999755859375, 228.70999145507812, 6],
+        [260.0, 240.0, 6],
         [280.0, 231.0, 4],
         [300.0, 220.0, 0],
-        [306.510009765625, 228.70999145507812, 5],
-        [380.0, 240.0, 5],
-        [260.0, 240.0, 5],
+        [306.510009765625, 228.70999145507812, 6],
+        [380.0, 240.0, 6],
+        [260.0, 240.0, 6],
       ],
     },
     'ethiopian': {
@@ -355,19 +357,19 @@ const StdSeeds = {
       itNumber: 3,
       seed: [
         [460.0, 181.0, 0],
-        [260.0, 181.0, 5],
+        [260.0, 181.0, 6],
         [340.0, 101.0, 0],
         [340.0, 61.0, 0],
-        [340.0, 101.0, 5],
+        [340.0, 101.0, 6],
         [420.0, 181.0, 0],
         [460.0, 181.0, 0],
-        [420.0, 181.0, 5],
+        [420.0, 181.0, 6],
         [340.0, 261.0, 0],
         [340.0, 301.0, 0],
-        [340.0, 261.0, 5],
+        [340.0, 261.0, 6],
         [260.0, 181.0, 0],
         [220.0, 181.0, 0],
-        [220.0, 181.0, 5],
+        [220.0, 181.0, 6],
       ],
     },
     'ethiopian2': {
@@ -377,19 +379,19 @@ const StdSeeds = {
       itNumber: 3,
       seed: [
         [461.0, 160.0, 0],
-        [261.0, 161.0, 5],
+        [261.0, 161.0, 6],
         [341.0, 81.0, 0],
         [341.0, 20.0, 0],
-        [341.0, 81.0, 5],
+        [341.0, 81.0, 6],
         [421.0, 161.0, 0],
         [481.0, 161.0, 0],
-        [421.0, 161.0, 5],
+        [421.0, 161.0, 6],
         [341.0, 241.0, 0],
         [341.0, 300.0, 0],
-        [341.0, 241.0, 5],
+        [341.0, 241.0, 6],
         [261.0, 161.0, 0],
         [200.0, 161.0, 0],
-        [221.0, 160.0, 5],
+        [221.0, 160.0, 6],
       ],
     },
     'fern': {
@@ -399,14 +401,14 @@ const StdSeeds = {
       itNumber: 9,
       seed: [
         [100.0, 238.0, 0],
-        [100.0, 238.0, 5],
+        [100.0, 238.0, 6],
         [200.0, 158.0, 4],
         [280.0, 38.0, 0],
-        [200.0, 158.0, 5],
+        [200.0, 158.0, 6],
         [500.0, 138.0, 0],
-        [200.0, 158.0, 5],
+        [200.0, 158.0, 6],
         [340.0, 278.0, 0],
-        [500.0, 138.0, 5],
+        [500.0, 138.0, 6],
       ],
     },
     'fractalspirals': {
@@ -416,13 +418,13 @@ const StdSeeds = {
       itNumber: 9,
       seed: [
         [280.0, 280.0, 0],
-        [180.0, 280.0, 5],
+        [180.0, 280.0, 6],
         [180.0, 180.0, 4],
-        [260.0, 180.0, 5],
-        [320.0, 100.0, 5],
+        [260.0, 180.0, 6],
+        [320.0, 100.0, 6],
         [360.0, 180.0, 0],
-        [320.0, 180.0, 5],
-        [260.0, 180.0, 5],
+        [320.0, 180.0, 6],
+        [260.0, 180.0, 6],
       ],
     },
     'goldenrec': {
@@ -432,12 +434,12 @@ const StdSeeds = {
       itNumber: 8,
       seed: [
         [304.0, 174.0, 0],
-        [304.0, 174.0, 5],
+        [304.0, 174.0, 6],
         [304.0, 156.4929656982422, 4],
         [328.07220458984375, 156.4929656982422, 4],
         [328.07220458984375, 174.0, 4],
         [304.0, 174.0, 0],
-        [304.0, 156.4929656982422, 5],
+        [304.0, 156.4929656982422, 6],
       ],
     },
     'kitwe': {
@@ -447,15 +449,15 @@ const StdSeeds = {
       itNumber: 3,
       seed: [
         [261.0, 240.0, 0],
-        [241.0, 200.0, 5],
+        [241.0, 200.0, 6],
         [261.0, 160.0, 0],
         [321.0, 160.0, 4],
         [341.0, 200.0, 0],
         [321.0, 240.0, 4],
         [261.0, 240.0, 4],
         [241.0, 200.0, 4],
-        [269.44482421875, 202.2428436279297, 5],
-        [321.0, 240.0, 5],
+        [269.44482421875, 202.2428436279297, 6],
+        [321.0, 240.0, 6],
       ],
     },
     'koch': {
@@ -491,7 +493,7 @@ const StdSeeds = {
       itNumber: 3,
       seed: [
         [380.0, 300.0, 0],
-        [180.0, 300.0, 5],
+        [180.0, 300.0, 6],
         [180.0, 200.0, 4],
         [180.0, 100.0, 2],
         [180.0, 60.0, 4],
@@ -503,7 +505,7 @@ const StdSeeds = {
         [320.0, 300.0, 4],
         [220.0, 300.0, 2],
         [180.0, 300.0, 4],
-        [180.0, 300.0, 5],
+        [180.0, 300.0, 6],
       ],
     },
     'lungs': {
@@ -515,9 +517,9 @@ const StdSeeds = {
         [320.0, 90.0, 0],
         [320.0, 190.0, 4],
         [250.0, 200.0, 0],
-        [320.0, 190.0, 5],
+        [320.0, 190.0, 6],
         [380.0, 200.0, 0],
-        [320.0, 190.0, 5],
+        [320.0, 190.0, 6],
       ],
     },
     'mokoulek': {
@@ -527,7 +529,7 @@ const StdSeeds = {
       itNumber: 4,
       seed: [
         [420.0, 120.0, 0],
-        [400.0, 120.0, 5],
+        [400.0, 120.0, 6],
         [380.0, 140.0, 4],
         [360.0, 180.0, 4],
         [360.0, 220.0, 4],
@@ -544,27 +546,27 @@ const StdSeeds = {
         [480.0, 100.0, 4],
         [440.0, 100.0, 4],
         [400.0, 120.0, 4],
-        [420.0, 160.0, 5],
+        [420.0, 160.0, 6],
         [400.0, 180.0, 1],
-        [400.0, 220.0, 5],
+        [400.0, 220.0, 6],
         [420.0, 240.0, 1],
-        [480.0, 260.0, 5],
+        [480.0, 260.0, 6],
         [500.0, 240.0, 1],
-        [520.0, 220.0, 5],
+        [520.0, 220.0, 6],
         [520.0, 200.0, 1],
-        [520.0, 180.0, 5],
+        [520.0, 180.0, 6],
         [520.0, 160.0, 1],
-        [480.0, 160.0, 5],
+        [480.0, 160.0, 6],
         [460.0, 160.0, 1],
-        [440.0, 180.0, 5],
+        [440.0, 180.0, 6],
         [440.0, 200.0, 1],
-        [440.0, 220.0, 5],
+        [440.0, 220.0, 6],
         [460.0, 220.0, 1],
-        [480.0, 220.0, 5],
+        [480.0, 220.0, 6],
         [480.0, 200.0, 1],
-        [240.0, 220.0, 5],
+        [240.0, 220.0, 6],
         [260.0, 100.0, 0],
-        [240.0, 100.0, 5],
+        [240.0, 100.0, 6],
       ],
     },
     'nankani': {
@@ -574,7 +576,7 @@ const StdSeeds = {
       itNumber: 5,
       seed: [
         [421.0, 101.0, 0],
-        [350.9679870605469, 54.74000549316406, 5],
+        [350.9679870605469, 54.74000549316406, 6],
         [337.84600830078125, 67.86199951171875, 4],
         [324.7239990234375, 94.10599517822266, 4],
         [324.7239990234375, 120.35000610351562, 4],
@@ -591,10 +593,10 @@ const StdSeeds = {
         [403.45599365234375, 41.618003845214844, 4],
         [377.2120361328125, 41.618003845214844, 4],
         [350.9679870605469, 54.74000549316406, 4],
-        [272.0, 82.0, 5],
+        [272.0, 82.0, 6],
         [263.0, 170.0, 0],
-        [211.0, 121.97000122070312, 5],
-        [329.0, 173.0, 5],
+        [211.0, 121.97000122070312, 6],
+        [329.0, 173.0, 6],
       ],
     },
     'neuron': {
@@ -607,25 +609,25 @@ const StdSeeds = {
         [282.0, 227.0, 4],
         [245.0, 153.0, 4],
         [195.0, 154.0, 0],
-        [314.0, 173.0, 5],
+        [314.0, 173.0, 6],
         [320.0, 110.0, 0],
-        [266.0, 194.0, 5],
+        [266.0, 194.0, 6],
         [266.0, 144.0, 0],
-        [282.0, 227.0, 5],
+        [282.0, 227.0, 6],
         [316.0, 174.0, 4],
         [369.0, 178.0, 0],
-        [192.0, 157.0, 5],
-        [309.0, 271.0, 5],
+        [192.0, 157.0, 6],
+        [309.0, 271.0, 6],
         [307.0, 278.0, 4],
         [312.0, 281.0, 4],
         [313.0, 276.0, 4],
         [307.0, 269.0, 4],
-        [264.0, 190.0, 5],
+        [264.0, 190.0, 6],
         [213.0, 243.0, 0],
-        [242.0, 152.0, 5],
+        [242.0, 152.0, 6],
         [202.0, 108.0, 0],
-        [142.0, 107.0, 5],
-        [242.0, 147.0, 5],
+        [142.0, 107.0, 6],
+        [242.0, 147.0, 6],
       ],
     },
     'queenanne': {
@@ -641,20 +643,20 @@ const StdSeeds = {
         [270.0, 240.0, 4],
         [260.0, 220.0, 4],
         [220.0, 200.0, 1],
-        [170.0, 170.0, 5],
-        [190.0, 160.0, 5],
-        [260.0, 220.0, 5],
+        [170.0, 170.0, 6],
+        [190.0, 160.0, 6],
+        [260.0, 220.0, 6],
         [240.0, 180.0, 1],
-        [360.0, 140.0, 5],
-        [260.0, 220.0, 5],
+        [360.0, 140.0, 6],
+        [260.0, 220.0, 6],
         [280.0, 180.0, 0],
-        [140.0, 130.0, 5],
-        [180.0, 280.0, 5],
-        [180.0, 220.0, 5],
-        [260.0, 220.0, 5],
+        [140.0, 130.0, 6],
+        [180.0, 280.0, 6],
+        [180.0, 220.0, 6],
+        [260.0, 220.0, 6],
         [300.0, 200.0, 0],
-        [306.510009765625, 228.70999145507812, 5],
-        [260.0, 220.0, 5],
+        [306.510009765625, 228.70999145507812, 6],
+        [260.0, 220.0, 6],
       ],
     },
     'riverbasin': {
@@ -664,12 +666,12 @@ const StdSeeds = {
       itNumber: 8,
       seed: [
         [76.0, 260.0, 0],
-        [76.0, 260.0, 5],
+        [76.0, 260.0, 6],
         [270.0, 260.0, 0],
         [288.2153015136719, 24.205242156982422, 0],
         [300.0, 260.0, 0],
         [547.5895385742188, 260.0, 0],
-        [547.5895385742188, 260.0, 5],
+        [547.5895385742188, 260.0, 6],
       ],
     },
     'sierpinski': {
@@ -679,20 +681,20 @@ const StdSeeds = {
       itNumber: 5,
       seed: [
         [398.0, 260.0, 0],
-        [200.0, 260.0, 5],
+        [200.0, 260.0, 6],
         [398.0, 260.0, 4],
         [299.989990234375, 81.80000305175781, 4],
-        [348.5, 170.89999389648438, 5],
+        [348.5, 170.89999389648438, 6],
         [249.5, 170.89999389648438, 0],
         [299.0, 260.0, 4],
         [348.5, 170.89999389648438, 4],
-        [398.0, 260.0, 5],
+        [398.0, 260.0, 6],
         [299.0, 260.0, 0],
-        [299.0, 260.0, 5],
+        [299.0, 260.0, 6],
         [200.0, 260.0, 0],
-        [200.0, 260.0, 5],
+        [200.0, 260.0, 6],
         [299.989990234375, 81.80000305175781, 4],
-        [200.0, 260.0, 5],
+        [200.0, 260.0, 6],
       ],
     },
     'sprout': {
@@ -704,8 +706,8 @@ const StdSeeds = {
         [260.5, 320.5, 0],
         [260.5, 180.5, 4],
         [340.5, 120.5, 0],
-        [320.5, 180.5, 5],
-        [260.5, 180.5, 5]
+        [320.5, 180.5, 6],
+        [260.5, 180.5, 6]
       ],
     },
     'turbulence': {
@@ -715,10 +717,10 @@ const StdSeeds = {
       itNumber: 9,
       seed: [
         [293.0, 99.0, 0],
-        [356.0, 107.0999984741211, 5],
+        [356.0, 107.0999984741211, 6],
         [235.12611389160156, 87.42520141601562, 0],
-        [177.2521514892578, 99.0, 5],
-        [154.1025848388672, 133.72434997558594, 5],
+        [177.2521514892578, 99.0, 6],
+        [154.1025848388672, 133.72434997558594, 6],
         [177.2521514892578, 168.44869995117188, 0],
       ],
     },
@@ -785,19 +787,18 @@ const toggle_e = function(elem){
 class Fractal {
     constructor( seed = [], initMethod = 0) {
         this.name = "";
-        this.seed = seed;
+        this.seed = [];
         this.baseline = [];
         this.baseDeltaX, this.baseDeltaY, this.sqbaseLen;
         this.ctx = "";
         this.dim = -1;
         switch (initMethod) {
           case 0: this.init();break;
-          case 1: this.initFromSeed(this.seed);break;
+          case 1: this.setSeedByName(seed);break;
           case 2: this.initFromFile();break;
         }
     }
     clearPts(){
-      this.name = "";
       this.seed = [];
       this.baseline = [];
     }
@@ -805,17 +806,18 @@ class Fractal {
       this.ctx.clearRect(0, 0, this.ctx.canvas.clientWidth, this.ctx.canvas.clientHeight);
     }
     init(){}
-    initFromSeed(name){
-      this.clearPts();
-      this.name = name;
+    setSeedByName(name){
       let seed = StdSeeds[name].seed;
+      this.initFromSeed(seed);
+    }
+    initFromSeed(seed){
       let len = seed.length;
       if( len < 2 ) return;
       let list = [];
       let pretype = seed[0][2];
       for( let i = 1 ; i < len ; i++ ){
         let pt = seed[i-1];
-        let type = seed[i][2] == 5 ? 6 : seed[i][2] ;
+        let type = seed[i][2] ;
         if(type==6 && pretype==6){continue;}
         list.push([ (0.5 + pt[0]) << 0, (0.5 + pt[1]) << 0, type ]);
         pretype = type;
@@ -827,7 +829,12 @@ class Fractal {
       this.baseline = [0,list.length-1];
       this.setup_baseline();
     }
-    initFromFile(){}    
+    initFromFile(){}  
+    saveSeed(){
+      for(let i = 1; i<this.seed.length;i++){
+        
+      }
+    }  
     roundPt(pt){
       return [ (0.5 + pt[0]) << 0 , (0.5 + pt[1]) << 0 ];
     }
@@ -1444,6 +1451,8 @@ class SeedIterator{
     this.height = Math.max(480, height);
     this.level = level;
     this.levelMax = 1;
+    this.thickness = 1;
+    this.thinner = false;
     //elements
     this.canvas, this.ctx;
     this.ctrlPanel, this.levelBtns;
@@ -1536,7 +1545,7 @@ class SeedIterator{
   }
 };
 class SeedEditor{
-  constructor(index, fractal, width = 600, height = 480, seedlist){
+  constructor(index, fractal, width = 600, height = 480, seedlist, seedName){
     //properties
     this.index = index;
     this.fractal = fractal;
@@ -1544,6 +1553,7 @@ class SeedEditor{
     this.height = Math.max(480, height);
     this.gridSize = 20;
     this.seedlist = seedlist;
+    this.seedName = seedName;
     this.mousePos = [];
     this.rawPos = [];
     this.status = 0;
@@ -1654,26 +1664,20 @@ class SeedEditor{
     let select = document.createElement('select');
     select.id = 'seedSel'+this.index;
     
-    
     let label = document.createElement('label');
     label.innerHTML = 'Seed:';
     label.htmlFor = select.id;
 
-    let option = document.createElement('option');
-    option.value = "create";
-    option.innerHTML = "Custom";
+    let option = new Option("Custom", "create", true);
     select.appendChild(option);
-
     this.seedlist.forEach(name => {
-      let option = document.createElement('option');
-      option.value = name;
-      option.innerHTML = StdSeeds[name].fullname;
+      let option = new Option(StdSeeds[name].fullname, name);
       select.appendChild(option);
     });
     //init default value
-    if(this.fractal.name.length > 0 && (this.fractal.name in StdSeeds)) {
-      select.value =  this.fractal.name;
-    } else {select.value ="create";}
+    if(this.seedName.length > 0 && (this.seedlist.includes(this.seedName))) {
+      select.value =  this.seedName;
+    }
     //set behaviour
     select.onchange = function(e){
       this.setSeed(e.target.value,'name');
@@ -2248,10 +2252,9 @@ class SeedEditor{
       this.fractal.clearPts();
       this.clearStack();
       if(seed in StdSeeds) {
-        this.fractal.initFromSeed(seed);
-        this.fractal.drawSeed(this.workctx, this.isInitiating);
-      }
-      else if(seed == 'create'){
+        this.setMode(this.modes.SELECT);
+        this.fractal.setSeedByName(seed);
+      } else if(seed == 'create') {
         this.setMode(this.modes.ADD);
         this.isInitiating = true;
       }
@@ -2310,6 +2313,8 @@ class SeedEditor{
   clearStack(){
     this.stackUndo = [];
     this.stackRedo = [];
+    this.undoBtn.disabled = true;
+    this.redoBtn.disabled = true;
   }
   addCommand(func, arg){
     if(this.isInitiating) return;
@@ -2389,7 +2394,7 @@ class Software {
     this.handleParams();
     this.fractal = new Fractal(this.seed,1);
     this.iterator = new SeedIterator(this.index, this.fractal, this.width, this.height, this.level);
-    this.editor = new SeedEditor(this.index, this.fractal, this.width, this.height, this.seedlist);
+    this.editor = new SeedEditor(this.index, this.fractal, this.width, this.height, this.seedlist, this.seed);
     this.iterator.disableMode();
     this.editor.disableMode();
     this.layout();
@@ -2399,7 +2404,61 @@ class Software {
     if(this.params.height!=undefined) this.height = Math.max(600, this.params.height);
     if(this.params.level!=undefined) this.level = this.params.level;
     if(this.params.seedlist!=undefined) this.seedlist = this.params.seedlist.split(',');
-    if(this.params.seed!=undefined && (this.params.seed in StdSeeds)) this.seed = this.params.seed;//!!这里原代码还有其他功能
+    if (this.params.seed!=undefined) {
+      try {
+        function error(data) {
+          console.log(data);
+        }
+        let myself = this;
+        if (Number.isInteger(Number(this.params.seed))) {
+          cloud.loadProject(myself.params.seed, myself.load.bind(myself), error);
+        } else {
+          this.seed = this.params.seed;
+          function testQueryStringExist(queryKey) {
+            var field = queryKey || 'q';
+            var url = window.location.href;
+            if(url.indexOf('?' + field + '=') != -1)
+                return true;
+            else if(url.indexOf('&' + field + '=') != -1)
+                return true;
+            return false
+          }
+          function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+          }
+          let queryKeyword = 'project';
+          if (testQueryStringExist(queryKeyword)) {
+            let projNum = getParameterByName(queryKeyword);
+            try {
+              if (Number.isInteger(Number(projNum))) {
+                cloud.loadProject(projNum, myself.load.bind(myself), error);
+              }
+            } catch (err) {
+              // pass
+            }
+          }
+          else {
+            try {
+              if (Number.isInteger(Number(config.project.id))) {
+                cloud.loadProject(config.project.id, myself.load.bind(myself), error);
+              }
+            }
+            catch (err) {
+              // config is not defined
+            }
+          }
+        }
+      }
+      catch (err) {
+        console.log(err);
+      }
+    }
     if(this.params.mode!=undefined && (this.params.mode.toLowerCase()=='draw')) this.currentMode = 1;
   }
   layout(){
@@ -2551,10 +2610,11 @@ class Software {
   
     }
     let data = JSON.parse(input);
-    this.setSeed(data.seed);
-    this.drawSeed(true);
-    this.setDrawWidth(data.thickness);
-    this.disableMode();
+    this.fractal.initFromSeed(data.seed);
+    this.fractal.drawSeed(true);
+    this.iterator.setDrawWidth(data.thickness);
+    this.editor.disableMode();
+    this.iterator.enableMode();
     this.thicknessType = data.thicknessType;
     if (this.thicknessType == 1) {
       document.getElementById('thicknessBox' + this.instanceNum).checked = true;
@@ -2656,12 +2716,13 @@ class Software {
     if (name === null) {
       return;
     }
+    let seed = this.fractal.saveSeed();
     let data = {
       'fullname': name,
-      'seed': this.seed,
-      'itNumber': this.currLevels,
-      'thickness': Number(this.drawThickness.value),
-      'thicknessType': this.thicknessType,
+      'seed': seed,
+      'itNumber': this.iterator.level,
+      'thickness': Number(this.iterator.thickness),
+      'thicknessType': this.iterator.thicknessType,
     };
     let blob = new Blob([JSON.stringify(data, null, 2)], {
       type: 'application/json',
