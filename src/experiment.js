@@ -786,9 +786,6 @@ class Fractal {
     constructor( seed = [], initMethod = 0) {
         this.name = "";
         this.seed = seed;
-        this.seedBackup = [];
-        this.pts = []; //pointlist
-        this.adj = []; //adjacent lists
         this.baseline = [];
         this.baseDeltaX, this.baseDeltaY, this.sqbaseLen;
         this.ctx = "";
@@ -1140,24 +1137,18 @@ class Fractal {
       let pass = 0;
       let limit = 20;
       let longest = 1;
-      this.adj.forEach( (item,index) => {
-        let list = item.slice(1);
-        if( list.length > 0 ) list.forEach( adj => {
-          let segLen = this.sqlineLen( this.pts[index], this.pts[adj[0]] );
-          if( adj[1].length > 1 ){// for circles
-            let v = adj[1];
-            let edgeLen = segLen*2*Math.sin( Math.PI / v[1] );
-            if( edgeLen > longest ) longest = edgeLen;
-            if( v[2] < 4 ) repl += v[1];
-            else if( v[2] == 4 ) pass += v[1];
-            return;
-           }
-          
-          if( segLen > longest ) longest = segLen;
-          if( adj[1] < 4 ){ repl++; }
-          else if( adj[1] == 4){ pass++; } 
-        });
-      });
+      for(let i = 1; i < this.seed.length; i++){
+        let segLen = this.sqlineLen(this.seed[i], this.seed[i-1]);
+        let type = this.seed[i-1][2];
+        let n = 1;
+        if( (type|0) != type){// for circles
+          n = ((type-(type|0))*100)|0;
+          segLen *= 2*Math.sin( Math.PI / n );
+        } 
+        if( segLen > longest ) longest = segLen;
+        if( type < 4 ) repl += n;
+        else if( (type|0) == 4 ) pass += n;
+      }
       if( longest > this.sqbaseLen ) {//for positive feedback
         // let max = (6-Math.log10(this.sqbaseLen))/Math.log10(longest/this.sqlineLen);
         // console.log(max);
@@ -2412,7 +2403,7 @@ class Software {
     if(this.params.mode!=undefined && (this.params.mode.toLowerCase()=='draw')) this.currentMode = 1;
   }
   layout(){
-    // this.setup_loadSave();
+    this.setup_loadSave();
     this.setup_modeSel();
     this.setup_ctrlPanelDiv();
     this.setup_canvasDiv();
@@ -2426,29 +2417,29 @@ class Software {
     selectFile.type = 'file';
     selectFile.id = 'selectFile';
     selectFile.accept = '.json';
-    selectFile.onchange = function(event) {
-      drawer.loadLocally(event);
+    selectFile.onchange = (e) => {
+      this.loadLocally(e);
     };
     // load files from cloud
     let loadFromCloud = document.createElement('button');
     loadFromCloud.className = 'btn btn-default';
     loadFromCloud.innerHTML = 'Load From Cloud';
-    loadFromCloud.onclick = function(event) {
-      drawer.loadRemotely(event);
+    loadFromCloud.onclick = (e) => {
+      this.loadRemotely(e);
     };
     // save to cloud
     let saveToCloud = document.createElement('button');
     saveToCloud.className = 'btn btn-default';
     saveToCloud.innerHTML = 'Save To Cloud';
-    saveToCloud.onclick = function(event) {
-      drawer.saveRemotely(event);
+    saveToCloud.onclick = (e) => {
+      this.saveRemotely(e);
     };
     // save files
     let save = document.createElement('button');
     save.className = 'btn btn-default';
     save.innerHTML = 'Save To File';
-    save.onclick = function(event) {
-      drawer.saveLocally(event);
+    save.onclick = (e) => {
+      this.saveLocally(e);
     };
 
     elem.appendChild(selectFile);
@@ -2539,6 +2530,221 @@ class Software {
       this.currentMode = num;
     }
   }
+  //load & save
+  loadLocally(evt){
+    let file = evt.target.files[0];
+    if (!file.name.toLowerCase().endsWith('.json')) {
+      console.log('bad file type');
+      return;
+    }
+    let reader = new FileReader();
+    let myself = this;
+    reader.onload = myself.load.bind(myself);
+  
+    reader.readAsText(file);
+  }
+  load(input){
+    try {
+      if(input.target.result) input = input.target.result;
+    }
+    catch (err) {
+  
+    }
+    let data = JSON.parse(input);
+    this.setSeed(data.seed);
+    this.drawSeed(true);
+    this.setDrawWidth(data.thickness);
+    this.disableMode();
+    this.thicknessType = data.thicknessType;
+    if (this.thicknessType == 1) {
+      document.getElementById('thicknessBox' + this.instanceNum).checked = true;
+    } else {
+      document.getElementById('thicknessBox' + this.instanceNum).checked = false;
+    }
+    document.getElementById('EditMode' + this.instanceNum).click();
+    document.getElementById('IterateMode' + this.instanceNum).click();
+    if (data.itNumber < 9) {
+      document.getElementById(this.instanceNum + 'Iter ' + data.itNumber).click();
+    } else {
+      document.getElementById(this.instanceNum + '~Inf').click();
+    }
+  }
+  loadRemotely(evt){
+    let myself = this;
+    cloud.getUser(isLoggedIn, failedLoggedIn);
+    let attemptedLogin = false;
+  
+    function isLoggedIn(data) {
+      if (data.id) {
+        getProjectData(data);
+      } else if (!attemptedLogin) {
+        attemptedLogin = true;
+        cloud.loginPopup(isLoggedIn, failedLoggedIn);
+      } else {
+        alert('Bad Username or Password');
+      }
+    }
+  
+    function failedLoggedIn(data) {
+      console.log(data);
+      alert('Error logging in');
+    }
+  
+    function getProjectData(data) {
+      cloud.listProject(data.id, displayList, error)
+    }
+  
+    function notLoggedIn() {
+      cloud.loginPopup(getProjectData, failedLoggedIn);
+    }
+  
+    function failedLoggedIn(data) {
+      console.log(data);
+      alert('Failed To Log In');
+    }
+  
+    function displayList(data) {
+      var dialogDiv = $('#projectListDialog');
+      dialogDiv.dialog('destroy');
+      projectList = document.getElementById('projectList');
+      while (projectList.firstChild) {
+        projectList.removeChild(projectList.firstChild);
+      }
+      for (var i = 0; i < data.length; i++) {
+        if (data[i].application == applicationID) {
+          let listItem = document.createElement('li');
+          listItem.class = 'ui-widget-content';
+          listItem.innerHTML = data[i].name;
+          listItem.option = data[i].id;
+          projectList.appendChild(listItem);
+        }
+      }
+      $('#projectList').selectable();
+      dialogDiv.dialog({
+        modal: true,
+        buttons: [{
+            text: "Open",
+            class: 'Green',
+            click: function() {
+              $(this).dialog("close");
+              selected = projectList.getElementsByClassName('ui-selected');
+              if (selected[0]) {
+                cloud.loadProject(selected[0].option, myself.load.bind(myself), error);
+              }
+            }
+          },
+          {
+            text: "Cancel",
+            class: 'Red',
+            click: function() {
+              $(this).dialog("close");
+            }
+          }
+        ]
+      });
+    }
+  
+    function error(data) {
+      console.log(data);
+      alert('Failed To Get Project');
+    }
+    
+  }
+  saveLocally(){
+    let name = prompt('Please enter the name of the pattern',
+    '<name goes here>');
+    if (name === null) {
+      return;
+    }
+    let data = {
+      'fullname': name,
+      'seed': this.seed,
+      'itNumber': this.currLevels,
+      'thickness': Number(this.drawThickness.value),
+      'thicknessType': this.thicknessType,
+    };
+    let blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: 'application/json',
+    });
+    saveAs(blob, name + '.json', false);
+  }
+  saveRemotely(){
+      cloud.getUser(isLoggedIn, failedLoggedIn)
+      let myself = this;
+      let name = null;
+      let saveData = null;
+      let attemptedLogin = false;
+    
+      function isLoggedIn(data) {
+        if (data.id) {
+          startSaving();
+        } else if (!attemptedLogin) {
+          attemptedLogin = true;
+          cloud.loginPopup(isLoggedIn, failedLoggedIn);
+        } else {
+          alert('Bad Username or Password');
+        }
+      }
+    
+      function failedLoggedIn(data) {
+        console.log(data);
+        alert('Error logging in');
+      }
+    
+      function startSaving() {
+        name = prompt('Please enter the name of the pattern',
+          '<name goes here>');
+        if (!name) return;
+        saveData = {
+          'fullname': name,
+          'seed': myself.seed,
+          'itNumber': myself.currLevels,
+          'thickness': Number(myself.drawThickness.value),
+          'thicknessType': myself.thicknessType,
+        };
+        myself.canvas.toBlob(saveImg)
+      }
+    
+      function saveImg(blob) {
+        let formData = new FormData();
+        formData.append('file', blob);
+        cloud.saveFile(formData, savedImage, error);
+      }
+    
+      function savedImage(data) {
+        myself.cloudImg = data.id
+        saveSeed();
+      }
+    
+      function error(data) {
+        console.log(data);
+        alert('Failed Saving File To Cloud');
+      }
+    
+      function saveSeed() {
+        let blob = new Blob([JSON.stringify(saveData, null, 2)], {
+          type: 'application/json',
+        });
+        let formData = new FormData();
+        formData.append('file', blob);
+        cloud.saveFile(formData, savedSeed, error);
+      }
+    
+      function savedSeed(data) {
+        myself.cloudSeed = data.id
+        createProject();
+      }
+    
+      function createProject(data) {
+        cloud.createProject(name, window.applicationID, myself.cloudSeed,
+          myself.cloudImg, createdProject, error);
+      }
+    
+      function createdProject(data) {
+        myself.cloudproject = data.id
+        alert('Success');
+      }
+  }
 }
 let fractaltoolInstances = null;
 /** Starts the fractal tool on load. */
@@ -2553,16 +2759,40 @@ function fractalToolInit() {
  //onload
 window.addEventListener('load', function(evt) {
   fractalToolInit();
-  // let canvas = document.querySelector('#mycanvas');
-  // let graph = new Fractal('koch',1);
-  // if (canvas.getContext) {
-  //   let ctx = canvas.getContext('2d');
-  //   console.log(graph.adj);
-  //   graph.deletePt(3);
-  //   // graph.addLn(0,1,0);
-    
-  //   graph.drawSeed(ctx);
-  //   // graph.drawIter(ctx,3);
-  // }
-  
 });
+
+CloudSaver.prototype.loginPopup = function(callBack, errorCallBack) {
+  this.getCSRFToken();
+  let dialogDiv = $('#loginDialog');
+  dialogDiv.dialog('destroy');
+  dialogDiv.dialog({
+    modal: true,
+    buttons: [{
+        text: "Submit",
+        class: 'Green',
+        click: function() {
+          $(this).dialog("close");
+          let username = document.getElementsByName('username')[0].value;
+          let password = document.getElementsByName('password')[0].value;
+          if (!username || !password) {
+            errorCallBack('Didn\'t log in');
+            return;
+          }
+          cloud.login(username, password, function(data) {
+              cloud.getUser(callBack, errorCallBack);
+            },
+            errorCallBack
+          );
+        }
+      },
+      {
+        text: "Cancel",
+        class: 'Red',
+        click: function() {
+          $(this).dialog("close");
+          errorCallBack('Didn\'t log in');
+        }
+      }
+    ]
+  });
+};
