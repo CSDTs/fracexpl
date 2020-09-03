@@ -795,7 +795,7 @@ class Fractal {
         switch (initMethod) {
           case 0: this.init();break;
           case 1: this.setSeedByName(seed);break;
-          case 2: this.initFromFile();break;
+          case 2: this.initFromFile(seed,baseline);break;
         }
     }
     clearPts(){
@@ -829,11 +829,10 @@ class Fractal {
       this.baseline = [0,list.length-1];
       this.setup_baseline();
     }
-    initFromFile(){}  
-    saveSeed(){
-      for(let i = 1; i<this.seed.length;i++){
-        
-      }
+    initFromFile(seed, baseline){
+      this.seed = seed;
+      this.baseline = baseline;
+      this.setup_baseline();
     }  
     roundPt(pt){
       return [ (0.5 + pt[0]) << 0 , (0.5 + pt[1]) << 0 ];
@@ -2611,7 +2610,7 @@ class Software {
     }
     let data = JSON.parse(input);
     this.fractal.initFromSeed(data.seed);
-    this.fractal.drawSeed(true);
+    this.fractal.drawSeed(this.editor.workctx,true);
     this.iterator.setDrawWidth(data.thickness);
     this.editor.disableMode();
     this.iterator.enableMode();
@@ -2711,15 +2710,16 @@ class Software {
     
   }
   saveLocally(){
-    let name = prompt('Please enter the name of the pattern',
-    '<name goes here>');
+    let def = this.fractal.name.length>0? this.fractal.length:'<name goes here>';
+    let name = prompt('Please enter the name of the pattern', def);
     if (name === null) {
       return;
-    }
-    let seed = this.fractal.saveSeed();
+    } 
+    this.fractal.name = name;
     let data = {
       'fullname': name,
-      'seed': seed,
+      'seed': this.fractal.seed,
+      'baseline': this.fractal.baseline,
       'itNumber': this.iterator.level,
       'thickness': Number(this.iterator.thickness),
       'thicknessType': this.iterator.thicknessType,
