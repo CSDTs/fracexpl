@@ -64,6 +64,7 @@ select,input[type=number] {
 /* control panel */
 .ctrlPanelDiv{
     display: block;
+    height: 48px;
     position: relative;
     width: 100%;
 }
@@ -71,8 +72,7 @@ select,input[type=number] {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    /* justify-content: space-between; */
-    margin-bottom: .5em;
+    justify-content: space-between;
 }
 .levelButtons{
     background-color: #E0E0E0;
@@ -93,7 +93,8 @@ select,input[type=number] {
 }
 .message{
     position: absolute;
-    top: 4.5em;
+    top: 100%;
+    margin-top: .5em;
     left: .5em;
     background-color: #f5f5f5;
     padding: 4px;
@@ -179,7 +180,7 @@ select,input[type=number] {
 }
 
 .checkbox input[type=checkbox]{
-    margin-right: .5em;
+    margin-right: 8px;
 }
 
 .btn{
@@ -192,8 +193,8 @@ select,input[type=number] {
 .btn-default{
     border: 1px solid #828282;
     border-radius: 4px;
-    margin-right: .5em;
-    margin-bottom: .5em;
+    margin-right: 8px;
+    margin-bottom: 8px;
 }
 .btn-clear {
     border-color: #DC3545;
@@ -221,6 +222,7 @@ select,input[type=number] {
 .btn-tool{
     border:none;
     margin-bottom: 0;
+    margin-right: 4px;
 }
 .btn-tool img{
     position: relative;
@@ -256,14 +258,13 @@ select,input[type=number] {
 .segTypeSel{
     display: inline-block;
     position: relative;
-    margin-left: 1em;
-    margin-right: 1em;
+    margin-right: 8px;
     border: 1px solid #e0e0e0;
-    border-radius: .5em;
+    border-radius: 8px;
 }
 .segTypeSel button{
     border:none;
-    margin: .2em;
+    margin: 2px;
 }
 .circleSel{
     font-size: 14px;

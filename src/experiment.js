@@ -76,36 +76,36 @@ const StdSeeds = {
       itNumber: 3,
       seed: [
         [210.0, 284.0, 0],
-        [210.0, 187.07369995117188, 6],
-        [210.0, 200.80044555664062, 4],
-        [216.86341857910156, 221.39060974121094, 4],
-        [223.726806640625, 235.117431640625, 0],
-        [237.4535369873047, 248.84420776367188, 0],
-        [251.1803436279297, 262.5709533691406, 0],
-        [278.6339111328125, 269.434326171875, 0],
-        [312.9508361816406, 276.2977294921875, 0],
-        [354.13116455078125, 276.2977294921875, 0],
-        [395.3115234375, 269.434326171875, 0],
-        [429.6284484863281, 248.84420776367188, 0],
-        [457.0820617675781, 215.213623046875, 0],
-        [469.4361877441406, 171.97422790527344, 0],
-        [469.4361877441406, 122.55779266357422, 0],
-        [450.9050598144531, 85.49552154541016, 0],
-        [420.01971435546875, 60.787296295166016, 0],
-        [389.1344909667969, 48.43317794799805, 0],
-        [358.2492370605469, 42.25618362426758, 0],
-        [327.36395263671875, 42.25618362426758, 0],
-        [296.47869873046875, 48.43317794799805, 0],
-        [271.7704772949219, 60.787296295166016, 0],
-        [253.23934936523438, 73.14141845703125, 0],
-        [234.7082061767578, 85.49552154541016, 0],
-        [222.3541259765625, 97.8495864868164, 0],
-        [216.1770477294922, 110.2037124633789, 0],
-        [210.0, 128.73486328125, 4],
-        [210.0, 139.0299072265625, 4],
-        [374.7213439941406, 180.21029663085938, 6],
-        [374.7213439941406, 118.43974304199219, 0],
-        [210.0, 32.34235382080078, 6],
+        [210.0, 187, 6],
+        [210.0, 201, 4],
+        [217, 221, 4],
+        [224, 235, 0],
+        [237, 249, 0],
+        [251, 263, 0],
+        [279, 269, 0],
+        [313, 276, 0],
+        [354, 276, 0],
+        [395, 269, 0],
+        [430, 249, 0],
+        [457, 215, 0],
+        [469, 172, 0],
+        [469, 122, 0],
+        [451, 85, 0],
+        [420, 61, 0],
+        [389, 48, 0],
+        [358, 42, 0],
+        [327, 42, 0],
+        [296, 48, 0],
+        [272, 61, 0],
+        [253, 73, 0],
+        [235, 85, 0],
+        [222, 98, 0],
+        [216, 110, 0],
+        [210.0, 129, 4],
+        [210.0, 139, 4],
+        [375, 180, 6],
+        [375, 118, 0],
+        [210.0, 32, 6],
       ],
     },
     'blanket': {
@@ -197,26 +197,26 @@ const StdSeeds = {
       itNumber: 3,
       seed: [
         [200.0, 300.0, 0],
-        [238.58258056640625, 197.11302185058594, 6],
-        [238.58258056640625, 94.22604370117188, 4],
-        [341.4696044921875, 94.22604370117188, 4],
-        [341.4696044921875, 197.11302185058594, 4],
-        [238.58258056640625, 197.11302185058594, 4],
-        [252.06201171875, 194.14932250976562, 6],
-        [238.58258056640625, 197.11302185058594, 6],
-        [238.58258056640625, 158.53041076660156, 0],
-        [238.58258056640625, 132.80865478515625, 6],
-        [238.58258056640625, 94.22604370117188, 0],
-        [277.16522216796875, 94.22604370117188, 0],
-        [302.8869934082031, 94.22604370117188, 6],
-        [341.4696044921875, 94.22604370117188, 0],
-        [341.4696044921875, 132.80865478515625, 0],
-        [341.4696044921875, 158.53041076660156, 6],
-        [341.4696044921875, 197.11302185058594, 0],
-        [302.8869934082031, 197.11302185058594, 0],
-        [277.16522216796875, 197.11302185058594, 6],
-        [238.58258056640625, 197.11302185058594, 0],
-        [380.0522155761719, 300.0, 6],
+        [239, 197, 6],
+        [239, 94, 4],
+        [341, 94, 4],
+        [341, 197, 4],
+        [239, 197, 4],
+        [252, 194, 6],
+        [239, 197, 6],
+        [239, 159, 0],
+        [239, 133, 6],
+        [239, 94, 0],
+        [277, 94, 0],
+        [303, 94, 6],
+        [341, 94, 0],
+        [341, 133, 0],
+        [341, 159, 6],
+        [341, 197, 0],
+        [303, 197, 0],
+        [277, 197, 6],
+        [239, 197, 0],
+        [380, 300.0, 6],
       ],
     },
     'chaetophora': {
@@ -226,17 +226,17 @@ const StdSeeds = {
       itNumber: 5,
       seed: [
         [249.0, 322.0, 0],
-        [254.1637420654297, 319.21954345703125, 6],
-        [264.9272766113281, 245.37684631347656, 4],
-        [243.8362274169922, 319.21954345703125, 6],
-        [252.0132598876953, 246.23777770996094, 4],
-        [255.02651977539062, 244.9463653564453, 6],
-        [236.23672485351562, 184.3251953125, 1],
-        [207.3065948486328, 245.58892822265625, 6],
-        [261.4835510253906, 245.37684631347656, 6],
-        [286.0102233886719, 194.520263671875, 0],
-        [309.412841796875, 245.58892822265625, 6],
-        [258.3596496582031, 245.58892822265625, 6],
+        [254, 319, 6],
+        [265, 245, 4],
+        [244, 319, 6],
+        [252, 246, 4],
+        [255, 245, 6],
+        [236, 184, 1],
+        [207, 246, 6],
+        [261, 245, 6],
+        [286, 195, 0],
+        [309, 246, 6],
+        [258, 246, 6],
       ],
     },
     'cnegative': {
@@ -315,13 +315,13 @@ const StdSeeds = {
       seed: [
         [240.0, 320.0, 0],
         [240.0, 320.0, 6],
-        [240.0, 232.24789428710938, 4],
-        [246.3679962158203, 213.5637969970703, 0],
-        [264.8714294433594, 206.16534423828125, 0],
-        [283.6661376953125, 214.4735107421875, 0],
-        [288.75115966796875, 232.24789428710938, 0],
-        [288.75115966796875, 320.0, 4],
-        [288.75115966796875, 320.0, 6],
+        [240.0, 232.0, 4],
+        [246.0, 214, 0],
+        [265, 206.0, 0],
+        [284, 214.0, 0],
+        [289, 232.0, 0],
+        [289, 320.0, 4],
+        [289, 320.0, 6],
       ],
     },
     'dendrite': {
@@ -340,12 +340,12 @@ const StdSeeds = {
         [183.0, 270.0, 6],
         [227.0, 220.0, 6],
         [260.0, 240.0, 4],
-        [236.85000610351562, 170.38999938964844, 6],
-        [209.30999755859375, 228.70999145507812, 6],
+        [237, 170.0, 6],
+        [209.0, 229, 6],
         [260.0, 240.0, 6],
         [280.0, 231.0, 4],
         [300.0, 220.0, 0],
-        [306.510009765625, 228.70999145507812, 6],
+        [307, 229, 6],
         [380.0, 240.0, 6],
         [260.0, 240.0, 6],
       ],
@@ -435,11 +435,11 @@ const StdSeeds = {
       seed: [
         [304.0, 174.0, 0],
         [304.0, 174.0, 6],
-        [304.0, 156.4929656982422, 4],
-        [328.07220458984375, 156.4929656982422, 4],
-        [328.07220458984375, 174.0, 4],
+        [304.0, 156.0, 4],
+        [328.0, 156.0, 4],
+        [328.0, 174.0, 4],
         [304.0, 174.0, 0],
-        [304.0, 156.4929656982422, 6],
+        [304.0, 156.0, 6],
       ],
     },
     'kitwe': {
@@ -456,7 +456,7 @@ const StdSeeds = {
         [321.0, 240.0, 4],
         [261.0, 240.0, 4],
         [241.0, 200.0, 4],
-        [269.44482421875, 202.2428436279297, 6],
+        [269.0, 202.0, 6],
         [321.0, 240.0, 6],
       ],
     },
@@ -576,26 +576,26 @@ const StdSeeds = {
       itNumber: 5,
       seed: [
         [421.0, 101.0, 0],
-        [350.9679870605469, 54.74000549316406, 6],
-        [337.84600830078125, 67.86199951171875, 4],
-        [324.7239990234375, 94.10599517822266, 4],
-        [324.7239990234375, 120.35000610351562, 4],
-        [337.84600830078125, 146.593994140625, 4],
-        [350.9679870605469, 159.71600341796875, 4],
-        [377.2120361328125, 172.8380126953125, 4],
-        [403.45599365234375, 172.8380126953125, 4],
-        [429.70001220703125, 159.71600341796875, 4],
-        [442.822021484375, 146.593994140625, 4],
-        [455.94403076171875, 120.35000610351562, 4],
-        [455.94403076171875, 94.10599517822266, 4],
-        [442.822021484375, 67.86199951171875, 4],
-        [429.70001220703125, 54.74000549316406, 4],
-        [403.45599365234375, 41.618003845214844, 4],
-        [377.2120361328125, 41.618003845214844, 4],
-        [350.9679870605469, 54.74000549316406, 4],
+        [351.0, 55.0, 6],
+        [338.0, 68.0, 4],
+        [325.0, 94.0, 4],
+        [325.0, 120.0, 4],
+        [338.0, 147.0, 4],
+        [351.0, 160.0, 4],
+        [377.0, 173.0, 4],
+        [403.0, 173.0, 4],
+        [430.0, 160.0, 4],
+        [443.0, 147.0, 4],
+        [456.0, 120.0, 4],
+        [456.0, 94.0, 4],
+        [443.0, 68.0, 4],
+        [430.0, 55.0, 4],
+        [403.0, 42.0, 4],
+        [377.0, 42.0, 4],
+        [351.0, 55.0, 4],
         [272.0, 82.0, 6],
         [263.0, 170.0, 0],
-        [211.0, 121.97000122070312, 6],
+        [211.0, 122.0, 6],
         [329.0, 173.0, 6],
       ],
     },
@@ -655,7 +655,7 @@ const StdSeeds = {
         [180.0, 220.0, 6],
         [260.0, 220.0, 6],
         [300.0, 200.0, 0],
-        [306.510009765625, 228.70999145507812, 6],
+        [307, 229, 6],
         [260.0, 220.0, 6],
       ],
     },
@@ -668,10 +668,10 @@ const StdSeeds = {
         [76.0, 260.0, 0],
         [76.0, 260.0, 6],
         [270.0, 260.0, 0],
-        [288.2153015136719, 24.205242156982422, 0],
+        [288.0, 24.0, 0],
         [300.0, 260.0, 0],
-        [547.5895385742188, 260.0, 0],
-        [547.5895385742188, 260.0, 6],
+        [548, 260.0, 0],
+        [548, 260.0, 6],
       ],
     },
     'sierpinski': {
@@ -683,17 +683,17 @@ const StdSeeds = {
         [398.0, 260.0, 0],
         [200.0, 260.0, 6],
         [398.0, 260.0, 4],
-        [299.989990234375, 81.80000305175781, 4],
-        [348.5, 170.89999389648438, 6],
-        [249.5, 170.89999389648438, 0],
+        [300.0, 82, 4],
+        [348.5, 171, 6],
+        [249.5, 171, 0],
         [299.0, 260.0, 4],
-        [348.5, 170.89999389648438, 4],
+        [348.5, 171, 4],
         [398.0, 260.0, 6],
         [299.0, 260.0, 0],
         [299.0, 260.0, 6],
         [200.0, 260.0, 0],
         [200.0, 260.0, 6],
-        [299.989990234375, 81.80000305175781, 4],
+        [300.0, 82, 4],
         [200.0, 260.0, 6],
       ],
     },
@@ -780,6 +780,7 @@ const toggle_e = function(elem){
   if( elem.style.display == 'none' ) elem.style.display = 'block';
   else elem.style.display = 'none';
 }
+let mySeed = {};
 //initMethod:
 //0 - new version
 //1 - oldversion, init from stdSeed
@@ -798,9 +799,16 @@ class Fractal {
           case 2: this.initFromFile(seed,baseline);break;
         }
     }
-    clearPts(){
+    clearPts(seed,baseline,undo=false){
+      if(undo){
+        this.seed = seed;
+        this.baseline = baseline;
+        return;
+      }
+      let arg = [this.seed, this.baseline, undo];
       this.seed = [];
       this.baseline = [];
+      return arg;
     }
     clearCanvas(){
       this.ctx.clearRect(0, 0, this.ctx.canvas.clientWidth, this.ctx.canvas.clientHeight);
@@ -809,6 +817,9 @@ class Fractal {
     setSeedByName(name){
       let seed = StdSeeds[name].seed;
       this.initFromSeed(seed);
+    }
+    setMySeed(){
+      this.initFromFile(mySeed.seed,mySeed.baseline);
     }
     initFromSeed(seed){
       let len = seed.length;
@@ -1693,6 +1704,7 @@ class SeedEditor{
     this.setup_segTypeSel();
     this.setup_undo();
     this.setup_snapCheckbox();
+    this.setup_clearBtn();
     this.setup_message();
   }
   enableMode(){
@@ -2020,6 +2032,7 @@ class SeedEditor{
   setup_snapCheckbox(){
     let elem = document.createElement('div');
     elem.className = "snapCheckbox checkbox";
+    elem.style.marginRight = '1em';
     let input = document.createElement('input');
     input.type = 'checkbox';
     input.checked = false;
@@ -2102,6 +2115,17 @@ class SeedEditor{
     });
     return elem;
   }
+  setup_clearBtn(){
+    let btn = document.createElement('button');
+    btn.className = 'btn btn-default btn-clear';
+    btn.innerHTML = 'Clear';
+    btn.onclick = ()=>{
+      let arg = this.fractal.clearPts();
+      this.fractal.drawSeed(this.workctx);
+      this.addCommand(this.fractal.clearPts, arg);
+    }
+    this.ctrlPanel.appendChild(btn);
+  }
   setup_message(){
     let elem = document.createElement('div');
     elem.className = "message";
@@ -2120,57 +2144,6 @@ class SeedEditor{
     elem.appendChild(icon);
     this.message = elem;
     this.ctrlPanel.appendChild(elem);
-  }
-  setMode(mode, init = false){
-    this.close_segDropdown();
-    this.close_toolDropdown();
-    if( mode == this.status && !init) return;
-    if( this.isInitiating && mode!=this.modes.ADD) return;
-    if(!init){//clear old highlight
-      let btn = this.toolBtn[this.status];
-      if(this.status == this.modes.SHAPE) this.circleSel.style.display = 'none';
-      deactivateBtn(btn);
-      if(this.tools[this.status].adv){
-        deactivateBtn(this.advToolBtn);
-      }
-    }
-    let color = lineTypes[this.segType].color;
-    activateBtn(this.toolBtn[mode],color);
-    if(this.tools[mode].adv){
-      let icon = this.advToolBtn.querySelector('img');
-      icon.src = 'tool_' + this.tools[mode].name + '.svg';
-      icon.title = this.tools[mode].title;
-      activateBtn(this.advToolBtn,color);
-    }
-    if(mode == this.modes.SHAPE) this.circleSel.style.display = 'block';
-    //disable segType selection for DELETE&SELECT mode
-    let flag = mode == this.modes.DELETE;
-    this.segTypeSel.querySelectorAll('button').forEach(btn=>{
-      btn.disabled = flag;
-    });
-    
-    this.status = mode;
-    if(this.selectedPt!=-1) {
-      this.fractal.deletePt(this.selectedPt);
-      this.fractal.drawSeed(this.workctx);
-    }
-    this.selectedPt = -1;
-    this.anchorPt = -1;
-    //local functions
-    function activateBtn(btn,color){
-      btn.classList.add('active-edit');
-      btn.querySelector('img').style.opacity = '1.0';
-      if(btn.querySelector('.color-selected')){
-        btn.querySelector('.color-selected').style.backgroundColor = color;
-      }
-    }
-    function deactivateBtn(btn){
-      btn.classList.remove('active-edit');
-      btn.querySelector('img').style.opacity = '.54';
-      if(btn.querySelector('.color-selected')){
-        btn.querySelector('.color-selected').style.backgroundColor = 'transparent';
-      }
-    }
   }
   clearBackground(){
     this.bgctx.clearRect(0, 0, this.bgctx.canvas.clientWidth, this.bgctx.canvas.clientHeight);
@@ -2416,16 +2389,77 @@ class SeedEditor{
       this.selectedPt = -1;
     }
   }
+  setMode(mode, init = false){
+    this.close_segDropdown();
+    this.close_toolDropdown();
+    if( mode == this.status && !init) return;
+    if( this.isInitiating && mode!=this.modes.ADD) return;
+    if(!init){//clear old highlight
+      let btn = this.toolBtn[this.status];
+      if(this.status == this.modes.SHAPE) this.circleSel.style.display = 'none';
+      deactivateBtn(btn);
+      if(this.tools[this.status].adv){
+        deactivateBtn(this.advToolBtn);
+      }
+    }
+    let color = lineTypes[this.segType].color;
+    activateBtn(this.toolBtn[mode],color);
+    if(this.tools[mode].adv){
+      let icon = this.advToolBtn.querySelector('img');
+      icon.src = 'tool_' + this.tools[mode].name + '.svg';
+      icon.title = this.tools[mode].title;
+      activateBtn(this.advToolBtn,color);
+    }
+    if(mode == this.modes.SHAPE) this.circleSel.style.display = 'block';
+    //disable segType selection for DELETE&SELECT mode
+    let flag = mode == this.modes.DELETE;
+    this.segTypeSel.querySelectorAll('button').forEach(btn=>{
+      btn.disabled = flag;
+    });
+    
+    this.status = mode;
+    if(this.selectedPt!=-1) {
+      this.fractal.deletePt(this.selectedPt);
+      this.fractal.drawSeed(this.workctx);
+    }
+    this.selectedPt = -1;
+    this.anchorPt = -1;
+    //local functions
+    function activateBtn(btn,color){
+      btn.classList.add('active-edit');
+      btn.querySelector('img').style.opacity = '1.0';
+      if(btn.querySelector('.color-selected')){
+        btn.querySelector('.color-selected').style.backgroundColor = color;
+      }
+    }
+    function deactivateBtn(btn){
+      btn.classList.remove('active-edit');
+      btn.querySelector('img').style.opacity = '.54';
+      if(btn.querySelector('.color-selected')){
+        btn.querySelector('.color-selected').style.backgroundColor = 'transparent';
+      }
+    }
+  }
   setSeed(seed, method){
     if(method == 'name') {
+      if(this.seedName == 'create'){
+        mySeed.baseline = this.fractal.baseline;
+        mySeed.seed = this.fractal.seed;
+      }
       this.fractal.clearPts();
       this.clearStack();
       if(seed in StdSeeds) {
         this.setMode(this.modes.SELECT);
         this.fractal.setSeedByName(seed);
       } else if(seed == 'create') {
-        this.setMode(this.modes.ADD);
-        this.isInitiating = true;
+        if(mySeed.length == 0){
+          this.setMode(this.modes.ADD);
+          this.isInitiating = true;
+        } else {
+          this.setMode(this.modes.SELECT);
+          this.fractal.setMySeed();
+        }
+        
       }
       this.fractal.drawSeed(this.workctx, this.isInitiating);
       return;
@@ -2632,19 +2666,39 @@ class Software {
     if(this.params.mode!=undefined && (this.params.mode.toLowerCase()=='draw')) this.currentMode = 1;
   }
   layout(){
-    this.setup_loadSave();
-    this.setup_modeSel();
+    this.setup_topBar();
     this.setup_ctrlPanelDiv();
     this.setup_canvasDiv();
     // this.setup_helpPanel();
   }
+  setup_topBar(){
+    let elem = document.createElement('div');
+    elem.style.display = 'flex';
+    elem.style.justifyContent = 'space-between';
+    let modeSel = this.setup_modeSel();
+    let loadSave = this.setup_loadSave();
+    elem.appendChild(modeSel);
+    elem.appendChild(loadSave);
+    this.main.appendChild(elem);
+  }
+  setup_modeSel(){
+    let elem = document.createElement('div');
+    elem.id = 'ft-modesel-' + this.index;
+    elem.className = 'modeSelDiv';
+    this.modeSel = elem;
+    this.addMode("edit",this.editor);
+    this.addMode("iterate",this.iterator);
+    this.setMode(this.currentMode, true);
+    return elem;
+  } 
   setup_loadSave(){
     let elem =  document.createElement('div');
     elem.className = 'loadSave';    
     // load files
     let selectFile = document.createElement('input');
+    selectFile.style.display = 'inline-block';
     selectFile.type = 'file';
-    selectFile.id = 'selectFile';
+    selectFile.id = 'selectFile_'+this.index;
     selectFile.accept = '.json';
     selectFile.onchange = (e) => {
       this.loadLocally(e);
@@ -2676,17 +2730,7 @@ class Software {
     elem.appendChild(saveToCloud);
     elem.appendChild(save);
 
-    this.main.appendChild(elem);
-  }
-  setup_modeSel(){
-    let elem = document.createElement('div');
-    elem.id = 'ft-modesel-' + this.index;
-    elem.className = 'modeSelDiv';
-    this.modeSel = elem;
-    this.addMode("edit",this.editor);
-    this.addMode("iterate",this.iterator);
-    this.setMode(this.currentMode, true);
-    this.main.appendChild(elem);
+    return elem;
   }
   setup_ctrlPanelDiv(){
     let elem = document.createElement('div');
