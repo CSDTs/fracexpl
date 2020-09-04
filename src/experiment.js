@@ -1047,12 +1047,17 @@ class Fractal {
               this.ctx.stroke();
             }
           } else if( type < 4 ){
+            let typeName = lineTypes[(type|0)].name;
+            let flag_h = typeName == 'flip' || typeName == 'invert';
+            let flag_d = typeName == 'invert' || typeName == 'inverflip';
+            let hf = flag_h? !hflip: hflip;
             if( ( type | 0 ) != type ){//for circles
               let center = start;
               let vertix = end;
               let n = (( type - ( type | 0 ) )*100)|0;
-              let cos = Math.cos(2 * Math.PI / n);
-              let sin = Math.sin(2 * Math.PI / n);
+              let theta = flag_d? -2 * Math.PI / n : 2 * Math.PI / n;
+              let cos = Math.cos(theta);
+              let sin = Math.sin(theta);
               let x0 = vertix[0] - center[0];
               let y0 = vertix[1] - center[1];
               for(let i = 1 ; i < n ; i++ ){
@@ -1060,14 +1065,15 @@ class Fractal {
                 let y = x0*cos + y0*sin;
                 let pt1 = [ (x0+center[0]+0.5) << 0, (y0+center[1]+0.5) << 0];
                 let pt2 = [ (x+center[0]+0.5) << 0, (y+center[1]+0.5) << 0];
-                this.basedraw(pt1,pt2,hflip,level-1,lineWidth);
+                this.basedraw(pt1,pt2,hf,level-1,lineWidth);
                 x0 = x;
                 y0 = y;
               }
               let pt = [ (x0+center[0]+0.5) << 0, (y0+center[1]+0.5) << 0];
-              this.basedraw(pt, vertix, hflip,level-1,lineWidth);
+              this.basedraw(pt, vertix, hf,level-1,lineWidth);
             } else {
-              this.basedraw(start,end,hflip,level-1,lineWidth);
+              if(flag_d) this.basedraw(end,start,hf,level-1,lineWidth);
+              else this.basedraw(start,end,hf,level-1,lineWidth);
             }
           }
         }
@@ -1565,15 +1571,15 @@ class SeedEditor{
     this.stackUndo = [];
     this.stackRedo = [];
     this.modes = {
-      SELECT: 0, ADD: 1, DELETE: 2, PAINT: 3,  SHAPE: 4
+      SELECT: 0, DELETE: 1, SHAPE: 2, ADD: 3,
     }
     this.tools = [ 
-      { mode:"SELECT",name:"select",  title:"select & move points"},
-      { mode:"ADD",   name:"addpt",   title:"draw new points & lines"},
-      { mode:"DELETE",name:"deletept",title:"delete points"},
-      { mode:"PAINT", name:"paint",   title:"apply color to segments"},
-      { mode:"SHAPE", name:"circle",  title:"draw a circle"}
+      { mode:"SELECT",name:"select",  adv:false,title:"select & move points"},
+      { mode:"DELETE",name:"deletept",adv:false,title:"delete points"},
+      { mode:"SHAPE", name:"circle",  adv:true, title:"draw a circle"},
+      { mode:"ADD",   name:"addpt",   adv:true, title:"draw new points & lines"}
     ];
+    this.advTool = this.modes.SHAPE;
     this.instructions = {
       select_circle:'You can press "b" to break the circle into segments',};
     this.modetxt = ["move pt", "edit baseline", "add pt"]
@@ -1582,6 +1588,7 @@ class SeedEditor{
     this.ctrlPanel;
     this.seedSel, this.modeSel, this.toolBar, this.segTypeSel, this.snapBox;
     this.repTypeBtn, this.segTypeBtn = [];
+    this.advToolBtn, this.toolBtn = [];
     this.undoBtn, this.redoBtn;
     this.message;
     this.layout();
@@ -1689,43 +1696,105 @@ class SeedEditor{
   }
   setup_toolBar(){
     let elem = document.createElement('div');
+    //dropdown controller
+    let drop = this.setup_toolDropdown();
+    //the dropdown panel
+    let advTools = document.createElement('div');
+    advTools.className = 'dropdown-list';
+    advTools.style.display = 'none';
+    advTools.onmouseleave = this.close_toolDropdown.bind(this);
+
     this.tools.forEach(item => {
       let btn = document.createElement('button');
       btn.className = "btn btn-default btn-tool";
       btn.title = item.title;
       let icon = document.createElement('img');
-      icon.width = "24";
+      icon.height = "24";
       icon.style.opacity = ".54";
       icon.src = "tool_" + item.name +".svg";
       btn.appendChild(icon);
-      if(item.mode == 'ADD' || item.mode == 'PAINT'){
+      if(item.mode == 'SELECT'){
         btn.style.position = 'relative';
         let color = document.createElement('div');
         color.className = ('color-selected');
         btn.appendChild(color);
-      }
-      else if(item.mode == 'SHAPE'){
+      } else if(item.mode == 'SHAPE'){ // segnum selector or circles
         btn.style.position = 'relative';
         let select = this.setup_circleSel();
-        btn.appendChild(select);
+        drop.appendChild(select);
       }
       btn.onclick = function(mode){
         this.setMode(mode);
       }.bind(this,this.modes[item.mode]);
-      elem.appendChild(btn);
+      this.toolBtn.push(btn);
+      if(item.adv) {
+        let span = document.createElement('span');
+        span.innerText = item.title;
+        span.style.marginRight = '.5em';
+        btn.appendChild(span);
+        advTools.appendChild(btn);
+      } else {
+        btn.onmouseenter = () => {
+          this.close_toolDropdown();
+          this.close_segDropdown();
+        };
+        elem.appendChild(btn);
+      }
     });
+    
+    drop.appendChild(advTools);
+    elem.appendChild(drop);
     this.toolBar = elem;
     this.ctrlPanel.appendChild(this.toolBar);
+  }
+  setup_toolDropdown(){
+    //dropdown controller- advanced tools
+    let tool = this.tools[this.advTool];
+    let elem = document.createElement('div');
+    elem.style.position = 'relative';
+    elem.style.display = 'inline-block';
+    let btn = document.createElement('button');
+    btn.className = 'btn btn-default btn-tool';    
+    btn.title = tool.title;
+
+    let iconTool = document.createElement('img');
+    iconTool.height = 24;
+    iconTool.src = 'tool_'+ tool.name +'.svg';
+    iconTool.style.opacity = ".54";
+    let color = document.createElement('div');
+    color.className = 'color-selected';
+        
+    let iconDrop = document.createElement('img');
+    iconDrop.height = 24;
+    iconDrop.style.marginLeft = '.5em';
+    iconDrop.src = 'icon_arrow_down.svg';
+
+    btn.appendChild(color);
+    btn.appendChild(iconTool);
+    btn.appendChild(iconDrop);    
+    btn.onclick = ()=>{
+      this.setMode(this.advTool);
+    }
+    btn.onmouseenter = () => {
+      this.close_segDropdown();
+      let elem = this.toolBar.querySelector('.dropdown-list');
+      elem.style.display = 'block';
+    };
+   
+    //layout
+    this.advToolBtn = btn;
+    elem.appendChild(btn);
+    return elem;
   }
   setup_segTypeSel(){
     let elem = document.createElement('div');
     elem.className = "segTypeSel";
-    
+    elem.onmouseenter = this.close_toolDropdown.bind(this);
     //the dropdown panel
     let repBtns = document.createElement('div');
-    repBtns.className = 'repSel-list';
+    repBtns.className = 'dropdown-list';
     repBtns.style.display = 'none';
-    
+    repBtns.onmouseleave = this.close_segDropdown.bind(this);
     let otherBtns = document.createElement('span');
     lineTypes.forEach( (item,index)=> {
       let btn = document.createElement('button');
@@ -1760,39 +1829,39 @@ class SeedEditor{
     this.ctrlPanel.appendChild(elem);
   }
   setup_segTypeDropdown(){
-    //dropdown
-    let elem = document.createElement('span');
     //dropdown - replication btn
     let btnColor = document.createElement('button');
     btnColor.className = 'btn btn-default';
     let iconColor = document.createElement('div');
     iconColor.className = 'icon-color repType';
     iconColor.style.backgroundColor = lineTypes[this.repType].color;
+    iconColor.style.marginRight = '.5em';
+    let iconDrop = document.createElement('img');
+    iconDrop.height = 24;
+    iconDrop.src = 'icon_arrow_down.svg';
+
     btnColor.appendChild(iconColor);
+    btnColor.appendChild(iconDrop);
     btnColor.title = lineTypes[this.repType].title;
-    btnColor.onclick = (e)=>{
+    btnColor.onclick = ()=>{
       this.setSegType(this.repType);
     }
-    //dropdown - toggle list
-    let btnDrop = document.createElement('button');
-    btnDrop.className = 'btn btn-default';
-    let iconDrop = document.createElement('img');
-    iconDrop.width = 24;
-    iconDrop.src = 'icon_arrow_down.svg';
-    btnDrop.appendChild(iconDrop);
-    btnDrop.title = "more replication types"
-    btnDrop.onclick = (e)=>{
-      let elem = e.currentTarget.parentElement.querySelector('.repSel-list');
-      toggle_e(elem);
+    btnColor.onmouseenter = () => {
+      this.close_toolDropdown();
+      let elem = this.segTypeSel.querySelector('.dropdown-list');
+      elem.style.display = 'block';
     };
+   
     //layout
     this.repTypeBtn = btnColor;
-    elem.appendChild(btnColor);
-    elem.appendChild(btnDrop);
-    return elem;
+    return btnColor;
   }
   close_segDropdown(){
-    let panel = this.segTypeSel.querySelector('.repSel-list');
+    let panel = this.segTypeSel.querySelector('.dropdown-list');
+    panel.style.display= 'none';
+  }
+  close_toolDropdown(){
+    let panel = this.toolBar.querySelector('.dropdown-list');
     panel.style.display= 'none';
   }
   setup_circleSel(){
@@ -1824,6 +1893,7 @@ class SeedEditor{
   }
   setup_undo(){
     let elem = document.createElement('div');
+    elem.style.marginRight = '1em';
     //undo
     let btn_undo = document.createElement('button');
     btn_undo.className = "btn btn-default btn-tool";
@@ -1863,10 +1933,6 @@ class SeedEditor{
   setup_snapCheckbox(){
     let elem = document.createElement('div');
     elem.className = "snapCheckbox checkbox";
-    elem.style.position = 'absolute';
-    elem.style.right = '1em';
-    elem.style.top = '4.5em';
-    elem.style['z-index'] = 99;
     let input = document.createElement('input');
     input.type = 'checkbox';
     input.checked = false;
@@ -1969,27 +2035,29 @@ class SeedEditor{
     this.ctrlPanel.appendChild(elem);
   }
   setMode(mode, init = false){
+    this.close_segDropdown();
+    this.close_toolDropdown();
     if( mode == this.status && !init) return;
     if( this.isInitiating && mode!=this.modes.ADD) return;
     if(!init){//clear old highlight
-      let btn = this.toolBar.querySelectorAll('button')[this.status];
+      let btn = this.toolBtn[this.status];
       if(this.status == this.modes.SHAPE) this.circleSel.style.display = 'none';
-      btn.classList.remove('active-edit');
-      btn.querySelector('img').style.opacity = '.54';
-      if(btn.querySelector('.color-selected')){
-        btn.querySelector('.color-selected').style.backgroundColor = 'transparent';
+      deactivateBtn(btn);
+      if(this.tools[this.status].adv){
+        deactivateBtn(this.advToolBtn);
       }
     }
-    
-    let btn = this.toolBar.querySelectorAll('button')[mode];
-    btn.classList.add('active-edit');
-    btn.querySelector('img').style.opacity = '1.0';
-    if(btn.querySelector('.color-selected')){
-      btn.querySelector('.color-selected').style.backgroundColor = lineTypes[this.segType].color;
+    let color = lineTypes[this.segType].color;
+    activateBtn(this.toolBtn[mode],color);
+    if(this.tools[mode].adv){
+      let icon = this.advToolBtn.querySelector('img');
+      icon.src = 'tool_' + this.tools[mode].name + '.svg';
+      icon.title = this.tools[mode].title;
+      activateBtn(this.advToolBtn,color);
     }
     if(mode == this.modes.SHAPE) this.circleSel.style.display = 'block';
     //disable segType selection for DELETE&SELECT mode
-    let flag = mode == this.modes.DELETE || mode == this.modes.SELECT;
+    let flag = mode == this.modes.DELETE;
     this.segTypeSel.querySelectorAll('button').forEach(btn=>{
       btn.disabled = flag;
     });
@@ -2001,6 +2069,21 @@ class SeedEditor{
     }
     this.selectedPt = -1;
     this.anchorPt = -1;
+    //local functions
+    function activateBtn(btn,color){
+      btn.classList.add('active-edit');
+      btn.querySelector('img').style.opacity = '1.0';
+      if(btn.querySelector('.color-selected')){
+        btn.querySelector('.color-selected').style.backgroundColor = color;
+      }
+    }
+    function deactivateBtn(btn){
+      btn.classList.remove('active-edit');
+      btn.querySelector('img').style.opacity = '.54';
+      if(btn.querySelector('.color-selected')){
+        btn.querySelector('.color-selected').style.backgroundColor = 'transparent';
+      }
+    }
   }
   clearBackground(){
     this.bgctx.clearRect(0, 0, this.bgctx.canvas.clientWidth, this.bgctx.canvas.clientHeight);
@@ -2109,17 +2192,25 @@ class SeedEditor{
   }
   handleClick(e){
     this.getMousePos(e);
-    if(this.status == this.modes.SELECT || this.status == this.modes.BASE){//MODE-MOVE: move pts, click to select pt
-      let editingbase = this.status == this.modes.BASE; 
+    if(this.status == this.modes.SELECT){//MODE-MOVE: move pts, click to select pt 
       if(this.selectedPt == -1) {  //pick up pt
-        let n = this.fractal.selectPt(this.rawPos, editingbase);
+        let n = this.fractal.selectPt(this.rawPos);
+        let ln = this.fractal.selectLn(this.rawPos)
         this.selectedPt = n;
+        //handle message box
         if(n != -1 && this.fractal.isCircleCenter(n)){//select circle center
           this.message.querySelector('.message-text').innerHTML = this.instructions.select_circle;
           this.message.style.display = 'block';
         } else if(this.message.style.display == 'block') {
           this.message.querySelector('.message-text').innerHTML = "";
           this.message.style.display = 'none';
+        }
+        //if segment is selected
+        if( n == -1 && ln != -1){
+          let arg = this.fractal.setLnType(ln,this.segType);
+          this.fractal.drawSeed(this.workctx);
+          this.addCommand(this.fractal.setLnType, arg);
+          return;
         }
       } else { //drop pt
         this.selectedPt = -1; 
@@ -2130,14 +2221,6 @@ class SeedEditor{
         }
         return;
       }
-    } else if(this.status == this.modes.PAINT){ // MODE-PAINT: set line types
-      let n = this.fractal.selectLn(this.rawPos);
-      if(n != -1) {
-        let arg = this.fractal.setLnType(n,this.segType);
-        this.fractal.drawSeed(this.workctx);
-        this.addCommand(this.fractal.setLnType, arg);
-      } 
-      return;
     } else if(this.status == this.modes.ADD){ //MODE-ADD: add pts, click to add/delete pt
       if(this.anchorPt == -1){
         let pt = this.fractal.selectPt(this.mousePos);
@@ -2263,6 +2346,7 @@ class SeedEditor{
   }
   setSegType(type,init = false){
     this.close_segDropdown();
+    this.close_toolDropdown();
     if(!init && type == this.segType) return;
     if(!lineTypes[type].rep){
       this.repTypeBtn.classList.remove('active-type');

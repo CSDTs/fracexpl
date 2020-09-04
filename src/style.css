@@ -136,9 +136,11 @@ select,input[type=number] {
 .icon-color{
     display: inline-block;
     vertical-align: middle;
-    width: 14px;
-    height: 14px;
-    margin: 2px;
+    width: 18px;
+    height: 4px;
+    transform-origin: center;
+    transform: rotate(45deg);
+    margin: 10px 3px 10px 3px;
     border-radius: 8px;
 }
 .typeTutor{
@@ -182,7 +184,7 @@ select,input[type=number] {
 
 .btn{
     font-size: 14px;
-    display: inline;
+    display: inline-block;
     padding: .5em;
     line-height: 1em;
     background-color: white;
@@ -190,7 +192,7 @@ select,input[type=number] {
 .btn-default{
     border: 1px solid #828282;
     border-radius: 4px;
-    margin-left: .5em;
+    margin-right: .5em;
     margin-bottom: .5em;
 }
 .btn-clear {
@@ -219,6 +221,10 @@ select,input[type=number] {
 .btn-tool{
     border:none;
     margin-bottom: 0;
+}
+.btn-tool img{
+    position: relative;
+    z-index:2;
 }
 .segThickness {
     position: absolute;
@@ -263,28 +269,30 @@ select,input[type=number] {
     background-color: white;
     box-shadow: 0 1px 4px rgba(0,0,0,.16);
 }
-.repSel-list{
+.dropdown-list{
     font-size: 14px;
     position: absolute;
     z-index: 99;
     left: 0;
-    top: 3.5em;
+    top: 100%;
     
     padding: .2em;
+    margin-top:8px;
     border-radius: .5em;
     background-color: white;
     box-shadow: 0 1px 4px rgba(0,0,0,.16);
 }
-.repSel-list button{
+.dropdown-list button{
     display: block;
     text-align: left;
     width: 100%;
     margin: 0;
 }
-.repSel-list span{
+.dropdown-list span{
     margin-left: .5em;
     line-height: 16px;
 }
+
 
 .typeBtnReg,.typeBtnAdv{
     display: inline;
@@ -335,10 +343,11 @@ select,input[type=number] {
 }
 .color-selected{
     position:absolute;
-    width:1.3em;
-    height: .3em;
-    left:.5em;
-    bottom:.4em;
+    width:22px;
+    height: 4px;
+    left: 8px;
+    bottom:15%;
+    z-index: 1;
 }
 
 .compass{
