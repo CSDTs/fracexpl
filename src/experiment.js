@@ -1652,6 +1652,10 @@ class SeedEditor{
     
     elem.appendChild(canvas1);
     elem.appendChild(canvas2);
+    elem.onmouseenter = () => {
+      this.close_toolDropdown();
+      this.close_segDropdown();
+    }
     this.canvas = elem;
     this.bgctx = canvas1.getContext('2d');
     this.workctx = canvas2.getContext('2d');
@@ -1878,12 +1882,10 @@ class SeedEditor{
     label.innerHTML = 'Seg#: ';
     label.htmlFor = select.id;
     opts.forEach(item => {
-      let option = document.createElement('option');
-      option.innerHTML = item.txt;
-      option.value = item.value;
+      let option = new Option(item.txt,item.value);
       select.appendChild(option);
     });
-    select.onchange = (e)=>{
+    select.onchange = (e) => {
       this.circleSeg = e.target.value;
     };
     elem.appendChild(label);
