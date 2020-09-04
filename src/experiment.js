@@ -48,25 +48,24 @@ const StdSeeds = {
       thicknessType: 0,
       itNumber: 3,
       seed: [
-        [260.0, 180.0, 0],
-        [280.0, 220.0, 6],
-        [260.0, 120.0, 6],
-        [260.0, 20.0, 4],
-        [380.0, 20.0, 4],
-        [380.0, 120.0, 4],
-        [480.0, 120.0, 4],
-        [480.0, 220.0, 4],
-        [380.0, 220.0, 4],
-        [380.0, 300.0, 4],
-        [380.0, 320.0, 4],
-        [260.0, 320.0, 4],
-        [260.0, 220.0, 4],
-        [160.0, 220.0, 4],
-        [160.0, 120.0, 4],
-        [260.0, 120.0, 4],
-        [300.0, 180.0, 6],
-        [340.0, 180.0, 0],
-        [380.0, 180.0, 6],
+        [260.0, 200.0, 0],
+        [280.0, 250.0, 6],
+        [260.0, 150.0, 6],
+        [260.0, 50.0, 4],
+        [380.0, 50.0, 4],
+        [380.0, 150.0, 4],
+        [480.0, 150.0, 4],
+        [480.0, 250.0, 4],
+        [380.0, 250.0, 4],
+        [380.0, 350.0, 4],
+        [260.0, 350.0, 4],
+        [260.0, 250.0, 4],
+        [160.0, 250.0, 4],
+        [160.0, 150.0, 4],
+        [260.0, 150.0, 4],
+        [300.0, 200.0, 6],
+        [340.0, 200.0, 0],
+        [380.0, 200.0, 6],
       ],
     },
     'baila': {
@@ -115,29 +114,29 @@ const StdSeeds = {
       itNumber: 3,
       seed: [
         [240.0, 160.0, 0],
-        [170.0, 160.0, 6],
-        [130.0, 220.0, 4],
-        [90.0, 160.0, 4],
-        [130.0, 100.0, 4],
-        [170.0, 160.0, 4],
-        [50.0, 100.0, 6],
-        [10.0, 160.0, 4],
-        [50.0, 220.0, 4],
-        [90.0, 160.0, 4],
-        [50.0, 100.0, 4],
+        [180.0, 160.0, 6],
+        [140.0, 220.0, 4],
+        [100.0, 160.0, 4],
+        [140.0, 100.0, 4],
+        [180.0, 160.0, 4],
+        [60.0, 100.0, 6],
+        [20.0, 160.0, 4],
+        [60.0, 220.0, 4],
+        [100.0, 160.0, 4],
+        [60.0, 100.0, 4],
         [280.0, 120.0, 6],
-        [330.0, 120.0, 0],
+        [320.0, 120.0, 0],
         [280.0, 200.0, 6],
-        [330.0, 200.0, 0],
-        [430.0, 160.0, 6],
-        [470.0, 220.0, 4],
-        [510.0, 160.0, 4],
-        [550.0, 220.0, 4],
-        [590.0, 160.0, 4],
-        [550.0, 100.0, 4],
-        [510.0, 160.0, 4],
-        [470.0, 100.0, 4],
-        [430.0, 160.0, 4],
+        [320.0, 200.0, 0],
+        [420.0, 160.0, 6],
+        [460.0, 220.0, 4],
+        [500.0, 160.0, 4],
+        [540.0, 220.0, 4],
+        [580.0, 160.0, 4],
+        [540.0, 100.0, 4],
+        [500.0, 160.0, 4],
+        [460.0, 100.0, 4],
+        [420.0, 160.0, 4],
         [360.0, 160.0, 6],
       ],
     },
@@ -717,11 +716,11 @@ const StdSeeds = {
       itNumber: 9,
       seed: [
         [293.0, 99.0, 0],
-        [356.0, 107.0999984741211, 6],
-        [235.12611389160156, 87.42520141601562, 0],
-        [177.2521514892578, 99.0, 6],
-        [154.1025848388672, 133.72434997558594, 6],
-        [177.2521514892578, 168.44869995117188, 0],
+        [356.0, 107.0, 6],
+        [235.0, 87.0, 0],
+        [177.0, 99.0, 6],
+        [154.0, 134.0, 6],
+        [177.0, 168.0, 0],
       ],
     },
     'villi': {
@@ -1750,7 +1749,6 @@ class SeedEditor{
     elem.appendChild(canvas1);
     elem.appendChild(canvas2);
     elem.onmouseenter = () => {
-      this.close_toolDropdown();
       this.close_segDropdown();
     }
     this.canvas = elem;
@@ -1803,7 +1801,7 @@ class SeedEditor{
     let advTools = document.createElement('div');
     advTools.className = 'dropdown-list';
     advTools.style.display = 'none';
-    advTools.onmouseleave = this.close_toolDropdown.bind(this);
+    drop.appendChild(advTools);
 
     this.tools.forEach(item => {
       let btn = document.createElement('button');
@@ -1835,15 +1833,11 @@ class SeedEditor{
         btn.appendChild(span);
         advTools.appendChild(btn);
       } else {
-        btn.onmouseenter = () => {
-          this.close_toolDropdown();
-          this.close_segDropdown();
-        };
         elem.appendChild(btn);
       }
     });
     
-    drop.appendChild(advTools);
+    
     elem.appendChild(drop);
     this.toolBar = elem;
     this.ctrlPanel.appendChild(this.toolBar);
@@ -1852,12 +1846,13 @@ class SeedEditor{
     //dropdown controller- advanced tools
     let tool = this.tools[this.advTool];
     let elem = document.createElement('div');
-    elem.style.position = 'relative';
     elem.style.display = 'inline-block';
+    elem.style.position = 'relative';
     let btn = document.createElement('button');
     btn.className = 'btn btn-default btn-tool';    
+    btn.style.position = 'relative';
     btn.title = tool.title;
-
+    
     let iconTool = document.createElement('img');
     iconTool.height = 24;
     iconTool.src = 'tool_'+ tool.name +'.svg';
@@ -1876,10 +1871,13 @@ class SeedEditor{
     btn.onclick = ()=>{
       this.setMode(this.advTool);
     }
-    btn.onmouseenter = () => {
-      this.close_segDropdown();
+    elem.onmouseenter = () => {
       let elem = this.toolBar.querySelector('.dropdown-list');
       elem.style.display = 'block';
+    };
+    elem.onmouseleave = () => {
+      let elem = this.toolBar.querySelector('.dropdown-list');
+      elem.style.display = 'none';
     };
    
     //layout
@@ -1890,12 +1888,11 @@ class SeedEditor{
   setup_segTypeSel(){
     let elem = document.createElement('div');
     elem.className = "segTypeSel";
-    elem.onmouseenter = this.close_toolDropdown.bind(this);
     //the dropdown panel
     let repBtns = document.createElement('div');
     repBtns.className = 'dropdown-list';
     repBtns.style.display = 'none';
-    repBtns.onmouseleave = this.close_segDropdown.bind(this);
+
     let otherBtns = document.createElement('span');
     lineTypes.forEach( (item,index)=> {
       let btn = document.createElement('button');
@@ -1931,6 +1928,10 @@ class SeedEditor{
   }
   setup_segTypeDropdown(){
     //dropdown - replication btn
+    let elem = document.createElement('div');
+    elem.style.display = 'inline-block';
+    elem.style.position = 'relative';
+
     let btnColor = document.createElement('button');
     btnColor.className = 'btn btn-default';
     let iconColor = document.createElement('div');
@@ -1947,22 +1948,22 @@ class SeedEditor{
     btnColor.onclick = ()=>{
       this.setSegType(this.repType);
     }
-    btnColor.onmouseenter = () => {
-      this.close_toolDropdown();
+    elem.onmouseenter = () => {
       let elem = this.segTypeSel.querySelector('.dropdown-list');
       elem.style.display = 'block';
+    };
+    elem.onmouseleave = () => {
+      let elem = this.segTypeSel.querySelector('.dropdown-list');
+      elem.style.display = 'none';
     };
    
     //layout
     this.repTypeBtn = btnColor;
-    return btnColor;
+    elem.appendChild(btnColor);
+    return elem;
   }
   close_segDropdown(){
     let panel = this.segTypeSel.querySelector('.dropdown-list');
-    panel.style.display= 'none';
-  }
-  close_toolDropdown(){
-    let panel = this.toolBar.querySelector('.dropdown-list');
     panel.style.display= 'none';
   }
   setup_circleSel(){
@@ -2391,7 +2392,6 @@ class SeedEditor{
   }
   setMode(mode, init = false){
     this.close_segDropdown();
-    this.close_toolDropdown();
     if( mode == this.status && !init) return;
     if( this.isInitiating && mode!=this.modes.ADD) return;
     if(!init){//clear old highlight
@@ -2467,7 +2467,6 @@ class SeedEditor{
   }
   setSegType(type,init = false){
     this.close_segDropdown();
-    this.close_toolDropdown();
     if(!init && type == this.segType) return;
     if(!lineTypes[type].rep){
       this.repTypeBtn.classList.remove('active-type');
@@ -2595,6 +2594,7 @@ class Software {
     //element
     this.modeSel, this.loadSave, this.ctrlPanelDiv, this.canvasDiv, this.helpPanel;
     this.editCanvas, this.iterCanvas;
+    this.loadDrop,this.saveDrop;
     this.handleParams();
     this.fractal = new Fractal(this.seed,1);
     this.iterator = new SeedIterator(this.index, this.fractal, this.width, this.height, this.level);
@@ -2690,45 +2690,127 @@ class Software {
     this.addMode("iterate",this.iterator);
     this.setMode(this.currentMode, true);
     return elem;
-  } 
-  setup_loadSave(){
-    let elem =  document.createElement('div');
-    elem.className = 'loadSave';    
+  }
+  setup_load(){
+    //////LOAD//////
+    let elem = document.createElement('div');
+    elem.style.display = 'inline-block';
+    elem.style.position = 'relative';
+    ////BUTTON
+    let loadBtn = document.createElement('button');
+    loadBtn.className = 'btn btn-default ctrlbtn';
+    loadBtn.innerHTML = 'Load';
+    let icon = new Image();
+    icon.height = 16;
+    icon.style.marginLeft = '4px';
+    icon.src = 'icon_arrow_down.svg';
+    loadBtn.appendChild(icon);
+    ////DROPDOWN
+    let loadDrop = document.createElement('div');
+    loadDrop.className = 'dropdown-list';
+    loadDrop.style.display = 'none';
     // load files
+    let loadFromFile = document.createElement('div');
+    loadFromFile.className = 'btn btn-default btn-tool';
+    loadFromFile.style.textAlign = 'left';
+    
     let selectFile = document.createElement('input');
-    selectFile.style.display = 'inline-block';
     selectFile.type = 'file';
     selectFile.id = 'selectFile_'+this.index;
     selectFile.accept = '.json';
     selectFile.onchange = (e) => {
       this.loadLocally(e);
     };
+    let label = document.createElement('label');
+    label.innerHTML = 'Load From File';
+    label.htmlFor = selectFile.id;
+    loadFromFile.appendChild(label);
+    loadFromFile.appendChild(selectFile);
     // load files from cloud
     let loadFromCloud = document.createElement('button');
-    loadFromCloud.className = 'btn btn-default';
+    loadFromCloud.className = 'btn btn-default btn-tool';
     loadFromCloud.innerHTML = 'Load From Cloud';
     loadFromCloud.onclick = (e) => {
       this.loadRemotely(e);
     };
+    loadDrop.appendChild(loadFromFile);
+    loadDrop.appendChild(loadFromCloud);
+    this.loadDrop = loadDrop;
+    elem.appendChild(loadBtn);
+    elem.appendChild(loadDrop);
+    //behaviour
+    elem.onmouseenter = (e) => {
+      this.editor.close_segDropdown();
+      this.loadDrop.style.display = 'block';
+      let btn = this.loadDrop.parentElement.querySelector('.ctrlbtn');
+      btn.classList.add('active-edit');
+    }
+    elem.onmouseleave = (e) => {
+      this.loadDrop.style.display = 'none';
+      let btn = this.loadDrop.parentElement.querySelector('.ctrlbtn');
+      btn.classList.remove('active-edit');
+    }
+    return elem;
+  }
+  setup_save(){
+    //////SAVE//////
+    let elem = document.createElement('div');
+    elem.style.display = 'inline-block';
+    elem.style.position = 'relative';
+    ////BUTTON
+    let saveBtn = document.createElement('button');
+    saveBtn.className = 'btn btn-default ctrlbtn';
+    saveBtn.innerHTML = 'Save';
+    let icon = new Image();
+    icon.height = 16;
+    icon.style.marginLeft = '4px';
+    icon.src = 'icon_arrow_down.svg';
+    saveBtn.appendChild(icon);
+    ////DROPDOWN
+    let drop = document.createElement('div');
+    drop.className = 'dropdown-list';
+    drop.style.display = 'none';
     // save to cloud
     let saveToCloud = document.createElement('button');
-    saveToCloud.className = 'btn btn-default';
+    saveToCloud.className = 'btn btn-default btn-tool';
     saveToCloud.innerHTML = 'Save To Cloud';
     saveToCloud.onclick = (e) => {
       this.saveRemotely(e);
     };
     // save files
     let save = document.createElement('button');
-    save.className = 'btn btn-default';
+    save.className = 'btn btn-default btn-tool';
     save.innerHTML = 'Save To File';
     save.onclick = (e) => {
       this.saveLocally(e);
     };
+    
+    drop.appendChild(saveToCloud);
+    drop.appendChild(save);
+    this.saveDrop = drop;
+    elem.appendChild(saveBtn);
+    elem.appendChild(drop);
+    //behaviour
+    elem.onmouseenter = (e) => {
+      this.saveDrop.style.display = 'block';
+      let btn = this.saveDrop.parentElement.querySelector('.ctrlbtn');
+      btn.classList.add('active-edit');
+    }
+    elem.onmouseleave = (e) => {
+      this.saveDrop.style.display = 'none';
+      let btn = this.saveDrop.parentElement.querySelector('.ctrlbtn');
+      btn.classList.remove('active-edit');
+    }
 
-    elem.appendChild(selectFile);
-    elem.appendChild(loadFromCloud);
-    elem.appendChild(saveToCloud);
-    elem.appendChild(save);
+    return elem;
+  }
+  setup_loadSave(){
+    let elem =  document.createElement('div');
+    elem.className = 'loadSave';  
+    let loadDiv = this.setup_load();
+    let saveDiv = this.setup_save();
+    elem.appendChild(loadDiv);
+    elem.appendChild(saveDiv);
 
     return elem;
   }

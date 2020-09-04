@@ -194,7 +194,6 @@ select,input[type=number] {
     border: 1px solid #828282;
     border-radius: 4px;
     margin-right: 8px;
-    margin-bottom: 8px;
 }
 .btn-clear {
     border-color: #DC3545;
@@ -286,10 +285,10 @@ select,input[type=number] {
     top: 100%;
     
     padding: .2em;
-    margin-top:8px;
+    margin-top:-2px;
     border-radius: .5em;
     background-color: white;
-    box-shadow: 0 1px 4px rgba(0,0,0,.16);
+    box-shadow: 0 2px 8px rgba(0,0,0,.16);
 }
 .dropdown-list button{
     display: block;
