@@ -245,6 +245,14 @@ select,input[type=number] {
     right: 1em;
     z-index:99;
 }
+.bottom-panel{
+    display: flex;
+    position: absolute;
+    align-items: flex-end;
+    bottom: 1em;
+    right: 1em;
+    z-index:99;
+}
 .segTypeSel{
     display: inline-block;
     position: relative;

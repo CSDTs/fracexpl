@@ -987,7 +987,7 @@ class Fractal {
       return pts;
     }
     //iteration
-    drawIter(ctx, level) {
+    drawIter(ctx, level, thickness = 1, thinner = false) {
       this.ctx = ctx;
       this.clearCanvas();
       this.setup_baseline();
@@ -995,10 +995,10 @@ class Fractal {
       let pt1 = this.seed[this.baseline[0]];
       let pt2 = this.seed[this.baseline[1]];
       //move and line
-      this.basedraw(pt1,pt2,false,level,1);
+      this.basedraw(pt1,pt2,false,level,thickness,thinner);
       // this.basedraw(pt1,pt2,false,1,1);
     }
-    basedraw(b1,b2,hflip,level,lineWidth){
+    basedraw(b1,b2,hflip,level,lineWidth,thinner){
       let color = 'black';
       let segLen = this.sqlineLen(b1,b2);
       let d_segX = b1[0] - b2[0];
@@ -1006,12 +1006,17 @@ class Fractal {
       let d_baseX = this.baseDeltaX;
       let d_baseY = this.baseDeltaY;
       let base0 = this.seed[this.baseline[0]];
-      let base1= this.seed[this.baseline[1]]; 
+      
+      
       if( segLen < 4.0){ //if segment too short, return
+        this.ctx.save();
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.lineCap = 'round';
         this.ctx.beginPath();
         this.ctx.moveTo(b1[0], b1[1]);
         this.ctx.lineTo(b2[0], b2[1]);
         this.ctx.stroke();
+        this.ctx.restore();
         return;
       }
       //factors
@@ -1028,7 +1033,7 @@ class Fractal {
       let start = [];
       start[0] = a*this.seed[0][0] + b*this.seed[0][1] +tx;
       start[1] = c*this.seed[0][0] + d*this.seed[0][1] +ty;
-      
+      let newWidth = thinner? lineWidth-1:lineWidth;
       for( let i = 1; i < this.seed.length ; i++ ){
         let end = [];
         end[0] = a*this.seed[i][0] + b*this.seed[i][1] +tx;
@@ -1041,12 +1046,17 @@ class Fractal {
               this.drawcircle(start, end, n, color, lineWidth);
               i++;
             } else {
+              this.ctx.save();
+              this.ctx.lineWidth = lineWidth;
+              this.ctx.lineCap = 'round';
               this.ctx.beginPath();
               this.ctx.moveTo(start[0], start[1]);
               this.ctx.lineTo(end[0], end[1]);
               this.ctx.stroke();
+              this.ctx.restore();
             }
           } else if( type < 4 ){
+            
             let typeName = lineTypes[(type|0)].name;
             let flag_h = typeName == 'flip' || typeName == 'invert';
             let flag_d = typeName == 'invert' || typeName == 'inverflip';
@@ -1065,20 +1075,21 @@ class Fractal {
                 let y = x0*cos + y0*sin;
                 let pt1 = [ (x0+center[0]+0.5) << 0, (y0+center[1]+0.5) << 0];
                 let pt2 = [ (x+center[0]+0.5) << 0, (y+center[1]+0.5) << 0];
-                this.basedraw(pt1,pt2,hf,level-1,lineWidth);
+                this.basedraw(pt1,pt2,hf,level-1,newWidth,thinner);
                 x0 = x;
                 y0 = y;
               }
               let pt = [ (x0+center[0]+0.5) << 0, (y0+center[1]+0.5) << 0];
-              this.basedraw(pt, vertix, hf,level-1,lineWidth);
+              this.basedraw(pt, vertix, hf,level-1,newWidth,thinner);
             } else {
-              if(flag_d) this.basedraw(end,start,hf,level-1,lineWidth);
-              else this.basedraw(start,end,hf,level-1,lineWidth);
+              if(flag_d) this.basedraw(end,start,hf,level-1,newWidth,thinner);
+              else this.basedraw(start,end,hf,level-1,newWidth,thinner);
             }
           }
         }
         start = end;
       }
+      
     }
     checkDim(dim,baseLen){
       let sum = 0.0;
@@ -1455,12 +1466,13 @@ class SeedIterator{
     this.width = Math.max(600, width);
     this.height = Math.max(480, height);
     this.level = level;
-    this.levelMax = 1;
+    this.levelMax = -1;
     this.thickness = 1;
     this.thinner = false;
     //elements
     this.canvas, this.ctx;
     this.ctrlPanel, this.levelBtns;
+    this.thicknessInput, this.thinnerCheckbox;
     this.layout();
     this.setDimInfo();
   }
@@ -1469,6 +1481,7 @@ class SeedIterator{
     this.setup_ctrlPanel();
     this.setup_levelBtns();
     this.setup_dimInfo();
+    this.setup_bottomPanel();
   }
   enableMode(){
     this.canvas.style.display = 'block';
@@ -1484,8 +1497,9 @@ class SeedIterator{
   }
   setLevel(level, init = false){
     //draw fractal
+    if(this.levelMax == -1) this.setLevelMax();
     let newlevel = Math.min(level, this.levelMax);
-    this.fractal.drawIter(this.ctx, newlevel);
+    this.fractal.drawIter(this.ctx, newlevel, this.thickness, this.thinner);
     //highlight level btn
     let btns = this.levelBtns.children;
     let len = btns.length;
@@ -1499,13 +1513,16 @@ class SeedIterator{
     this.level = newlevel;
   }
   setup_canvas(){
-    let elem = document.createElement('canvas');
-    elem.id = 'ft-drawing-canvas-' + this.index;
-    elem.className = 'canvas';
-    elem.width = this.width;
-    elem.height = this.height;
+    let elem = document.createElement('div');
+    let canvas = document.createElement('canvas');
+    canvas.id = 'ft-drawing-canvas-' + this.index;
+    canvas.className = 'canvas';
+    canvas.width = this.width;
+    canvas.height = this.height;
+
+    elem.appendChild(canvas);
     this.canvas = elem;
-    this.ctx = elem.getContext('2d');
+    this.ctx = canvas.getContext('2d');
   }
   setup_ctrlPanel(){
     let elem = document.createElement('div');
@@ -1530,6 +1547,64 @@ class SeedIterator{
     this.levelBtns = elem;
     this.ctrlPanel.appendChild(elem);
   }
+  setup_thicknessSelect(){
+    let elem = document.createElement('div');
+    elem.style.display = 'inline-block';
+    elem.style.marginRight = '2em';
+    let input = document.createElement('input');
+    input.id = 'segThickness_' + this.index;
+    input.type = 'number';
+    input.style.width = '4em';
+    input.value = this.thickness;
+    input.min = 1;
+    input.onchange = (e) => {
+      if(e.target.value < 1.0){ 
+        e.target.value = 1.0;
+      }
+      this.thickness = e.target.value;
+      this.fractal.drawIter(this.ctx, this.level, this.thickness, this.thinner);
+    };
+ 
+    let label = document.createElement('label');
+    label.innerHTML = 'Line Thickness:';
+    label.htmlFor = input.id;
+
+    elem.appendChild(label);
+    elem.appendChild(input);
+    this.thicknessInput = input;
+    return elem;
+  }
+  setup_thinnerCheckbox(){
+    let elem = document.createElement('div');
+    elem.className = 'checkbox';
+
+    let input = document.createElement('input');
+    input.type = 'checkbox';
+    input.id = 'segThinner_' + this.index;
+    input.checked = this.thinner;
+    input.style.marginRight = '.5em';
+    input.onchange = (e) => {
+      if(e.target.checked) this.thinner = true;
+      else this.thinner = false;
+    };
+    let label = document.createElement('label');
+    label.innerHTML = 'Thinner with recursion';
+    label.htmlFor = input.id;
+
+    elem.appendChild(input);
+    elem.appendChild(label);
+    this.thinnerCheckbox = input;
+    return elem;
+  }
+  setup_bottomPanel(){
+    let elem = document.createElement('div');
+    elem.className = 'bottom-panel';
+    let child1 = this.setup_thicknessSelect();
+    let child2 = this.setup_thinnerCheckbox();
+    elem.appendChild(child1);
+    elem.appendChild(child2);
+    this.canvas.appendChild(elem);
+  }
   setup_dimInfo(){
     let elem = document.createElement('div');
     elem.style.marginLeft = '2em';
@@ -1547,6 +1622,16 @@ class SeedIterator{
   }
   setLevelMax(){
     this.levelMax = this.fractal.checkLevelMax();
+  }
+  setThickness(thickness){
+    if(thickness == this.thickness) return;
+    this.thickness = thickness;
+    this.thicknessInput.value = thickness;
+  }
+  setThinner(thinner){//thinner is a boolean
+    if(thinner == this.thinner) return;
+    this.thinner = thinner;
+    this.thinnerCheckbox.checked = thinner;
   }
 };
 class SeedEditor{
@@ -1955,7 +2040,7 @@ class SeedEditor{
   }
   setup_bottomPanel(){
     let elem = document.createElement('div');
-    elem.className = 'scaleMoveBtns';
+    elem.className = 'bottom-panel';
     let child1 = this.setup_scaleBtns();
     let child2 = this.setup_compassBtns();
     elem.appendChild(child1);
@@ -2695,24 +2780,17 @@ class Software {
   
     }
     let data = JSON.parse(input);
-    this.fractal.initFromSeed(data.seed);
-    this.fractal.drawSeed(this.editor.workctx,true);
-    this.iterator.setDrawWidth(data.thickness);
-    this.editor.disableMode();
-    this.iterator.enableMode();
-    this.thicknessType = data.thicknessType;
-    if (this.thicknessType == 1) {
-      document.getElementById('thicknessBox' + this.instanceNum).checked = true;
+    if('baseline' in data) {
+      this.fractal.initFromFile(data.seed,data.baseline);
     } else {
-      document.getElementById('thicknessBox' + this.instanceNum).checked = false;
+      this.fractal.initFromSeed(data.seed);
     }
-    document.getElementById('EditMode' + this.instanceNum).click();
-    document.getElementById('IterateMode' + this.instanceNum).click();
-    if (data.itNumber < 9) {
-      document.getElementById(this.instanceNum + 'Iter ' + data.itNumber).click();
-    } else {
-      document.getElementById(this.instanceNum + '~Inf').click();
-    }
+    this.setMode(1);
+    this.iterator.setThickness(data.thickness);
+    this.iterator.setThinner(data.thicknessType);
+    this.iterator.setLevel(Number(data.itNumber));
+    
+   
   }
   loadRemotely(evt){
     let myself = this;
@@ -2808,7 +2886,7 @@ class Software {
       'baseline': this.fractal.baseline,
       'itNumber': this.iterator.level,
       'thickness': Number(this.iterator.thickness),
-      'thicknessType': this.iterator.thicknessType,
+      'thicknessType': this.iterator.thinner
     };
     let blob = new Blob([JSON.stringify(data, null, 2)], {
       type: 'application/json',
