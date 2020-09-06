@@ -779,6 +779,7 @@ const toggle_e = function(elem){
   if( elem.style.display == 'none' ) elem.style.display = 'block';
   else elem.style.display = 'none';
 }
+let JSPATH;//path of the current js file
 let mySeed = {};//store user customized seed
 
 //initMethod:
@@ -1492,6 +1493,7 @@ class SeedIterator{
     this.ctrlPanel.style.display = 'flex';
     this.fractal.setup_baseline();
     this.setLevelMax();
+    console.log(this.level);
     this.setLevel(this.level,true);
     this.setDimInfo();
   }
@@ -1768,6 +1770,7 @@ class SeedEditor{
     let option = new Option("Make your own...", "create", true);
     select.appendChild(option);
     this.seedlist.forEach(name => {
+      if(!(name in StdSeeds)) return;
       let option = new Option(StdSeeds[name].fullname, name);
       select.appendChild(option);
     });
@@ -1801,9 +1804,9 @@ class SeedEditor{
       btn.className = "fbtn fbtn-default fbtn-tool";
       btn.title = item.title;
       let icon = document.createElement('img');
-      icon.height = "24";
-      icon.style.opacity = ".54";
       icon.src = "tool_" + item.name +".svg";
+      icon.height = 24;
+      icon.style.opacity = ".54";
       btn.appendChild(icon);
       if(item.mode == 'SELECT'){
         btn.style.position = 'relative';
@@ -1822,7 +1825,7 @@ class SeedEditor{
       if(item.adv) {
         let span = document.createElement('span');
         span.innerText = item.title;
-        span.style.marginRight = '.5em';
+        span.style.marginLeft = '.5em';
         btn.appendChild(span);
         advTools.appendChild(btn);
       } else {
@@ -1988,9 +1991,10 @@ class SeedEditor{
     btn_undo.className = "fbtn fbtn-default fbtn-tool";
     btn_undo.title = "undo";
     let icon_undo = document.createElement('img');
-    icon_undo.width = "24";
-    icon_undo.style.opacity = ".54";
     icon_undo.src = "tool_undo.svg";
+    icon_undo.height = 24;
+    icon_undo.style.opacity = ".54";
+    
     btn_undo.appendChild(icon_undo);
     
     btn_undo.onclick = ()=>{
@@ -2001,9 +2005,9 @@ class SeedEditor{
     btn_redo.className = "fbtn fbtn-default fbtn-tool";
     btn_redo.title = "redo";
     let icon_redo = document.createElement('img');
-    icon_redo.width = "24";
-    icon_redo.style.opacity = ".54";
     icon_redo.src = "tool_redo.svg";
+    icon_redo.height = 24;
+    icon_redo.style.opacity = ".54";
     btn_redo.appendChild(icon_redo);
     
     btn_redo.onclick = ()=>{
@@ -2012,9 +2016,9 @@ class SeedEditor{
     elem.appendChild(btn_undo);
     elem.appendChild(btn_redo);
 
-    if(this.stackUndo.length == 0) btn_undo.disabled = true;
-    if(this.stackRedo.length == 0) btn_redo.disabled = true;
-
+    btn_undo.disabled = true;
+    btn_redo.disabled = true;
+   
     this.undoBtn = btn_undo;
     this.redoBtn = btn_redo;
     this.ctrlPanel.appendChild(elem);
@@ -2602,9 +2606,9 @@ class Software {
     this.layout();
   }
   handleParams(){
-    if(this.params.width!=undefined) this.width = Math.max(800, this.params.width);
-    if(this.params.height!=undefined) this.height = Math.max(600, this.params.height);
-    if(this.params.level!=undefined) this.level = this.params.level;
+    if(this.params.width!=undefined) this.width = Math.max(400, this.params.width);
+    if(this.params.height!=undefined) this.height = Math.max(300, this.params.height);
+    if(this.params.levels!=undefined) this.level = this.params.levels;
     if(this.params.seedlist!=undefined) this.seedlist = this.params.seedlist.split(',');
     if (this.params.seed!=undefined) {
       try {
@@ -2664,6 +2668,7 @@ class Software {
     if(this.params.mode!=undefined && (this.params.mode.toLowerCase()=='draw')) this.currentMode = 1;
   }
   layout(){
+    this.main.style.width = this.width;
     this.insertStyleSheet();
     this.setup_topBar();
     this.setup_ctrlPanelDiv();
@@ -2672,20 +2677,11 @@ class Software {
     this.setup_csnapEntry();
   }
   insertStyleSheet(){
-    let scripts = document.getElementsByTagName('script');
-    let filename = 'fracexpl.js';
     let cssname = 'style.css';
-    let href;
-    for (let i = 0; i < scripts.length; i++) {
-      let source = scripts[i].src;
-      if (source.indexOf(filename) > -1) {
-        href = source.slice(0, source.indexOf(filename))+cssname;
-        break;
-      }
-    }
+    
     let link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = href;
+    link.href = './resources/' + cssname;
     document.querySelector('head').appendChild(link);
   }
   setup_topBar(){
@@ -2719,9 +2715,9 @@ class Software {
     loadBtn.className = 'fbtn fbtn-default ctrlbtn';
     loadBtn.innerHTML = 'Load';
     let icon = new Image();
+    icon.src = 'icon_arrow_down.svg';
     icon.height = 16;
     icon.style.marginLeft = '4px';
-    icon.src = 'icon_arrow_down.svg';
     loadBtn.appendChild(icon);
     ////DROPDOWN
     let loadDrop = document.createElement('div');
@@ -3130,6 +3126,16 @@ let fractaltoolInstances = null;
 /** Starts the fractal tool on load. */
 function fractalToolInit() {
   let tools = document.querySelectorAll('.fractaltool');
+  // let scripts = document.getElementsByTagName('script');
+  // let filename = 'fracexpl.js';
+  
+  // for (let i = 0; i < scripts.length; i++) {
+  //   let source = scripts[i].src;
+  //   if (source.indexOf(filename) > -1) {
+  //     JSPATH = source.slice(0, source.indexOf(filename));
+  //     break;
+  //   }
+  // }
   fractaltoolInstances = [];
   for (let i = 0; i < tools.length; i++) {
     fractaltoolInstances[i] = new Software(tools[i], i);

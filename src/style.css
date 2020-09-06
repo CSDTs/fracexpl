@@ -1,70 +1,78 @@
   
-.fractaltool{
+div .fractaltool{
+    display:block;
     position: relative;
-    width: max-content;
-    /* background-color: #F5F5F5; */
+    width: fit-content;
+    background-color: white;
     font: 14px 'Roboto',sans-serif;
     font-weight: 400;
     color: #333;
-    padding: .5em;
+    margin: 8px;
     box-sizing: border-box;
 }
 
-.fractaltool label{
+div .fractaltool label{
     font-size: 14px;
     margin-right: .5rem;
 }
 
-.fractaltool .fbtn:focus{
+div .fractaltool .fbtn:focus{
     outline: none;
     text-decoration: none;
 }
 
-.fractaltool select,.fractaltool input[type=number] {
+div .fractaltool select,div .fractaltool input[type=number] {
     height: 2em; 
     border-radius: 4px;
     border: 1px solid #bdbdbd;
+}
+div.fractaltool button img{
+    padding:0;
+    width: auto;
 }
 .input-thickness {
     width: 4em;
 }
 
-.fractaltool .canvas{
+div .fractaltool .canvas{
     border: 2px solid #E0E0E0;
     position: relative;
     z-index:1;
 }
-.fractaltool .canvas:focus{
+div .fractaltool .canvas:focus{
     outline: none;
 }
 
 /* control panel */
-.ctrlPanel{
+div .ctrlPanel{
     display: flex;
+    width: 100%;
     position: relative;
     flex-wrap: wrap;
     align-items: center;
-    height: 54px;
-    justify-content: space-between;
+    min-height: 54px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    /* justify-content: space-between; */
 }
-.levelButtons{
+div .levelButtons{
     background-color: #E0E0E0;
     border: 1px solid #e0e0e0;
     border-radius: .5em;
     padding: 0;
 }
-.levelButtons button{
+div .levelButtons button{
     height: 2.5em; 
 }
-.levelButtons button:first-child{
+div .levelButtons button:first-child{
     border-top-left-radius: .5em;
     border-bottom-left-radius: .5em;
 }
-.levelButtons button:last-child{
+div .levelButtons button:last-child{
     border-top-right-radius: .5em;
     border-bottom-right-radius: .5em;
 }
-.message{
+div .message{
     position: absolute;
     top: 100%;
     margin-top: .5em;
@@ -74,7 +82,7 @@
     z-index: 99;
 }
 
-.help-panel{
+div .help-panel{
     position: absolute;
     font-size: 16px;
     z-index: 20;
@@ -89,32 +97,32 @@
     background-color: white;
     box-shadow: 0 2px 8px rgba(0,0,0,.16);    
 }
-.help-panel h3{
+div .help-panel h3{
     text-align: center;
     font-weight: bold;
 }
-.help-panel ul{
+div .help-panel ul{
     padding-left: 1em;
 }
-.help-panel ul strong{
+div .help-panel ul strong{
     background-color: #eee;
     margin-right: 1em;
 }
-.help-panel .icon-close{
+div .help-panel .icon-close{
     opacity: 50%;
     position: absolute;
     top: .5em;
     right: .5em;
     width: 1em;
 }
-.icon-close {
+img .icon-close {
     cursor: pointer;
 }
-.icon-close:hover{
+img .icon-close:hover{
     opacity: 100%;
 }
 
-.icon-color{
+div .icon-color{
     display: inline-block;
     vertical-align: middle;
     width: 18px;
@@ -125,10 +133,10 @@
     border-radius: 8px;
 }
 
-.checkbox{
+div.checkbox{
     margin:0;
 }
-.checkbox label, .checkbox input[type=checkbox]{
+div.checkbox label, div.checkbox input[type=checkbox]{
     min-height: auto;
     line-height: 2em;
     position: static;
@@ -137,56 +145,59 @@
     padding:0;
 }
 
-.checkbox input[type=checkbox]{
+div.checkbox input[type=checkbox]{
     margin-right: 8px;
 }
 
-.fbtn{
+button.fbtn{
     font-size: 14px;
     display: inline-block;
     padding: .5em;
     line-height: 1em;
     background-color: white;
 }
-.fbtn-default{
+button.fbtn:hover{
+    background-color: #E0E0E0;
+}
+button.fbtn-default{
     border: 1px solid #828282;
     border-radius: 4px;
     margin-right: 8px;
 }
-.fbtn-clear {
+button.fbtn-clear {
     border-color: #DC3545;
     color: #DC3545;
     margin: 0;
 }
-.fbtn-clear:hover{
+button.fbtn-clear:hover{
     background-color: #DC3545;
     color:white;
 }
-.fbtn-iter{
+button.fbtn-iter{
     margin:0;
     border: 1px solid #E0E0E0;
     border-radius: 0;
 }
-.fbtn-iter:hover{
+button.fbtn-iter:hover{
     background-color: #F2F2F2;
 }
-.fbtn-iter-inf{ margin-left:.5em;}
+button.fbtn-iter-inf{ margin-left:.5em;}
 
-.active-iter {
+button.active-iter {
     background-color: #CCEEF9;
 }
 
-.fbtn-tool{
+button.fbtn-tool{
     border:none;
     margin-bottom: 0;
     margin-right: 4px;
 }
-.fbtn-tool img{
+button.fbtn-tool img{
     position: relative;
     z-index:2;
 }
 
-.bottom-panel{
+div.bottom-panel{
     display: flex;
     position: absolute;
     align-items: flex-end;
@@ -194,17 +205,17 @@
     right: 1em;
     z-index:20;
 }
-.segTypeSel{
+div.segTypeSel{
     position: relative;
     margin-right: 8px;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
 }
-.segTypeSel button{
+div.segTypeSel button{
     border:none;
     margin: 2px;
 }
-.circleSel{
+div.circleSel{
     font-size: 14px;
     position: absolute;
     z-index: 10;
@@ -217,10 +228,11 @@
     background-color: white;
     box-shadow: 0 1px 4px rgba(0,0,0,.16);
 }
-.dropdown-list{
+div.dropdown-list{
     font-size: 14px;
     position: absolute;
     z-index: 99;
+    width: max-content;
     left: 0;
     top: 100%;
     
@@ -230,38 +242,38 @@
     background-color: white;
     box-shadow: 0 2px 8px rgba(0,0,0,.16);
 }
-.dropdown-list button{
+div.dropdown-list button{
     display: block;
     text-align: left;
     width: 100%;
     margin: 0;
 }
-.dropdown-list span{
+div.dropdown-list button span{
     margin-left: .5em;
     line-height: 16px;
 }
 
-.active-edit {
+button.active-edit {
     background-color: #f5f5f5;
 }
 
 
 
 /* mode selection */
-.fbtn-mode{
+button.fbtn-mode{
     margin:0;
     border: 2px solid #333;
     border-radius: 0;
 }
-.fbtn-mode:focus{
+button.fbtn-mode:focus{
     color:white;
     outline: none;
 }
-.active-mode {
+button.active-mode {
     background-color: #333;
     color: white;
 }
-.color-selected{
+div.color-selected{
     position:absolute;
     width:22px;
     height: 4px;
@@ -270,22 +282,22 @@
     z-index: 1;
 }
 
-.compass{
+div.compass{
     display: grid;
     grid-template-columns: 3em 3em 3em;
     grid-template-rows: 3em 3em;
     grid-gap:.5em;
 }
 
-.compass button:nth-child(1){
+div.compass button:nth-child(1){
     grid-area: 1 / 2 / span 1 / span 1;
 }
-.compass button:nth-child(2){
+div.compass button:nth-child(2){
     grid-area: 2 / 1 / span 1 / span 1;
 }
-.compass button:nth-child(3){
+div.compass button:nth-child(3){
     grid-area: 2 / 2 / span 1 / span 1;
 }
-.compass button:nth-child(4){
+div.compass button:nth-child(4){
     grid-area: 2 / 3 / span 1 / span 1;
 }
