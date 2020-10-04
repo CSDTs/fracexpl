@@ -2322,6 +2322,7 @@ class SeedEditor{
         this.fractal.drawSeed(this.workctx);
         this.anchorPt = -1;
         this.selectedPt = -1; 
+        this.setMode(this.modes.SELECT);
       }
     }
   }
@@ -2681,7 +2682,7 @@ class Software {
     
     let link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './resources/' + cssname;
+    link.href = './' + cssname;
     document.querySelector('head').appendChild(link);
   }
   setup_topBar(){
