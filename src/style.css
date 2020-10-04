@@ -53,7 +53,7 @@ div .ctrlPanel{
     min-height: 54px;
     padding-top: 4px;
     padding-bottom: 4px;
-    /* justify-content: space-between; */
+    justify-content: space-between;
 }
 div .levelButtons{
     background-color: #E0E0E0;

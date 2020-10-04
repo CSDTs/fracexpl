@@ -1789,6 +1789,8 @@ class SeedEditor{
     this.ctrlPanel.appendChild(elem);
   }
   setup_toolBar(){
+    // set up mode selection bar, including SELECT, DELETE, SHAPE/ADD
+    // return: none
     let elem = document.createElement('div');
     elem.style.position = 'relative';
     //dropdown controller
