@@ -24,6 +24,10 @@
     #feedback { font-size: 1.4em; }
     #projectList .ui-selecting { background: #FECA40; }
     #projectList .ui-selected { background: #F39814; color: white; }
+    .fractal{
+      width: max-content;
+      margin: 0 auto;
+    }
   </style>
   <script>
      $(function() {
@@ -40,7 +44,7 @@
 </head>
 
 <body>
-  <div class="container">
+  <div class="fractal">
 
 
     <div id="projectListDialog" title="Select A Project">
@@ -53,9 +57,6 @@
       <br/>
       Password:
       <input type="password" name="password"/>
-    </div>
-    <div style="margin-top: 20px; margin-bottom: 40px;">
-      <span style="font-size: 200%;">Fractal Simulator</span><br/>
     </div>
     <div class="fractaltool" data-width="800" data-height="600" data-mode="draw"
      data-seedlist="3crosses,baila,blanket,bullhorn,cantorpaper,carpet,chaetophora,cnegative,cpositive,davincitree2,davincitree3,davincitree4,dendrite,ethiopian,ethiopian2,fern,fractalspirals,goldenrec,kitwe,koch,kochsmall,logone,lungs,mokoulek,nankani,negative,neuron,positive,queenanne,riverbasin,sierpinski,sprout,turbulence,villi,sharkfin" data-seed="koch"></div>

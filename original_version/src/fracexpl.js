@@ -42,8 +42,8 @@ function FractalDraw(toolNum, seed, askWidth, askHeight, levels, instanceNum) {
   this.instanceNum = instanceNum;
   this.canvas = document.createElement('canvas');
   this.canvas.id = 'ft-drawing-canvas-' + toolNum;
-  this.canvas.width = Math.max(640, askWidth);
-  this.canvas.height = Math.max(320, askHeight);
+  this.canvas.width = Math.max(800, askWidth);
+  this.canvas.height = Math.max(600, askHeight);
   this.canvas.style.cssText = 'border:1px solid black; position:absolute;' +
     'left:0; top:0; z-index:1;';
   this.ctx = this.canvas.getContext('2d');
@@ -2242,12 +2242,12 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
 
   this.width = 800;
   if (mainDiv.dataset['width'] != undefined) {
-    this.width = Math.max(640, mainDiv.dataset['width']);
+    this.width = Math.max(800, mainDiv.dataset['width']);
   }
 
   this.height = 600;
   if (mainDiv.dataset['height'] != undefined) {
-    this.height = Math.max(320, mainDiv.dataset['height']);
+    this.height = Math.max(600, mainDiv.dataset['height']);
   }
 
 
@@ -2262,6 +2262,7 @@ function MultiModeTool(mainDiv, toolNum, askWidth, askHeight, instanceNum) {
   this.canvasDiv.id = 'ft-canvases-' + toolNum;
   this.canvasDiv.style.position = 'relative';
   this.canvasDiv.style.height = (this.height + 4) + 'px';
+  this.canvasDiv.style.width = (this.width + 4) + 'px';
   mainDiv.appendChild(this.canvasDiv);
 
   this.modeSelDiv = document.createElement('div');
