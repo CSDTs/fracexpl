@@ -6,7 +6,7 @@ interface is taken from the Java applet developed by Peter Van Roy and
 others at RPI to accompany the "African Fractals" lessons by Ron
 Eglash. See Ron Eglash's web page
 (<http://homepages.rpi.edu/~eglash/eglash.htm>) and the Culturally
-Situated Design Tools website (<https://csdt.rpi.edu/>) for more
+Situated Design Tools website (<https://csdt.org/>) for more
 information and full credits for the original applet.
 
 For a live example (using `src/example.html`) see
