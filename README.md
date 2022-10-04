@@ -1,5 +1,7 @@
 # fracexpl - JavaScript Fractal Explorer
 
+UX Update
+
 This repository is the project home for fracexpl.js, a fractal
 explorer designed to be embedded in a web page. The design and user
 interface is taken from the Java applet developed by Peter Van Roy and
@@ -17,34 +19,33 @@ For a live example (using `src/example.html`) see
 To include the fractal explorer in a web page, you must do two things:
 
 1. Include the JavaScript source in the `head` section of your web
-page, and include a copy of Bootstrap CSS (required for button styling
-and a few other visual elements). You must have the button images
-(`button1.png` through `button6.png`) in the same directory as the
-JavaScript source.
+   page, and include a copy of Bootstrap CSS (required for button styling
+   and a few other visual elements). You must have the button images
+   (`button1.png` through `button6.png`) in the same directory as the
+   JavaScript source.
 
 2. Include an empty `div` with `class=fractaltool`, which can take
-some optional `data` properties:
+   some optional `data` properties:
 
-* `data-width`: The width of the fractal explorer canvas in
+- `data-width`: The width of the fractal explorer canvas in
   pixels. The minimum width is 640, and the default is 800 if this is
   not specified.
 
-* `data-height`: The height of the fractal explorer canvas in
+- `data-height`: The height of the fractal explorer canvas in
   pixels. The minimum height is 320, and the default is 600 if this is
   not specified.
-  
-* `data-seed`: The name of a seed to load into the fractal explorer
+- `data-seed`: The name of a seed to load into the fractal explorer
   when it is initialized. This must be a built-in fractal name, from
   the list given below.
 
-* `data-seedlist`: A comma-separated list of fractals to include in
+- `data-seedlist`: A comma-separated list of fractals to include in
   the dropdown list of standard fractals that can be loaded in edit
   mode.
 
-* `data-mode`: Set to "draw" to start the fractal explorer in drawing
+- `data-mode`: Set to "draw" to start the fractal explorer in drawing
   mode (by default it starts in edit mode).
 
-* `data-levels`: Initial number of levels of recursion for drawing
+- `data-levels`: Initial number of levels of recursion for drawing
   mode (default is 1).
 
 The JavaScript will will insert the fractal explorer into the `div`
@@ -59,43 +60,42 @@ Java applet seeds, extracted from data files supplied by Ron
 Eglash. Most are used in the "African Fractals" lessons -- see those
 lessons for more information.
 
-* 3crosses
-* baila
-* blanket
-* bullhorn
-* cantorpaper
-* carpet
-* chaetophora
-* cnegative
-* cpositive
-* davincitree2
-* davincitree3
-* davincitree4
-* dendrite
-* ethiopian2
-* ethiopian
-* fern
-* fractalsprials
-* ghanahorns
-* goldenrec
-* kitwe
-* koch
-* kochsmall
-* logone
-* lungs
-* mokoulek
-* nankani
-* negative
-* neuron
-* positive
-* queenanne
-* riverbasin
-* sierpinski
-* sprout
-* turbulence
-* villi
-* sharkfin
-
+- 3crosses
+- baila
+- blanket
+- bullhorn
+- cantorpaper
+- carpet
+- chaetophora
+- cnegative
+- cpositive
+- davincitree2
+- davincitree3
+- davincitree4
+- dendrite
+- ethiopian2
+- ethiopian
+- fern
+- fractalsprials
+- ghanahorns
+- goldenrec
+- kitwe
+- koch
+- kochsmall
+- logone
+- lungs
+- mokoulek
+- nankani
+- negative
+- neuron
+- positive
+- queenanne
+- riverbasin
+- sierpinski
+- sprout
+- turbulence
+- villi
+- sharkfin
 
 ## Room for Improvement
 
@@ -139,9 +139,9 @@ to distinguish between single clicks and double clicks.
 fracexpl.js is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License (GNU GPL) as
 published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.  The code is
+License, or (at your option) any later version. The code is
 distributed WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU GPL
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU GPL
 for more details.
 
 As additional permission under GNU GPL version 3 section 7, you may
@@ -149,7 +149,3 @@ distribute non-source (e.g., minimized or compacted) forms of that
 code without the copy of the GNU GPL normally required by section 4,
 provided you include this license notice and a URL through which
 recipients can access the Corresponding Source.
-
-
-
-
